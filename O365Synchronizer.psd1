@@ -6,8 +6,8 @@
     CompatiblePSEditions = @('Desktop', 'Core')
     Copyright            = '(c) 2011 - 2023 Przemyslaw Klys @ Evotec. All rights reserved.'
     Description          = 'This module allows to synchronize users to/from Office 365.'
-    FunctionsToExport    = @()
-    GUID                 = '349a9751-caa9-4f16-961d-ca200b1a11b4'
+    FunctionsToExport    = 'Sync-O365PersonalContact'
+    GUID                 = '81e907a0-a475-4d6a-a80d-20e9f08ad6b7'
     ModuleVersion        = '0.0.1'
     PowerShellVersion    = '5.1'
     PrivateData          = @{
