@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Sync-O365PersonalContact
+# Clear-O365PersonalContact
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,8 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Sync-O365PersonalContact [[-Authorization] <IDictionary>] [[-UserId] <String>] [[-MemberTypes] <String[]>]
- [-RequireEmailAddress] [-WhatIf] [-Confirm] [<CommonParameters>]
+Clear-O365PersonalContact [-Identity] <String> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,21 +30,6 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -Authorization
-{{ Fill Authorization Description }}
-
-```yaml
-Type: IDictionary
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Confirm
 Prompts you for confirmation before running the cmdlet.
 
@@ -61,54 +45,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -MemberTypes
-{{ Fill MemberTypes Description }}
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-Accepted values: Member, Guest
-
-Required: False
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -RequireEmailAddress
-{{ Fill RequireEmailAddress Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -UserId
-{{ Fill UserId Description }}
+### -Identity
+{{ Fill Identity Description }}
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: False
-Position: 1
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
 
 ```yaml
 Type: SwitchParameter

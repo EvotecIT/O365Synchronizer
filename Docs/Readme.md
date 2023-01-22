@@ -12,5 +12,5 @@ Locale: en-US
 
 ## O365Synchronizer Cmdlets
 ### [Sync-O365PersonalContact](Sync-O365PersonalContact.md)
-{{ Fill in the Description }}
+{{ Fill in the Synopsis }}
 
