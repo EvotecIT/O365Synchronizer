@@ -36,24 +36,35 @@
         if ($User.AssignedLicenses.Count -eq 0) {
             continue
         }
-        $Entry = [string]::Concat($User.DisplayName, $User.GivenName, $User.Surname)
+        $Entry = $User.Id
+        #$Entry = [string]::Concat($User.DisplayName, $User.GivenName, $User.Surname)
         $ExistingUsers[$Entry] = $User
     }
 
     # Lets get all contacts of given person and cache them
     $CurrentContacts = Get-MgUserContact -UserId $UserId -All
     foreach ($Contact in $CurrentContacts) {
-        $Entry = [string]::Concat($Contact.DisplayName, $Contact.GivenName, $Contact.Surname)
+        if (-not $Contact.FileAs) {
+            continue
+        }
+        $Guid = [guid]::Empty
+        $ConversionWorked = [guid]::TryParse($Contact.FileAs, [ref]$Guid)
+        if (-not $ConversionWorked) {
+            continue
+        }
+        $Entry = [string]::Concat($Contact.FileAs)
+        # $Entry = [string]::Concat($Contact.DisplayName, $Contact.GivenName, $Contact.Surname)
         $ExistingContacts[$Entry] = $Contact
     }
 
     $ToPotentiallyRemove = [System.Collections.Generic.List[object]]::new()
-    foreach ($UserID in $ExistingUsers.Keys) {
-        $User = $ExistingUsers[$UserID]
+    foreach ($UsersInternalID in $ExistingUsers.Keys) {
+        $User = $ExistingUsers[$UsersInternalID]
         #Write-Verbose -Message "Sync-O365PersonalContact - Processing $($User.DisplayName) / $($User.Mail)"
         Write-Color -Text "[i] ", "Processing ", $User.DisplayName, " / ", $User.Mail -Color Yellow, White, Cyan, White, Cyan
 
-        $Entry = [string]::Concat($User.DisplayName, $User.GivenName, $User.Surname)
+        $Entry = $User.Id
+        #$Entry = [string]::Concat($User.DisplayName, $User.GivenName, $User.Surname)
         $Contact = $ExistingContacts[$Entry]
 
         # lets check if user is a member or guest
@@ -69,14 +80,15 @@
         if ($Contact) {
             $Properties = Compare-UserToContact -User $User -Contact $Contact
             if ($Properties.Update.Count -gt 0) {
-                Write-Verbose -Message "Sync-O365PersonalContact - Updating $($User.DisplayName) / $($User.Mail), properties to update: $($Properties.Update), properties to skip: $($Properties.Skip)"
+                Write-Color -Text "[i] ", "Updating ", $User.DisplayName, " / ", $User.Mail, " properties to update: ", $($Properties.Update -join ', '), " properties to skip: ", $($Properties.Skip -join ', ') -Color Yellow, White, Green, White, Green, White, Green, White, Cyan
+                #Write-Verbose -Message "Sync-O365PersonalContact - Updating $($User.DisplayName) / $($User.Mail), properties to update: $($Properties.Update), properties to skip: $($Properties.Skip)"
                 Set-O365Contact -UserID $UserId -User $User -Contact $Contact -Properties $Properties.Update
             }
         } else {
             if ($User.Mail) {
                 #Write-Verbose -Message "Sync-O365PersonalContact - Creating $($User.DisplayName) / $($User.Mail)"
                 Write-Color -Text "[+] ", "Creating ", $User.DisplayName, " / ", $User.Mail -Color Yellow, White, Green, White, Green
-                $CreatedContact = New-MgUserContact -UserId $UserId -NickName $User.MailNickname -DisplayName $User.DisplayName -GivenName $User.GivenName -Surname $User.Surname -EmailAddresses @(@{Address = $User.Mail; Name = $User.MailNickname; }) -MobilePhone $User.MobilePhone -HomePhone $User.HomePhone -BusinessPhones $User.BusinessPhones
+                $CreatedContact = New-MgUserContact -FileAs $User.Id -UserId $UserId -NickName $User.MailNickname -DisplayName $User.DisplayName -GivenName $User.GivenName -Surname $User.Surname -EmailAddresses @(@{Address = $User.Mail; Name = $User.MailNickname; }) -MobilePhone $User.MobilePhone -HomePhone $User.HomePhone -BusinessPhones $User.BusinessPhones
                 if ($CreatedContact) {
 
                 }
@@ -92,7 +104,8 @@
     }
     foreach ($ContactID in $ExistingContacts[$Entry].Keys) {
         $Contact = $ExistingContacts[$ContactID]
-        $Entry = [string]::Concat($Contact.DisplayName, $Contact.GivenName, $Contact.Surname)
+        $Entry = $Contact.FileAs
+        #$Entry = [string]::Concat($Contact.DisplayName, $Contact.GivenName, $Contact.Surname)
         if ($ExistingUsers[$Entry]) {
 
         } else {
