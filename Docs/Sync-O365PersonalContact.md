@@ -68,7 +68,7 @@ Accept wildcard characters: False
 Type: String[]
 Parameter Sets: (All)
 Aliases:
-Accepted values: Member, Guest
+Accepted values: Member, Guest, Contact
 
 Required: False
 Position: 2

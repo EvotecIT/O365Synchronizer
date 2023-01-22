@@ -11,6 +11,12 @@ Locale: en-US
 {{ Fill in the Description }}
 
 ## O365Synchronizer Cmdlets
+### [Clear-O365PersonalContact](Clear-O365PersonalContact.md)
+{{ Fill in the Synopsis }}
+
+### [Sync-O365Guest](Sync-O365Guest.md)
+{{ Fill in the Synopsis }}
+
 ### [Sync-O365PersonalContact](Sync-O365PersonalContact.md)
 {{ Fill in the Synopsis }}
 
