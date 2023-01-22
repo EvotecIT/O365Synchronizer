@@ -2,8 +2,8 @@
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [string] $UserID,
-        $User,
-        $Contact,
+        [PSCustomObject] $User,
+        [PSCustomObject] $Contact,
         [string[]] $Properties
     )
     if ($Properties.Count -gt 0) {
