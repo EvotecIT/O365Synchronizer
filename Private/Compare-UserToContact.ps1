@@ -1,7 +1,7 @@
 ﻿function Compare-UserToContact {
     [CmdletBinding()]
     param(
-        [PSCustomObject] $User,
+        [PSCustomObject] $ExistingContact,
         [PSCustomObject] $Contact
     )
     $Properties = @(
@@ -13,6 +13,7 @@
         'MobilePhone'
         'HomePhone'
         'BusinessPhones'
+        'CompanyName'
     )
 
     $MappingContactToUser = [ordered] @{
@@ -23,36 +24,39 @@
         'Mail'           = 'EmailAddresses'
         'MobilePhone'    = 'MobilePhone'
         'HomePhone'      = 'HomePhone'
+        'CompanyName'    = 'CompanyName'
         'BusinessPhones' = 'BusinessPhones'
     }
-    $TranslatedContact = [ordered] @{}
-    foreach ($Property in $MappingContactToUser.Keys) {
-        $TranslatedContact[$Property] = $Contact.$($MappingContactToUser[$Property])
+    if ($Contact.PSObject.Properties.Name -contains 'MailNickName') {
+        $TranslatedContact = $Contact
+    } elseif ($Contact.PSObject.Properties.Name -contains 'Nickname') {
+        $TranslatedContact = [ordered] @{}
+        foreach ($Property in $MappingContactToUser.Keys) {
+            $TranslatedContact[$Property] = $Contact.$($MappingContactToUser[$Property])
+        }
+    } else {
+        throw "Compare-UserToContact - Unknown user object $($ExistingContact.PSObject.Properties.Name)"
     }
 
     $SkippedProperties = [System.Collections.Generic.List[string]]::new()
     $UpdateProperties = [System.Collections.Generic.List[string]]::new()
     foreach ($Property in $Properties) {
-        if ([string]::IsNullOrEmpty($User.$Property) -and [string]::IsNullOrEmpty($Contact.$Property)) {
+        if ([string]::IsNullOrEmpty($ExistingContact.$Property) -and [string]::IsNullOrEmpty($Contact.$Property)) {
             $SkippedProperties.Add($Property)
         } else {
             if ($User.$Property -ne $TranslatedContact.$Property) {
-                Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($User.DisplayName) / $($User.Mail) different ($($User.$Property) vs $($Contact.$Property))"
+                Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($ExistingContact.DisplayName) / $($ExistingContact.Mail) different ($($ExistingContact.$Property) vs $($Contact.$Property))"
                 $UpdateProperties.Add($Property)
             } else {
                 $SkippedProperties.Add($Property)
             }
         }
     }
-    # } elseif ($User.$Property -ne $TranslatedContact.$Property) {
-    #     Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($User.DisplayName) / $($User.Mail) different ($($User.$Property) vs $($Contact.$Property))"
-    #     $UpdateProperties.Add($Property)
-    # } else {
-    #     $SkippedProperties.Add($Property)
-    # }
-    @{
-        Skip   = $SkippedProperties
-        Update = $UpdateProperties
+    [ordered] @{
+        DisplayName = $ExistingContact.DisplayName
+        Mail        = $ExistingContact.Mail
+        Skip        = $SkippedProperties
+        Update      = $UpdateProperties
     }
 }
 
