@@ -36,6 +36,10 @@ $Configuration = @{
                 @{ ModuleName = 'Mailozaurr'; ModuleVersion = "Latest"; Guid = '2b0ea9f1-3ff1-4300-b939-106d5da608fa' }
                 @{ ModuleName = 'PSWriteHTML'; ModuleVersion = "Latest"; Guid = 'a7bdf640-f5cb-4acf-9de0-365b322d245c' }
                 @{ ModuleName = 'PSWriteColor'; ModuleVersion = "Latest"; Guid = '0b0ba5c5-ec85-4c2b-a718-874e55a8bc3f' }
+                @{ ModuleName = 'Microsoft.Graph.Identity.SignIns'; ModuleVersion = 'Latest'; Guid ='60f889fa-f873-43ad-b7d3-b7fc1273a44f' }
+                @{ ModuleName = 'Microsoft.Graph.Identity.DirectoryManagement'; ModuleVersion = 'Latest'; Guid ='c767240d-585c-42cb-bb2f-6e76e6d639d4' }
+                @{ ModuleName = 'Microsoft.Graph.Users'; ModuleVersion = 'Latest'; Guid ='71150504-37a3-48c6-82c7-7a00a12168db' }
+                @{ ModuleName = 'Microsoft.Graph.PersonalContacts'; ModuleVersion = 'Latest'; Guid ='a53e24d0-43dd-43ec-950e-7ac40ea986fc' }
             )
             ExternalModuleDependencies = @(
                 # "ActiveDirectory"
