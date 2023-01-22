@@ -29,7 +29,7 @@ $Configuration = @{
             ProjectUri                 = 'https://github.com/EvotecIT/O365Synchronizer'
 
             # A URL to an icon representing this module.
-            #IconUri                    = 'https://evotec.xyz/wp-content/uploads/2022/08/PasswordSolution.png'
+            IconUri                    = 'https://evotec.xyz/wp-content/uploads/2023/01/O365Synchronizer.png'
 
             RequiredModules            = @(
                 @{ ModuleName = 'PSSharedGoods'; ModuleVersion = "Latest"; Guid = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe' }
@@ -38,7 +38,7 @@ $Configuration = @{
                 @{ ModuleName = 'PSWriteColor'; ModuleVersion = "Latest"; Guid = '0b0ba5c5-ec85-4c2b-a718-874e55a8bc3f' }
             )
             ExternalModuleDependencies = @(
-               # "ActiveDirectory"
+                # "ActiveDirectory"
             )
         }
     }
