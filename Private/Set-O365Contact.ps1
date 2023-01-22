@@ -11,6 +11,6 @@
         foreach ($Property in $Properties) {
             $PropertiesToUpdate[$Property] = $User.$Property
         }
-        Update-MgUserContact -UserId $UserID -ContactId $Contact.Id @PropertiesToUpdate
+        Update-MgUserContact -UserId $UserID -ContactId $Contact.Id @PropertiesToUpdate -WhatIf:$WhatIfPreference
     }
 }
