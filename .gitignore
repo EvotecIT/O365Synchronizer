@@ -4,7 +4,7 @@ Ignore/*
 Examples/Output/*
 Releases/*
 Artefacts/*
-ReleasedUnpacked/*
+ReleasesUnpacked/*
 Sources/.vs
 Sources/*/.vs
 Sources/*/obj
