@@ -150,7 +150,7 @@ $Configuration = @{
             MergeMissing     = $true
             SignMerged       = $true
             Releases         = $true
-            ReleasesUnpacked = $false
+            ReleasesUnpacked = $true
             RefreshPSD1Only  = $false
         }
         BuildDocumentation = $true
