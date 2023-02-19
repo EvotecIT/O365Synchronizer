@@ -6,7 +6,7 @@
     CompatiblePSEditions = @('Desktop', 'Core')
     Copyright            = '(c) 2011 - 2023 Przemyslaw Klys @ Evotec. All rights reserved.'
     Description          = 'This module allows to synchronize users to/from Office 365.'
-    FunctionsToExport    = @('Clear-O365PersonalContact', 'Sync-O365Guest', 'Sync-O365PersonalContact')
+    FunctionsToExport    = @('Clear-O365PersonalContact', 'Set-O365Credentials', 'Sync-O365Guest', 'Sync-O365PersonalContact')
     GUID                 = '81e907a0-a475-4d6a-a80d-20e9f08ad6b7'
     ModuleVersion        = '0.0.1'
     PowerShellVersion    = '5.1'
@@ -18,7 +18,7 @@
         }
     }
     RequiredModules      = @(@{
-            ModuleVersion = '0.0.257'
+            ModuleVersion = '0.0.258'
             ModuleName    = 'PSSharedGoods'
             Guid          = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe'
         }, @{
@@ -26,7 +26,7 @@
             ModuleName    = 'Mailozaurr'
             Guid          = '2b0ea9f1-3ff1-4300-b939-106d5da608fa'
         }, @{
-            ModuleVersion = '0.0.180'
+            ModuleVersion = '0.0.183'
             ModuleName    = 'PSWriteHTML'
             Guid          = 'a7bdf640-f5cb-4acf-9de0-365b322d245c'
         }, @{
