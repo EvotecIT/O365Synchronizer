@@ -14,6 +14,13 @@
         'HomePhone'
         'BusinessPhones'
         'CompanyName'
+        'JobTitle'
+        'EmployeeId'
+        'Country'
+        'City'
+        'State'
+        'Street'
+        'PostalCode'
     )
 
     $MappingContactToUser = [ordered] @{
@@ -26,6 +33,13 @@
         'HomePhone'      = 'HomePhone'
         'CompanyName'    = 'CompanyName'
         'BusinessPhones' = 'BusinessPhones'
+        'JobTitle'       = 'JobTitle'
+        'Country'        = 'Country'
+        'City'           = 'City'
+        'State'          = 'State'
+        'Street'         = 'Street'
+        'PostalCode'     = 'PostalCode'
+        'EmployeeId'     = 'EmployeeId'
     }
     if ($Contact.PSObject.Properties.Name -contains 'MailNickName') {
         $TranslatedContact = $Contact
