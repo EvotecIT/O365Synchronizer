@@ -1,11 +1,36 @@
 ﻿function Sync-O365PersonalContact {
+    <#
+    .SYNOPSIS
+    Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
+
+    .DESCRIPTION
+    Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
+
+    .PARAMETER UserId
+    Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName.
+
+    .PARAMETER MemberTypes
+    Member types to synchronize. By default it will synchronize only 'Member'. You can also specify 'Guest' and 'Contact'.
+
+    .PARAMETER RequireEmailAddress
+    Sync only users that have email address.
+
+    .PARAMETER GuidPrefix
+    Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
+    By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
+
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
+
+    .NOTES
+    General notes
+    #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [System.Collections.IDictionary] $Authorization,
         [string] $UserId,
         [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
-        [switch] $RequireEmailAddress
-
+        [switch] $RequireEmailAddress,
+        [string] $GuidPrefix
     )
     $PropertiesUsers = @(
         'DisplayName'
@@ -23,6 +48,18 @@
         'AccountEnabled'
         'CreatedDateTime'
         'AssignedLicenses'
+
+        'MobilePhone'
+        'HomePhone'
+        'BusinessPhones'
+        'CompanyName'
+        'JobTitle'
+        'EmployeeId'
+        'Country'
+        'City'
+        'State'
+        'Street'
+        'PostalCode'
     )
 
     $PropertiesContacts = @(
@@ -32,12 +69,24 @@
         'Mail'
         'JobTitle'
         'MailNickname'
-        'Phones'
+        #'Phones'
         'UserPrincipalName'
         'Id',
         'CompanyName'
         'OnPremisesSyncEnabled'
         'Addresses'
+
+        'MobilePhone'
+        'HomePhone'
+        'BusinessPhones'
+        'CompanyName'
+        'JobTitle'
+        'EmployeeId'
+        'Country'
+        'City'
+        'State'
+        'Street'
+        'PostalCode'
     )
 
     # Lets get all users and cache them
@@ -72,11 +121,19 @@
         if (-not $Contact.FileAs) {
             continue
         }
+
+        if ($GuidPrefix -and -not $Contact.FileAs.StartsWith($GuidPrefix)) {
+            continue
+        } elseif ($GuidPrefix -and $Contact.FileAs.StartsWith($GuidPrefix)) {
+            $Contact.FileAs = $Contact.FileAs.Substring($GuidPrefix.Length)
+        }
+
         $Guid = [guid]::Empty
         $ConversionWorked = [guid]::TryParse($Contact.FileAs, [ref]$Guid)
         if (-not $ConversionWorked) {
             continue
         }
+
         $Entry = [string]::Concat($Contact.FileAs)
         $ExistingContacts[$Entry] = $Contact
     }
@@ -107,16 +164,14 @@
             $Properties = Compare-UserToContact -ExistingContact $User -Contact $Contact
             if ($Properties.Update.Count -gt 0) {
                 Write-Color -Text "[i] ", "Updating ", $User.DisplayName, " / ", $User.Mail, " properties to update: ", $($Properties.Update -join ', '), " properties to skip: ", $($Properties.Skip -join ', ') -Color Yellow, White, Green, White, Green, White, Green, White, Cyan
-                #Write-Verbose -Message "Sync-O365PersonalContact - Updating $($User.DisplayName) / $($User.Mail), properties to update: $($Properties.Update), properties to skip: $($Properties.Skip)"
                 Set-O365Contact -UserID $UserId -User $User -Contact $Contact -Properties $Properties.Update
             }
         } else {
             if ($User.Mail) {
-                #Write-Verbose -Message "Sync-O365PersonalContact - Creating $($User.DisplayName) / $($User.Mail)"
                 Write-Color -Text "[+] ", "Creating ", $User.DisplayName, " / ", $User.Mail -Color Yellow, White, Green, White, Green
 
                 $newMgUserContactSplat = @{
-                    FileAs         = $User.Id
+                    FileAs         = "$($GuidPrefix)$($User.Id)"
                     UserId         = $UserId
                     NickName       = $User.MailNickname
                     DisplayName    = $User.DisplayName
@@ -131,10 +186,17 @@
                     MobilePhone    = $User.MobilePhone
                     HomePhones     = $User.HomePhone
                     BusinessPhones = $User.BusinessPhones
+                    CompanyName    = $User.CompanyName
                     WhatIf         = $WhatIfPreference
+                    ErrorAction    = 'Stop'
                 }
                 Remove-EmptyValue -Hashtable $newMgUserContactSplat
-                $null = New-MgUserContact @newMgUserContactSplat
+
+                try {
+                    $null = New-MgUserContact @newMgUserContactSplat
+                } catch {
+                    Write-Color -Text "[!] ", "Failed to create contact for ", $User.DisplayName, " / ", $User.Mail, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+                }
                 #if ($CreatedContact) {
                 #Write-Color -Text "[i] ", "Created ", $CreatedContact.DisplayName, " / ", $CreatedContact.Mail -Color Yellow, White, Green, White, Green
                 #}
@@ -145,17 +207,14 @@
     }
     foreach ($Contact in $ToPotentiallyRemove) {
         Write-Color -Text "[x] ", "Removing (filtered out) ", $Contact.DisplayName -Color Yellow, White, Red, White, Red
-        #Write-Verbose -Message "Sync-O365PersonalContact - Removing (type removal) $($Contact.DisplayName)"
         Remove-MgUserContact -UserId $UserId -ContactId $Contact.Id -WhatIf:$WhatIfPreference
     }
     foreach ($ContactID in $ExistingContacts[$Entry].Keys) {
         $Contact = $ExistingContacts[$ContactID]
         $Entry = $Contact.FileAs
-        #$Entry = [string]::Concat($Contact.DisplayName, $Contact.GivenName, $Contact.Surname)
         if ($ExistingUsers[$Entry]) {
 
         } else {
-            #Write-Verbose -Message "Sync-O365PersonalContact - Removing $($Contact.DisplayName)"
             Write-Color -Text "[x] ", "Removing (not required) ", $Contact.DisplayName -Color Yellow, White, Red, White, Red
             Remove-MgUserContact -UserId $UserId -ContactId $Contact.Id -WhatIf:$WhatIfPreference
         }
