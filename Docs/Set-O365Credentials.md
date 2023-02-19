@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Clear-O365PersonalContact
+# Set-O365Credentials
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,8 +13,8 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Clear-O365PersonalContact [-Identity] <String> [[-GuidPrefix] <String>] [-FullLogging] [-All] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Set-O365Credentials [[-TenantID] <String>] [[-Domain] <String>] [[-ClientID] <String>]
+ [[-ClientSecret] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,24 +31,8 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -Identity
-{{ Fill Identity Description }}
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -GuidPrefix
-Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
-By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
+### -ClientID
+{{ Fill ClientID Description }}
 
 ```yaml
 Type: String
@@ -62,62 +46,46 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -FullLogging
-If set it will log all actions. By default it will only log actions that meant contact is getting removed or an error happens.
+### -ClientSecret
+{{ Fill ClientSecret Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -All
-{{ Fill All Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
+Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -WhatIf
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+### -Domain
+{{ Fill Domain Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
-Aliases: wi
+Aliases:
 
 Required: False
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
+### -TenantID
+{{ Fill TenantID Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
-Aliases: cf
+Aliases:
 
 Required: False
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

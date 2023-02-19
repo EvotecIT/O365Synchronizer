@@ -14,6 +14,9 @@ Locale: en-US
 ### [Clear-O365PersonalContact](Clear-O365PersonalContact.md)
 {{ Fill in the Synopsis }}
 
+### [Set-O365Credentials](Set-O365Credentials.md)
+{{ Fill in the Synopsis }}
+
 ### [Sync-O365Guest](Sync-O365Guest.md)
 {{ Fill in the Synopsis }}
 

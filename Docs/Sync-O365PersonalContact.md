@@ -13,8 +13,8 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Sync-O365PersonalContact [[-Authorization] <IDictionary>] [[-UserId] <String>] [[-MemberTypes] <String[]>]
- [-RequireEmailAddress] [-WhatIf] [-Confirm] [<CommonParameters>]
+Sync-O365PersonalContact [[-UserId] <String>] [[-MemberTypes] <String[]>] [-RequireEmailAddress]
+ [[-GuidPrefix] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,31 +31,16 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -Authorization
-{{ Fill Authorization Description }}
+### -UserId
+{{ Fill UserId Description }}
 
 ```yaml
-Type: IDictionary
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
-
-Required: False
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -68,7 +53,6 @@ Accept wildcard characters: False
 Type: String[]
 Parameter Sets: (All)
 Aliases:
-Accepted values: Member, Guest, Contact
 
 Required: False
 Position: 2
@@ -92,8 +76,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -UserId
-{{ Fill UserId Description }}
+### -GuidPrefix
+Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
+By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
 
 ```yaml
 Type: String
@@ -101,7 +86,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 1
+Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -114,6 +99,21 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
 
 Required: False
 Position: Named
