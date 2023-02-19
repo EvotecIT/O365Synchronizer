@@ -33,6 +33,8 @@
 
 ## Installing/Updating
 
+### For using as a module
+
 Installation doesn't require administrative rights. You can install it using following:
 
 ```powershell
@@ -56,3 +58,31 @@ Remember, that you may need to close, reopen the PowerShell session if you have 
 **The important thing** is if something works for you on production, keep using it till you test the new version on a test computer.
 I do changes that may not be big, but big enough that auto-update will break your code.
 For example, small rename to a parameter and your code stops working! Be responsible!
+
+### For development purposes
+
+If you want to contribute to the module, you can clone the repository and use it as a module, but you will need those to be installed:
+
+```powershell
+$Modules = @(
+    'PSSharedGoods'
+    'Mailozaurr'
+    'PSWriteHTML'
+    'PSWriteColor'
+)
+$ModulesGraph = @(
+    'Microsoft.Graph.Identity.SignIns'
+    'Microsoft.Graph.Identity.DirectoryManagement'
+    'Microsoft.Graph.Users'
+    'Microsoft.Graph.PersonalContacts'
+    'Microsoft.Graph.Authentication'
+)
+foreach ($Module in $Modules) {
+    Install-Module -Name $Module -Force -Scope CurrentUser -Verbose
+}
+
+# Graph modules, which can be used with prerlease versions
+foreach ($Module in $ModulesGraph) {
+    Install-Module -Name $Module -Force -Scope CurrentUser -AllowPrerelease -Verbose
+}
+```
