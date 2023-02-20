@@ -78,6 +78,8 @@
         Mail        = $ExistingContact.Mail
         Update      = $UpdateProperties | Sort-Object -Unique
         Skip        = $SkippedProperties | Sort-Object -Unique
+        Details     = ''
+        Error       = ''
     }
 }
 
