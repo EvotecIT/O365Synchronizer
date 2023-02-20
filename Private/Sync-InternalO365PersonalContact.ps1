@@ -1,4 +1,4 @@
-﻿function Sync-PersonalContact {
+﻿function Sync-InternalO365PersonalContact {
     [cmdletBinding(SupportsShouldProcess)]
     param(
         [string] $UserId,
