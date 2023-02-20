@@ -41,5 +41,6 @@
     # Lets get all contacts of given person and cache them
     $ExistingContacts = Get-O365ExistingUserContacts -UserID $UserID -GuidPrefix $GuidPrefix
 
-    Sync-PersonalContact -UserId $UserId -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
+    $Actions = Sync-PersonalContact -UserId $UserId -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
+    $Actions
 }
