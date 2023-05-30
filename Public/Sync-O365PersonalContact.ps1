@@ -27,7 +27,7 @@
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [string] $UserId,
+        [string[]] $UserId,
         [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
         [switch] $RequireEmailAddress,
         [string] $GuidPrefix
@@ -37,10 +37,15 @@
 
     # Lets get all users and cache them
     $ExistingUsers = Get-O365ExistingMembers -MemberTypes $MemberTypes -RequireAccountEnabled -RequireAssignedLicenses
+    if ($ExistingUsers -eq $false -or $ExistingUsers -is [Array]) {
+        return
+    }
 
-    # Lets get all contacts of given person and cache them
-    $ExistingContacts = Get-O365ExistingUserContacts -UserID $UserID -GuidPrefix $GuidPrefix
+    foreach ($User in $UserId) {
+        # Lets get all contacts of given person and cache them
+        $ExistingContacts = Get-O365ExistingUserContacts -UserID $User -GuidPrefix $GuidPrefix
 
-    $Actions = Sync-InternalO365PersonalContact -UserId $UserId -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
-    $Actions
+        $Actions = Sync-InternalO365PersonalContact -UserId $User -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
+        $Actions
+    }
 }
