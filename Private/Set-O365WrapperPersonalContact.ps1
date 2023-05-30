@@ -1,4 +1,4 @@
-﻿function Set-UserContact {
+﻿function Set-O365WrapperPersonalContact {
     [cmdletBinding(SupportsShouldProcess)]
     param(
         [string] $ContactId,
@@ -7,7 +7,7 @@
 
         [DateTime] $Birthday,
 
-        [alias('Street')][string] $BusinessStreet,
+        [alias('Street', 'StreetAddress')][string] $BusinessStreet,
         [alias('City')][string] $BusinessCity,
         [alias('State')][string] $BusinessState,
         [alias('PostalCode')][string] $BusinessPostalCode,
@@ -33,7 +33,7 @@
 
         [string] $Department,
         [string] $DisplayName,
-        [string[]] $EmailAddresses,
+        [alias('Mail')][string[]] $EmailAddresses,
 
         [string] $FileAs,
         [string] $Generation,
@@ -126,11 +126,13 @@
         WhatIf           = $WhatIfPreference
         ErrorAction      = 'Stop'
     }
-    Remove-EmptyValue -Hashtable $ContactSplat -Recursive 2
+    Remove-EmptyValue -Hashtable $ContactSplat -Recursive -Rerun 2
 
     try {
         $null = Update-MgUserContact @contactSplat
+        $true
     } catch {
+        $false
         Write-Color -Text "[!] ", "Failed to update contact for ", $ContactSplat.DisplayName, " / ", $ContactSplat.EmailAddresses, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
     }
 }

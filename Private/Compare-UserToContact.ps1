@@ -5,24 +5,6 @@
         [PSCustomObject] $ExistingContact,
         [PSCustomObject] $Contact
     )
-    $Script:MappingContactToUser = [ordered] @{
-        'MailNickname'   = 'NickName'
-        'DisplayName'    = 'DisplayName'
-        'GivenName'      = 'GivenName'
-        'Surname'        = 'Surname'
-        # special treatment for 'Mail' because it's an array
-        'Mail'           = 'EmailAddresses.Address'
-        'MobilePhone'    = 'MobilePhone'
-        'HomePhone'      = 'HomePhone'
-        'CompanyName'    = 'CompanyName'
-        'BusinessPhones' = 'BusinessPhones'
-        'JobTitle'       = 'JobTitle'
-        'Country'        = 'BusinessAddress.CountryOrRegion'
-        'City'           = 'BusinessAddress.City'
-        'State'          = 'BusinessAddress.State'
-        'Street'         = 'BusinessAddress.Street'
-        'PostalCode'     = 'BusinessAddress.PostalCode'
-    }
     $AddressProperties = 'City', 'State', 'Street', 'PostalCode', 'Country'
     if ($Contact.PSObject.Properties.Name -contains 'MailNickName') {
         $TranslatedContact = $Contact

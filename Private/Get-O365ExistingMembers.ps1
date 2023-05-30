@@ -8,7 +8,12 @@
     # Lets get all users and cache them
     $ExistingUsers = [ordered] @{}
     if ($MemberTypes -contains 'Member' -or $MemberTypes -contains 'Guest') {
-        $Users = Get-MgUser -Property $Script:PropertiesUsers -All
+        try {
+            $Users = Get-MgUser -Property $Script:PropertiesUsers -All -ErrorAction Stop
+        } catch {
+            Write-Color -Text "[e] ", "Failed to get users. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
+            return $false
+        }
         foreach ($User in $Users) {
             if ($RequireAccountEnabled) {
                 if (-not $User.AccountEnabled) {
@@ -26,12 +31,17 @@
         }
     }
     if ($MemberTypes -contains 'Contact') {
-        $Users = Get-MgContact -Property $Script:PropertiesContacts -All
+        try {
+            $Users = Get-MgContact -Property $Script:PropertiesContacts -All
+        } catch {
+            Write-Color -Text "[e] ", "Failed to get contacts. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
+            return $false
+        }
         foreach ($User in $Users) {
             $Entry = $User.Id
             Add-Member -MemberType NoteProperty -Name 'Type' -Value 'Contact' -InputObject $User
             $ExistingUsers[$Entry] = $User
         }
     }
-    return $ExistingUsers
+    $ExistingUsers
 }
