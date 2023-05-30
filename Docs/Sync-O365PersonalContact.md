@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Sync-O365PersonalContact [[-UserId] <String>] [[-MemberTypes] <String[]>] [-RequireEmailAddress]
+Sync-O365PersonalContact [[-UserId] <String[]>] [[-MemberTypes] <String[]>] [-RequireEmailAddress]
  [[-GuidPrefix] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -35,7 +35,7 @@ PS C:\> {{ Add example code here }}
 {{ Fill UserId Description }}
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
