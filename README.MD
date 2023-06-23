@@ -86,3 +86,38 @@ foreach ($Module in $ModulesGraph) {
     Install-Module -Name $Module -Force -Scope CurrentUser -AllowPrerelease -Verbose
 }
 ```
+
+## Usage
+
+### Permissions required
+
+Before being able to synchronize GAL to users contact list you need to create application in O365 with following permissions:
+
+- `User.Read.All` - to read users
+- `OrgContact.Read.All` - to read contacts
+- `Contacts.ReadWrite` - to write contacts
+- `Group.Read.All` - to read groups
+- `MailboxSettings.Read` - to read mailbox settings
+
+### Synchronize GAL to user mailbox
+
+```powershell
+Import-Module O365Synchronizer
+
+$ClientID = '9e1b3'
+$TenantID = 'ceb371'
+$ClientSecret = 'nQF8'
+
+# Option 1
+# you need to encrypt the secret, it will only work with 2.0 of Graph Module tho
+#$ClientSecretEncrypted = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
+#[pscredential] $Secret = [System.Management.Automation.PSCredential]::new($ClientID, $ClientSecretEncrypted)
+#Connect-MgGraph -ClientSecretCredential $Secret -TenantId $TenantID
+
+# Option 2
+$Token = Get-MgToken -ClientID $ClientID -ClientSecret $ClientSecret -TenantID $TenantID
+Connect-MgGraph -AccessToken $Token
+
+# Synchronization per user or multiple users in one
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl', 'adam.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' | Format-Table *
+```
