@@ -50,6 +50,8 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
         'Remove-MailContact'
         'Get-MailContact'
         'New-MailContact'
+        'Set-Contact'
+        'Set-MailContact'
     )
 
     $ConfigurationFormat = [ordered] @{
