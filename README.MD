@@ -98,7 +98,7 @@ Before being able to synchronize GAL to users contact list you need to create ap
 - `Contacts.ReadWrite` - to write contacts
 - `Group.Read.All` - to read groups
 - `MailboxSettings.Read` - to read mailbox settings
-
+ 
 ### Synchronize GAL to user mailbox
 
 ```powershell
