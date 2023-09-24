@@ -3,11 +3,10 @@
     param(
         [Parameter(Mandatory)][Array] $SourceObjects,
         [Parameter()][Array] $Domains
-    )
 
+    )
     Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
 
-    $CurrentContactsCache = [ordered]@{}
     $SourceObjectsCache = [ordered]@{}
 
     if (-not $Domains) {
@@ -25,51 +24,40 @@
         }
     }
 
-    try {
-        $CurrentContacts = Get-MailContact -ResultSize Unlimited -ErrorAction Stop
-    } catch {
-        Write-Color -Text "[e] ", "Failed to get current contacts. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
-        return
-    }
-    foreach ($Contact in $CurrentContacts) {
-        $Found = $false
-        foreach ($Domain in $Domains) {
-            if ($Contact.PrimarySmtpAddress -notlike "*@$Domain") {
-                continue
-            } else {
-                $Found = $true
-            }
-        }
-        if ($Found) {
-            $CurrentContactsCache[$Contact.PrimarySmtpAddress] = $Contact
-        }
+    [Array] $ConvertedObjects = foreach ($Source in $SourceObjects) {
+        Convert-GraphObjectToContact -SourceObject $Source
     }
 
-    foreach ($Source in $SourceObjects) {
-        if ($Source.Mail) {
+    $CurrentContactsCache = Get-O365ContactsFromTenant -Domains $Domains
+    if ($null -eq $CurrentContactsCache) {
+        return
+    }
+
+    foreach ($Object in $ConvertedObjects) {
+        $Source = $Object.MailContact
+        $SourceContact = $Object.Contact
+        if ($Source.PrimarySmtpAddress) {
+            # we only process contacts if it has mail
             $Skip = $true
             foreach ($Domain in $Domains) {
-                if ($Source.Mail -like "*@$Domain") {
+                if ($Source.PrimarySmtpAddress -like "*@$Domain") {
                     $Skip = $false
                     break
                 }
             }
             if ($Skip) {
-                Write-Color -Text "[s] ", "Skipping ", $Source.DisplayName, " / ", $Source.Mail, " as it's not in domains to synchronize ", $($Domains -join ', ') -Color Yellow, White, Red, White, Red
+                Write-Color -Text "[s] ", "Skipping ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress, " as it's not in domains to synchronize ", $($Domains -join ', ') -Color Yellow, White, Red, White, Red
                 continue
             }
+            # We cache all sources to make sure we can remove users later on
+            $SourceObjectsCache[$Source.PrimarySmtpAddress] = $Source
 
-            $SourceObjectsCache[$Source.Mail] = $Source
-
-            if ($CurrentContactsCache[$Source.Mail]) {
-                Write-Color -Text "[i] ", "Skipping ", $Source.DisplayName, " / ", $Source.Mail, " as it already exists" -Color Yellow, White, DarkCyan, White, Cyan
-                continue
-            }
-            Write-Color -Text "[i] ", "Processing ", $Source.DisplayName, " / ", $Source.Mail -Color Yellow, White, Cyan, White, Cyan
-            try {
-                New-MailContact -DisplayName $Source.DisplayName -ExternalEmailAddress $Source.Mail -Name $Source.DisplayName -WhatIf:$WhatIfPreference -ErrorAction Stop
-            } catch {
-                Write-Color -Text "[e] ", "Failed to create contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
+            if ($CurrentContactsCache[$Source.PrimarySmtpAddress]) {
+                # Contact already exists, but lets check if the data is the same
+                Set-O365OrgContact -CurrentContactsCache $CurrentContactsCache -Source $Source -SourceContact $SourceContact
+            } else {
+                # Contact is new
+                New-O365OrgContact -Source $Source
             }
         } else {
             #Write-Color -Text "[i] ", "Processing stopped, as no email ", $Source.DisplayName -Color Yellow, White, Red
@@ -77,7 +65,7 @@
         }
     }
     foreach ($C in $CurrentContactsCache.Keys) {
-        $Contact = $CurrentContactsCache[$C]
+        $Contact = $CurrentContactsCache[$C].MailContact
         if ($SourceObjectsCache[$Contact.PrimarySmtpAddress]) {
             continue
         } else {
