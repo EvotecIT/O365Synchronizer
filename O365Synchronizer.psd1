@@ -36,19 +36,19 @@
         }, @{
             Guid          = '60f889fa-f873-43ad-b7d3-b7fc1273a44f'
             ModuleName    = 'Microsoft.Graph.Identity.SignIns'
-            ModuleVersion = '2.3.0'
+            ModuleVersion = '2.6.1'
         }, @{
             Guid          = 'c767240d-585c-42cb-bb2f-6e76e6d639d4'
             ModuleName    = 'Microsoft.Graph.Identity.DirectoryManagement'
-            ModuleVersion = '2.3.0'
+            ModuleVersion = '2.6.1'
         }, @{
             Guid          = '71150504-37a3-48c6-82c7-7a00a12168db'
             ModuleName    = 'Microsoft.Graph.Users'
-            ModuleVersion = '2.3.0'
+            ModuleVersion = '2.6.1'
         }, @{
             Guid          = 'a53e24d0-43dd-43ec-950e-7ac40ea986fc'
             ModuleName    = 'Microsoft.Graph.PersonalContacts'
-            ModuleVersion = '2.3.0'
+            ModuleVersion = '2.6.1'
         })
     RootModule           = 'O365Synchronizer.psm1'
 }
