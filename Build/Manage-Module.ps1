@@ -18,7 +18,7 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
         # Copyright statement for this module
         Copyright            = "(c) 2011 - $((Get-Date).Year) Przemyslaw Klys @ Evotec. All rights reserved."
         # Description of the functionality provided by this module
-        Description          = "This module allows to synchronize users to/from Office 365."
+        Description          = "This module allows to synchronize users to/from Office 365. You can synchronize users information to personal contacts or synchronize tenants between each other."
         # Minimum version of the Windows PowerShell engine required by this module
         Tags                 = 'windows', 'o365', 'synchronize', 'gal', 'contacts', 'office365', 'guests', 'graph'
         # A URL to the main website for this project.
@@ -41,8 +41,6 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
         'Microsoft.PowerShell.Management'
         'Microsoft.PowerShell.Security'
         'Microsoft.PowerShell.Utility'
-        # this is optional, and checked for existance in the source codes directly
-        'PSParseHTML'
     ) -IgnoreFunctionName @(
         # those functions are internal within private function
         'Select-Unique', 'Compare-TwoArrays'
