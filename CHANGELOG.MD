@@ -1,5 +1,9 @@
 ﻿## Changelog
 
+### 0.0.3 - 2023.09.25
+- Improved logging
+- Added more options to `Sync-O365Contact`
+
 ### 0.0.2 - 2023.09.25
 - Added support for synchronizing users/objects to Exchange contacts `Sync-O365Contact` essentially allowing tenant to tenant synchronization for GAL purposes
 
