@@ -22,14 +22,6 @@
             ModuleName    = 'PSSharedGoods'
             ModuleVersion = '0.0.266'
         }, @{
-            Guid          = '2b0ea9f1-3ff1-4300-b939-106d5da608fa'
-            ModuleName    = 'Mailozaurr'
-            ModuleVersion = '1.1.0'
-        }, @{
-            Guid          = 'a7bdf640-f5cb-4acf-9de0-365b322d245c'
-            ModuleName    = 'PSWriteHTML'
-            ModuleVersion = '1.10.0'
-        }, @{
             Guid          = '0b0ba5c5-ec85-4c2b-a718-874e55a8bc3f'
             ModuleName    = 'PSWriteColor'
             ModuleVersion = '1.0.1'
