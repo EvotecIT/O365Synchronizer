@@ -10,6 +10,6 @@
         Write-Color -Text "[e] ", "Failed to create contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
     }
     if ($Created) {
-        Set-O365OrgContact -MailContact $Created -Contact @{} -Source $Source -SourceContact $SourceContact
+        $null = Set-O365OrgContact -MailContact $Created -Contact @{} -Source $Source -SourceContact $SourceContact
     }
 }
