@@ -4,12 +4,15 @@
         [Array] $Domains
     )
     $CurrentContactsCache = [ordered]@{}
+    Write-Color -Text "[>] ", "Getting current contacts" -Color Yellow, White, Cyan
     try {
         $CurrentContacts = Get-Contact -ResultSize Unlimited -ErrorAction Stop
     } catch {
         Write-Color -Text "[e] ", "Failed to get current contacts. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
         return
     }
+
+    Write-Color -Text "[>] ", "Getting current mail contacts (improving dataset)" -Color Yellow, White, Cyan
     try {
         $CurrentMailContacts = Get-MailContact -ResultSize Unlimited -ErrorAction Stop
     } catch {
@@ -17,7 +20,7 @@
         return
     }
 
-    Write-Color -Text "[i] ", "Preparing ", $CurrentContacts.Count, " (", "Mail contacts: ", $CurrentMailContacts.Count , ")"," contacts for comparison" -Color Yellow, White, Cyan, White, white, Cyan, White, Yellow
+    Write-Color -Text "[i] ", "Preparing ", $CurrentContacts.Count, " (", "Mail contacts: ", $CurrentMailContacts.Count , ")", " contacts for comparison" -Color Yellow, White, Cyan, White, white, Cyan, White, Yellow
 
     # We need to do this because Get-MailContact doesn't have all data
     foreach ($Contact in $CurrentMailContacts) {
