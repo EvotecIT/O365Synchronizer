@@ -12,14 +12,11 @@ Locale: en-US
 
 ## O365Synchronizer Cmdlets
 ### [Clear-O365PersonalContact](Clear-O365PersonalContact.md)
-{{ Fill in the Synopsis }}
+Removes personal contacts from user on Office 365.
 
-### [Set-O365Credentials](Set-O365Credentials.md)
-{{ Fill in the Synopsis }}
-
-### [Sync-O365Guest](Sync-O365Guest.md)
-{{ Fill in the Synopsis }}
+### [Sync-O365Contact](Sync-O365Contact.md)
+Synchronize contacts between source and target Office 365 tenant.
 
 ### [Sync-O365PersonalContact](Sync-O365PersonalContact.md)
-{{ Fill in the Synopsis }}
+Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 

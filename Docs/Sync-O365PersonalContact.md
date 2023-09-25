@@ -8,7 +8,7 @@ schema: 2.0.0
 # Sync-O365PersonalContact
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 
 ## SYNTAX
 
@@ -18,21 +18,20 @@ Sync-O365PersonalContact [[-UserId] <String[]>] [[-MemberTypes] <String[]>] [-Re
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
 ```
-
-{{ Add example description here }}
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
+```
 
 ## PARAMETERS
 
 ### -UserId
-{{ Fill UserId Description }}
+Identity of the user to synchronize contacts to.
+It can be UserID or UserPrincipalName.
 
 ```yaml
 Type: String[]
@@ -47,7 +46,9 @@ Accept wildcard characters: False
 ```
 
 ### -MemberTypes
-{{ Fill MemberTypes Description }}
+Member types to synchronize.
+By default it will synchronize only 'Member'.
+You can also specify 'Guest' and 'Contact'.
 
 ```yaml
 Type: String[]
@@ -56,13 +57,13 @@ Aliases:
 
 Required: False
 Position: 2
-Default value: None
+Default value: @('Member')
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -RequireEmailAddress
-{{ Fill RequireEmailAddress Description }}
+Sync only users that have email address.
 
 ```yaml
 Type: SwitchParameter
@@ -71,7 +72,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -93,7 +94,8 @@ Accept wildcard characters: False
 ```
 
 ### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
 
 ```yaml
 Type: SwitchParameter
@@ -127,11 +129,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
-
 ## OUTPUTS
 
-### System.Object
 ## NOTES
+General notes
 
 ## RELATED LINKS

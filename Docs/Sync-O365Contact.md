@@ -5,47 +5,43 @@ online version:
 schema: 2.0.0
 ---
 
-# Clear-O365PersonalContact
+# Sync-O365Contact
 
 ## SYNOPSIS
-Removes personal contacts from user on Office 365.
+Synchronize contacts between source and target Office 365 tenant.
 
 ## SYNTAX
 
 ```
-Clear-O365PersonalContact [-Identity] <String> [[-GuidPrefix] <String>] [-FullLogging] [-All] [-WhatIf]
+Sync-O365Contact [-SourceObjects] <Array> [[-Domains] <Array>] [-SkipAdd] [-SkipUpdate] [-SkipRemove] [-WhatIf]
  [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Removes personal contacts from user on Office 365.
-By default it will only remove contacts that were synchronized by O365Synchronizer.
-If you want to remove all contacts use -All parameter.
+Synchronize contacts between source and target Office 365 tenant.
+Get users from source tenant using Get-MgUser (Microsoft Graph) and provide them as source objects.
+You can specify domains to synchronize.
+If you don't specify domains, it will use all domains from source objects.
+During synchronization new contacts will be created matching given domains in target tenant on Exchange Online.
+If contact already exists, it will be updated if needed, even if it wasn't synchronized by this module.
+It will asses whether it needs to add/update/remove contacts based on provided domain names from source objects.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -WhatIf
-```
-
-### EXAMPLE 2
-```
-Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -GuidPrefix 'O365' -WhatIf
-```
-
-### EXAMPLE 3
-```
-Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -All -WhatIf
+An example
 ```
 
 ## PARAMETERS
 
-### -Identity
-Identity of the user to remove contacts from.
+### -SourceObjects
+Source objects to synchronize.
+You can use Get-MgUser to get users from Microsoft Graph and provide them as source objects.
+Any filtering you apply to them is valid and doesn't have to be 1:1 conversion.
 
 ```yaml
-Type: String
+Type: Array
 Parameter Sets: (All)
 Aliases:
 
@@ -56,12 +52,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -GuidPrefix
-Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
-By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
+### -Domains
+Domains to synchronize.
+If not specified, it will use all domains from source objects.
 
 ```yaml
-Type: String
+Type: Array
 Parameter Sets: (All)
 Aliases:
 
@@ -72,9 +68,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -FullLogging
-If set it will log all actions.
-By default it will only log actions that meant contact is getting removed or an error happens.
+### -SkipAdd
+Disable the adding of new contacts functionality.
+This is useful if you want to only update existing contacts or remove non-existing contacts.
 
 ```yaml
 Type: SwitchParameter
@@ -88,9 +84,25 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -All
-If set it will remove all contacts.
-By default it will only remove contacts that were synchronized by O365Synchronizer.
+### -SkipUpdate
+Disable the updating of existing contacts functionality.
+This is useful if you want to only add new contacts or remove non-existing contacts.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipRemove
+Disable the removing of non-existing contacts functionality.
+This is useful if you want to only add new contacts or update existing contacts.
 
 ```yaml
 Type: SwitchParameter
