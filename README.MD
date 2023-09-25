@@ -22,14 +22,17 @@
 ## Features & ToDo
 
 - [ ] Synchronize Users between tenants as Guests
-- [ ] Synchronize Users between tenants as Contacts
-- ✅ Synchronize GAL (Users & Contacts) to user mailbox
+- ✅ Synchronize Users between tenants as Contacts (organization contacts)
+  - ✅ Add
+  - ✅ Update
+  - ✅ Remove
+- ✅ Synchronize GAL (Users & Contacts) to user mailbox (personal contacts)
   - ✅ Add
   - ✅ Update
   - ✅ Remove
 - [ ] Backup current contacts
-- ✅ Remove current contacts
-- ✅ Remove current "synchronized" contacts
+- ✅ Remove current personal contacts
+- ✅ Remove current personal "synchronized" contacts
 
 ## Installing/Updating
 
@@ -66,8 +69,8 @@ If you want to contribute to the module, you can clone the repository and use it
 ```powershell
 $Modules = @(
     'PSSharedGoods'
-    'Mailozaurr'
-    'PSWriteHTML'
+    #'Mailozaurr'
+    #'PSWriteHTML'
     'PSWriteColor'
 )
 $ModulesGraph = @(
@@ -98,7 +101,7 @@ Before being able to synchronize GAL to users contact list you need to create ap
 - `Contacts.ReadWrite` - to write contacts
 - `Group.Read.All` - to read groups
 - `MailboxSettings.Read` - to read mailbox settings
- 
+
 ### Synchronize GAL to user mailbox
 
 ```powershell
@@ -108,16 +111,33 @@ $ClientID = '9e1b3'
 $TenantID = 'ceb371'
 $ClientSecret = 'nQF8'
 
-# Option 1
-# you need to encrypt the secret, it will only work with 2.0 of Graph Module tho
-#$ClientSecretEncrypted = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
-#[pscredential] $Secret = [System.Management.Automation.PSCredential]::new($ClientID, $ClientSecretEncrypted)
-#Connect-MgGraph -ClientSecretCredential $Secret -TenantId $TenantID
-
-# Option 2
-$Token = Get-MgToken -ClientID $ClientID -ClientSecret $ClientSecret -TenantID $TenantID
-Connect-MgGraph -AccessToken $Token
+$Credentials = [pscredential]::new($ClientID, (ConvertTo-SecureString $ClientSecret -AsPlainText -Force))
+Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelcome
 
 # Synchronization per user or multiple users in one
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl', 'adam.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' | Format-Table *
 ```
+
+### Synchronize users between tenants
+
+To synchronize users/contacts from Source tenant to Destination tenant you can do it in following way:
+
+```powershell
+# Source Tenant
+$ClientID = '9e1b3c36'
+$TenantID = 'ceb371f6'
+$ClientSecret = 'NDE'
+
+$Credentials = [pscredential]::new($ClientID, (ConvertTo-SecureString $ClientSecret -AsPlainText -Force))
+Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelcome
+
+# do the filtering of any kind on UsersToSync to get the users you want to synchronize
+$UsersToSync = Get-MgUser | Select-Object -First 10
+
+# Destination tenant - you need to create application with permissions to read/write contacts in Exchange
+$ClientID = 'edc4302e'
+Connect-ExchangeOnline -AppId $ClientID -CertificateThumbprint '2E' -Organization 'xxxxx.onmicrosoft.com'
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl','gmail.com' -Verbose -WhatIf
+```
+
+You can revert the order and set it up to synchronize from Destination tenant to Source tenant to have a two-way synchronization.
