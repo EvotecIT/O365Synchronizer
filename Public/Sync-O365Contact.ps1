@@ -52,10 +52,19 @@
         [Parameter()][Array] $Domains,
         [switch] $SkipAdd,
         [switch] $SkipUpdate,
-        [switch] $SkipRemove
+        [switch] $SkipRemove,
+        [string] $LogPath,
+        [int] $LogMaximum
     )
-    $StartTimeLog = Start-TimeLog
+    # this won't be logged to file
     Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
+
+    # lets enable global logging
+    Set-LoggingCapabilities -LogPath $LogPath -LogMaximum $LogMaximum
+
+    $StartTimeLog = Start-TimeLog
+    # we repeat it here, as we want to log it to file if needed
+    Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan -NoConsoleOutput
 
     $SourceObjectsCache = [ordered]@{}
 
