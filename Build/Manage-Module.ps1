@@ -29,7 +29,10 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
     New-ConfigurationManifest @Manifest
 
     New-ConfigurationModule -Type RequiredModule -Name @(
-        'PSSharedGoods', 'Mailozaurr', 'PSWriteHTML', 'PSWriteColor'
+        'PSSharedGoods',
+        #'Mailozaurr',
+        #'PSWriteHTML',
+        'PSWriteColor'
         'Microsoft.Graph.Identity.SignIns', 'Microsoft.Graph.Identity.DirectoryManagement'
         'Microsoft.Graph.Users', 'Microsoft.Graph.PersonalContacts'
     ) -Guid Auto -Version Latest
@@ -106,6 +109,6 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
     New-ConfigurationArtefact -Type Packed -Enable -Path "$PSScriptRoot\..\Artefacts\Packed" -ArtefactName '<ModuleName>.v<ModuleVersion>.zip'
 
     # options for publishing to github/psgallery
-    #New-ConfigurationPublish -Type PowerShellGallery -FilePath 'C:\Support\Important\PowerShellGalleryAPI.txt' -Enabled:$true
-    #New-ConfigurationPublish -Type GitHub -FilePath 'C:\Support\Important\GitHubAPI.txt' -UserName 'EvotecIT' -Enabled:$true
+    New-ConfigurationPublish -Type PowerShellGallery -FilePath 'C:\Support\Important\PowerShellGalleryAPI.txt' -Enabled:$true
+    New-ConfigurationPublish -Type GitHub -FilePath 'C:\Support\Important\GitHubAPI.txt' -UserName 'EvotecIT' -Enabled:$true
 } -ExitCode
