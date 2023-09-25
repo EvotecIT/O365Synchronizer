@@ -8,7 +8,7 @@
     Description          = 'This module allows to synchronize users to/from Office 365. You can synchronize users information to personal contacts or synchronize tenants between each other.'
     FunctionsToExport    = @('Clear-O365PersonalContact', 'Sync-O365Contact', 'Sync-O365PersonalContact')
     GUID                 = '81e907a0-a475-4d6a-a80d-20e9f08ad6b7'
-    ModuleVersion        = '0.0.2'
+    ModuleVersion        = '0.0.3'
     PowerShellVersion    = '5.1'
     PrivateData          = @{
         PSData = @{
