@@ -92,7 +92,9 @@ foreach ($Module in $ModulesGraph) {
 
 ## Usage
 
-### Permissions required
+### Synchronize GAL to user mailbox
+
+#### Permissions required
 
 Before being able to synchronize GAL to users contact list you need to create application in O365 with following permissions:
 
@@ -102,7 +104,7 @@ Before being able to synchronize GAL to users contact list you need to create ap
 - `Group.Read.All` - to read groups
 - `MailboxSettings.Read` - to read mailbox settings
 
-### Synchronize GAL to user mailbox
+#### Synchronize GAL to user mailbox
 
 ```powershell
 Import-Module O365Synchronizer
