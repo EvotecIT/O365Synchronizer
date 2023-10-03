@@ -104,7 +104,7 @@ Before being able to synchronize GAL to users contact list you need to create ap
 - `Group.Read.All` - to read groups
 - `MailboxSettings.Read` - to read mailbox settings
 
-#### Synchronize GAL to user mailbox
+#### Example
 
 ```powershell
 Import-Module O365Synchronizer
@@ -121,6 +121,16 @@ Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl', 'adam.klys@test.pl' 
 ```
 
 ### Synchronize users between tenants
+
+#### Permissions required
+
+Source tenant:
+- `User.Read.All` - to read users
+
+Target tenant:
+- `Exchange.ManageAsApp` - to read/write contacts in Exchange (remember to add application to `Exchange Recipient Administrator` role)
+
+#### Example
 
 To synchronize users/contacts from Source tenant to Destination tenant you can do it in following way:
 
