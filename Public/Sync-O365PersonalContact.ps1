@@ -30,7 +30,8 @@
         [string[]] $UserId,
         [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
         [switch] $RequireEmailAddress,
-        [string] $GuidPrefix
+        [string] $GuidPrefix,
+        [switch] $PassThru
     )
 
     Initialize-DefaultValuesO365
@@ -46,6 +47,8 @@
         $ExistingContacts = Get-O365ExistingUserContacts -UserID $User -GuidPrefix $GuidPrefix
 
         $Actions = Sync-InternalO365PersonalContact -UserId $User -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
-        $Actions
+        if ($PassThru) {
+            $Actions
+        }
     }
 }
