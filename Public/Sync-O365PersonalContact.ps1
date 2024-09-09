@@ -6,6 +6,10 @@
     .DESCRIPTION
     Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 
+    .PARAMETER Filter
+    Filters to apply to users. It can be used to filter out users that you don't want to synchronize.
+    You should use Sync-O365PersonalContactFilter or/and Sync-O365PersonalContactFilterGroup to create filter(s).
+
     .PARAMETER UserId
     Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName.
 
@@ -14,6 +18,13 @@
 
     .PARAMETER RequireEmailAddress
     Sync only users that have email address.
+
+    .PARAMETER DoNotRequireAccountEnabled
+    Do not require account to be enabled. By default account must be enabled, otherwise it will be skipped.
+
+    .PARAMETER DoNotRequireAssignedLicenses
+    Do not require assigned licenses. By default user must have assigned licenses, otherwise it will be skipped.
+    The licenses are checked by looking at AssignedLicenses property of the user, and not the actual license types.
 
     .PARAMETER GuidPrefix
     Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
@@ -27,17 +38,27 @@
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
+        [scriptblock] $Filter,
         [string[]] $UserId,
         [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
         [switch] $RequireEmailAddress,
         [string] $GuidPrefix,
+        [switch] $DoNotRequireAccountEnabled,
+        [switch] $DoNotRequireAssignedLicenses,
         [switch] $PassThru
     )
 
     Initialize-DefaultValuesO365
 
     # Lets get all users and cache them
-    $ExistingUsers = Get-O365ExistingMembers -MemberTypes $MemberTypes -RequireAccountEnabled -RequireAssignedLicenses
+    $getO365ExistingMembersSplat = @{
+        MemberTypes             = $MemberTypes
+        RequireAccountEnabled   = -not $DoNotRequireAccountEnabled.IsPresent
+        RequireAssignedLicenses = -not $DoNotRequireAssignedLicenses.IsPresent
+        UserProvidedFilter      = $Filter
+    }
+
+    $ExistingUsers = Get-O365ExistingMembers @getO365ExistingMembersSplat
     if ($ExistingUsers -eq $false -or $ExistingUsers -is [Array]) {
         return
     }
