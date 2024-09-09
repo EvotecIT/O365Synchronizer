@@ -262,119 +262,118 @@
                     Write-Verbose -Message "Filtering out contact $($User.MailNickname) by group inclusion"
                     continue
                 }
-                foreach ($Property in $PropertyFilterExclude.Keys) {
-                    $Filter = $PropertyFilterExclude[$Property]
-                    $Value = $User.$Property
-                    if ($Filter.Operator -eq 'Like') {
-                        $Find = $false
-                        foreach ($FilterValue in $Filter.Value) {
-                            if ($Value -like $FilterValue) {
-                                $Find = $true
-                            }
-                        }
-                        if ($Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'Equal') {
-                        $Find = $false
-                        if ($Filter.Value -contains $Value) {
+            }
+            foreach ($Property in $PropertyFilterExclude.Keys) {
+                $Filter = $PropertyFilterExclude[$Property]
+                $Value = $User.$Property
+                if ($Filter.Operator -eq 'Like') {
+                    $Find = $false
+                    foreach ($FilterValue in $Filter.Value) {
+                        if ($Value -like $FilterValue) {
                             $Find = $true
                         }
-                        if ($Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'NotEqual') {
-                        $Find = $false
-                        if ($Filter.Value -notcontains $Value) {
-                            $Find = $true
-                        }
-                        if ($Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'LessThan') {
-                        $Find = $false
-                        if ($Value -lt $Filter.Value) {
-                            $Find = $true
-                        }
-                        if ($Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'MoreThan') {
-                        $Find = $false
-                        if ($Value -gt $Filter.Value) {
-                            $Find = $true
-                        }
-                        if ($Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } else {
-                        Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
-                        return $false
                     }
-                }
-
-                foreach ($Property in $PropertyFilter.Keys) {
-                    $Filter = $PropertyFilter[$Property]
-                    $Value = $User.$Property
-                    if ($Filter.Operator -eq 'Like') {
-                        $Find = $false
-                        foreach ($FilterValue in $Filter.Value) {
-                            if ($Value -like $FilterValue) {
-                                $Find = $true
-                            }
-                        }
-                        if (-not $Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'Equal') {
-                        $Find = $false
-                        if ($Filter.Value -contains $Value) {
-                            $Find = $true
-                        }
-                        if (-not $Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'NotEqual') {
-                        $Find = $false
-                        if ($Filter.Value -notcontains $Value) {
-                            $Find = $true
-                        }
-                        if (-not $Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'LessThan') {
-                        $Find = $false
-                        if ($Value -lt $Filter.Value) {
-                            $Find = $true
-                        }
-                        if (-not $Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } elseif ($Filter.Operator -eq 'MoreThan') {
-                        $Find = $false
-                        if ($Value -gt $Filter.Value) {
-                            $Find = $true
-                        }
-                        if (-not $Find) {
-                            Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
-                            continue NextUser
-                        }
-                    } else {
-                        Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
-                        return $false
+                    if ($Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
+                        continue NextUser
                     }
+                } elseif ($Filter.Operator -eq 'Equal') {
+                    $Find = $false
+                    if ($Filter.Value -contains $Value) {
+                        $Find = $true
+                    }
+                    if ($Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } elseif ($Filter.Operator -eq 'NotEqual') {
+                    $Find = $false
+                    if ($Filter.Value -notcontains $Value) {
+                        $Find = $true
+                    }
+                    if ($Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } elseif ($Filter.Operator -eq 'LessThan') {
+                    $Find = $false
+                    if ($Value -lt $Filter.Value) {
+                        $Find = $true
+                    }
+                    if ($Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } elseif ($Filter.Operator -eq 'MoreThan') {
+                    $Find = $false
+                    if ($Value -gt $Filter.Value) {
+                        $Find = $true
+                    }
+                    if ($Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } else {
+                    Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
+                    return $false
                 }
             }
 
+            foreach ($Property in $PropertyFilter.Keys) {
+                $Filter = $PropertyFilter[$Property]
+                $Value = $User.$Property
+                if ($Filter.Operator -eq 'Like') {
+                    $Find = $false
+                    foreach ($FilterValue in $Filter.Value) {
+                        if ($Value -like $FilterValue) {
+                            $Find = $true
+                        }
+                    }
+                    if (-not $Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } elseif ($Filter.Operator -eq 'Equal') {
+                    $Find = $false
+                    if ($Filter.Value -contains $Value) {
+                        $Find = $true
+                    }
+                    if (-not $Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } elseif ($Filter.Operator -eq 'NotEqual') {
+                    $Find = $false
+                    if ($Filter.Value -notcontains $Value) {
+                        $Find = $true
+                    }
+                    if (-not $Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } elseif ($Filter.Operator -eq 'LessThan') {
+                    $Find = $false
+                    if ($Value -lt $Filter.Value) {
+                        $Find = $true
+                    }
+                    if (-not $Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } elseif ($Filter.Operator -eq 'MoreThan') {
+                    $Find = $false
+                    if ($Value -gt $Filter.Value) {
+                        $Find = $true
+                    }
+                    if (-not $Find) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by property $($Property) not matching $($Filter.Value)"
+                        continue NextUser
+                    }
+                } else {
+                    Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
+                    return $false
+                }
+            }
 
             Add-Member -MemberType NoteProperty -Name 'Type' -Value 'Contact' -InputObject $User
             $ExistingUsers[$Entry] = $User
