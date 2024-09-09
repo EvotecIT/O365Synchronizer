@@ -20,7 +20,7 @@
         'AccountEnabled'
         'CreatedDateTime'
         'AssignedLicenses'
-
+        'MemberOf'
         'MobilePhone'
         'HomePhone'
         'BusinessPhones'
@@ -47,7 +47,7 @@
         'CompanyName'
         'OnPremisesSyncEnabled'
         'Addresses'
-
+        'MemberOf'
         'MobilePhone'
         'HomePhone'
         'BusinessPhones'
