@@ -1,4 +1,35 @@
 ﻿function Sync-InternalO365PersonalContact {
+    <#
+    .SYNOPSIS
+    Short description
+
+    .DESCRIPTION
+    Long description
+
+    .PARAMETER UserId
+    Parameter description
+
+    .PARAMETER MemberTypes
+    Parameter description
+
+    .PARAMETER RequireEmailAddress
+    Parameter description
+
+    .PARAMETER GuidPrefix
+    Parameter description
+
+    .PARAMETER ExistingUsers
+    Users and contacts in GAL that will be synchronized to user's personal contacts
+
+    .PARAMETER ExistingContacts
+    Existing contacts in user's personal contacts
+
+    .EXAMPLE
+    An example
+
+    .NOTES
+    General notes
+    #>
     [cmdletBinding(SupportsShouldProcess)]
     param(
         [string] $UserId,
