@@ -49,6 +49,7 @@
         'Addresses'
         'MemberOf'
         'MobilePhone'
+        'Phones'
         'HomePhone'
         'BusinessPhones'
         'CompanyName'
