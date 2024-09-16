@@ -157,7 +157,6 @@
                     return $false
                 }
             }
-
             foreach ($Property in $PropertyFilter.Keys) {
                 $Filter = $PropertyFilter[$Property]
                 $Value = $User.$Property
@@ -375,8 +374,69 @@
                 }
             }
 
-            Add-Member -MemberType NoteProperty -Name 'Type' -Value 'Contact' -InputObject $User
-            $ExistingUsers[$Entry] = $User
+            # Add-Member -MemberType NoteProperty -Name 'Type' -Value 'Contact' -InputObject $User
+            # foreach ($Phone in $User.Phones) {
+            #     if ($Phone.Type -eq 'Mobile') {
+            #         Add-Member -MemberType NoteProperty -Name 'MobilePhone' -Value $Phone.Number -InputObject $User
+            #     } elseif ($Phone.Type -eq 'Business') {
+            #         Add-Member -MemberType NoteProperty -Name 'BusinessPhones' -Value $Phone.Number -InputObject $User
+            #     } elseif ($Phone.Type -eq 'Home') {
+            #         Add-Member -MemberType NoteProperty -Name 'HomePhone' -Value $Phone.Number -InputObject $User
+            #     }
+            # }
+            # if ($User.BusinessAddress) {
+            #     Add-Member -MemberType NoteProperty -Name 'Country' -Value $User.BusinessAddress.CountryOrRegion -InputObject $User
+            #     Add-Member -MemberType NoteProperty -Name 'City' -Value $User.BusinessAddress.City -InputObject $User
+            #     Add-Member -MemberType NoteProperty -Name 'State' -Value $User.BusinessAddress.State -InputObject $User
+            #     Add-Member -MemberType NoteProperty -Name 'Street' -Value $User.BusinessAddress.Street -InputObject $User
+            #     Add-Member -MemberType NoteProperty -Name 'PostalCode' -Value $User.BusinessAddress.PostalCode -InputObject $User
+            # }
+
+            $NewUser = [ordered] @{
+                Id             = $User.Id                           #: f87e6e44-7372-4763-bee8-e265cab8ff54
+                Type           = 'Contact'                       #: Contact
+                MobilePhone    = $User.MobilePhone                  #: 111234
+                BusinessPhones = $User.BusinessPhones               #: 001234
+                Country        = $User.Addresses.CountryOrRegion                      #: Poland
+                City           = $User.Addresses.City                                 #: Warsaw
+                State          = $User.Addresses.State                                #: Mazovia
+                Street         = $User.Addresses.Street                               #: 1st Street
+                PostalCode     = $User.Addresses.PostalCode                           #: 00-000
+                CompanyName    = $User.CompanyName                  #: Ziomek
+                #DeletedDateTime              = $User.DeletedDateTime              #:
+                #Department                   = $User.Department                   #:
+                #DirectReports                = $User.DirectReports                #:
+                DisplayName    = $User.DisplayName                  #: new_contact
+                GivenName      = $User.GivenName                    #: My
+                JobTitle       = $User.JobTitle                     #: Tytul
+                Mail           = $User.Mail                         #: new_contact@evotec.pl
+                MailNickname   = $User.MailNickname                 #: new_contact
+                #Manager                      = $User.Manager                      #: Microsoft.Graph.PowerShell.Models.MicrosoftGraphDirectoryObject
+                MemberOf       = $User.MemberOf                     #:
+                #OnPremisesLastSyncDateTime   = $User.OnPremisesLastSyncDateTime   #:
+                #OnPremisesProvisioningErrors = $User.OnPremisesProvisioningErrors #:
+                #OnPremisesSyncEnabled        = $User.OnPremisesSyncEnabled        #:
+                #Phones                    = $User.Phones                       #: {Microsoft.Graph.PowerShell.Models.MicrosoftGraphPhone, Microsoft.Graph.PowerShell.Models.MicrosoftGraphPhone, Microsoft.Graph.PowerShell.Models.MicrosoftGraphPhone}
+                Mobile         = $User.Mobile                       #: 111234
+
+                #ProxyAddresses            = $User.ProxyAddresses               #:
+                #ServiceProvisioningErrors = $User.ServiceProvisioningErrors    #:
+                Surname        = $User.Surname                      #: Test Contact
+                #TransitiveMemberOf           = $User.TransitiveMemberOf           #:
+                #AdditionalProperties         = $User.AdditionalProperties         #: {}
+            }
+            foreach ($Phone in $User.Phones) {
+                if ($Phone.Type -eq 'Mobile') {
+                    $NewUser.MobilePhone = $Phone.Number
+                } elseif ($Phone.Type -eq 'Business') {
+                    $NewUser.BusinessPhones = $Phone.Number
+                } elseif ($Phone.Type -eq 'Home') {
+                    $NewUser.HomePhone = $Phone.Number
+                }
+            }
+
+
+            $ExistingUsers[$Entry] = [PSCustomObject] $NewUser
         }
     }
     $ExistingUsers
