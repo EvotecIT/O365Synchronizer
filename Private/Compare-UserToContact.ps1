@@ -1,14 +1,37 @@
 ﻿function Compare-UserToContact {
+    <#
+    .SYNOPSIS
+    Short description
+
+    .DESCRIPTION
+    Long description
+
+    .PARAMETER UserID
+    Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName
+
+    .PARAMETER ExistingContactGAL
+    User/Contact object from GAL
+
+    .PARAMETER Contact
+    Existing contact in user's personal contacts
+
+    .EXAMPLE
+    An example
+
+    .NOTES
+    General notes
+    #>
     [CmdletBinding()]
     param(
         [string] $UserID,
-        [PSCustomObject] $ExistingContact,
+        [PSCustomObject] $ExistingContactGAL,
         [PSCustomObject] $Contact
     )
     $AddressProperties = 'City', 'State', 'Street', 'PostalCode', 'Country'
     if ($Contact.PSObject.Properties.Name -contains 'MailNickName') {
         $TranslatedContact = $Contact
     } elseif ($Contact.PSObject.Properties.Name -contains 'Nickname') {
+        # Translate existing contact in user's personal contacts to user object so it's identical to user object from GAL
         $TranslatedContact = [ordered] @{}
         foreach ($Property in $Script:MappingContactToUser.Keys) {
             if ($Property -eq 'Mail') {
@@ -20,24 +43,17 @@
             }
         }
     } else {
-        throw "Compare-UserToContact - Unknown user object $($ExistingContact.PSObject.Properties.Name)"
+        throw "Compare-UserToContact - Unknown user object $($ExistingContactGAL.PSObject.Properties.Name)"
     }
 
     $SkippedProperties = [System.Collections.Generic.List[string]]::new()
     $UpdateProperties = [System.Collections.Generic.List[string]]::new()
     foreach ($Property in $Script:MappingContactToUser.Keys) {
-        if ([string]::IsNullOrEmpty($ExistingContact.$Property) -and [string]::IsNullOrEmpty($TranslatedContact.$Property)) {
+        if ([string]::IsNullOrEmpty($ExistingContactGAL.$Property) -and [string]::IsNullOrEmpty($TranslatedContact.$Property)) {
             $SkippedProperties.Add($Property)
         } else {
-            # $TemporaryComparison = [ordered] @{
-            #     Name         = $Property
-            #     UserValue    = $ExistingContact.$Property
-            #     ContactValue = $TranslatedContact.$Property
-            # }
-            # $TemporaryComparison | ConvertTo-Json | Write-Verbose
-
-            if ($User.$Property -ne $TranslatedContact.$Property) {
-                Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($ExistingContact.DisplayName) / $($ExistingContact.Mail) different ($($ExistingContact.$Property) vs $($Contact.$Property))"
+            if ($ExistingContactGAL.$Property -ne $TranslatedContact.$Property) {
+                Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($ExistingContactGAL.DisplayName) / $($ExistingContactGAL.Mail) different ($($ExistingContactGAL.$Property) vs $($Contact.$Property))"
                 if ($Property -in $AddressProperties) {
                     foreach ($Address in $AddressProperties) {
                         if ($UpdatedProperties -notcontains $Address) {
@@ -56,8 +72,8 @@
     [PSCustomObject] @{
         UserId      = $UserId
         Action      = 'Update'
-        DisplayName = $ExistingContact.DisplayName
-        Mail        = $ExistingContact.Mail
+        DisplayName = $ExistingContactGAL.DisplayName
+        Mail        = $ExistingContactGAL.Mail
         Update      = $UpdateProperties | Sort-Object -Unique
         Skip        = $SkippedProperties | Sort-Object -Unique
         Details     = ''
