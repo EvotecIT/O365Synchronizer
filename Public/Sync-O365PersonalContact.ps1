@@ -30,6 +30,9 @@
     Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
     By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
 
+    .PARAMETER FolderName
+    Name of the folder to synchronize contacts to. If not set it will synchronize contacts to the main folder.
+
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
 
@@ -43,6 +46,7 @@
         [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
         [switch] $RequireEmailAddress,
         [string] $GuidPrefix,
+        [string] $FolderName,
         [switch] $DoNotRequireAccountEnabled,
         [switch] $DoNotRequireAssignedLicenses,
         [switch] $PassThru
@@ -64,10 +68,14 @@
     }
 
     foreach ($User in $UserId) {
+        $FolderInformation = Initialize-FolderName -UserId $User -FolderName $FolderName
+        if ($FolderInformation -eq $false) {
+            return
+        }
         # Lets get all contacts of given person and cache them
-        $ExistingContacts = Get-O365ExistingUserContacts -UserID $User -GuidPrefix $GuidPrefix
+        $ExistingContacts = Get-O365ExistingUserContacts -UserID $User -GuidPrefix $GuidPrefix -FolderName $FolderName
 
-        $Actions = Sync-InternalO365PersonalContact -UserId $User -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
+        $Actions = Sync-InternalO365PersonalContact -FolderInformation $FolderInformation -UserId $User -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
         if ($PassThru) {
             $Actions
         }
