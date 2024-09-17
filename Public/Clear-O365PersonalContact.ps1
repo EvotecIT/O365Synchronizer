@@ -18,6 +18,9 @@
     .PARAMETER FolderName
     Name of the folder to remove contacts from. If not set it will remove contacts from the main folder.
 
+    .PARAMETER FolderRemove
+    If set it will remove the folder as well, once the contacts are removed.
+
     .PARAMETER FullLogging
     If set it will log all actions. By default it will only log actions that meant contact is getting removed or an error happens.
 
@@ -41,6 +44,7 @@
         [Parameter(Mandatory)][string] $Identity,
         [string] $GuidPrefix,
         [string] $FolderName,
+        [switch] $FolderRemove,
         [switch] $FullLogging,
         [switch] $All
     )
@@ -88,5 +92,13 @@
         }
         Write-Color -Text "[i] ", "Removing ", $Contact.DisplayName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
         Remove-MgUserContact -UserId $Identity -ContactId $Contact.Id -WhatIf:$WhatIfPreference
+    }
+    if ($CurrentContactsFolder -and $FolderName -and $FolderRemove) {
+        Write-Color -Text "[i] ", "Removing folder ", $FolderName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
+        try {
+            Remove-MgUserContactFolder -UserId $Identity -ContactFolderId $CurrentContactsFolder.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
+        } catch {
+            Write-Color -Text "[!] ", "Failed to remove folder ", $FolderName, " from ", $Identity, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+        }
     }
 }
