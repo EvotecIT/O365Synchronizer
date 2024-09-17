@@ -15,6 +15,9 @@
     Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
     By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
 
+    .PARAMETER FolderName
+    Name of the folder to remove contacts from. If not set it will remove contacts from the main folder.
+
     .PARAMETER FullLogging
     If set it will log all actions. By default it will only log actions that meant contact is getting removed or an error happens.
 
@@ -37,10 +40,31 @@
     param(
         [Parameter(Mandatory)][string] $Identity,
         [string] $GuidPrefix,
+        [string] $FolderName,
         [switch] $FullLogging,
         [switch] $All
     )
-    $CurrentContacts = Get-MgUserContact -UserId $Identity -All
+    if ($FolderName) {
+        try {
+            $CurrentContactsFolder = Get-MgUserContactFolder -UserId $Identity -Filter "DisplayName eq '$FolderName'" -ExpandProperty Contacts -ErrorAction Stop
+        } catch {
+            Write-Color -Text "[!] ", "Getting user folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Red, White, Red, White
+            return
+        }
+        if (-not $CurrentContactsFolder) {
+            Write-Color -Text "[!] ", "User folder ", $FolderName, " not found for ", $Identity -Color Yellow, Yellow, Red, Yellow, Red
+            return
+        }
+
+        $CurrentContacts = $CurrentContactsFolder.Contacts
+    } else {
+        try {
+            $CurrentContacts = Get-MgUserContact -UserId $Identity -All -ErrorAction Stop
+        } catch {
+            Write-Color -Text "[!] ", "Getting user contacts for ", $Identity, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
+            return
+        }
+    }
     foreach ($Contact in $CurrentContacts) {
         if ($GuidPrefix -and -not $Contact.FileAs.StartsWith($GuidPrefix)) {
             if (-not $All) {
