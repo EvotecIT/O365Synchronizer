@@ -48,7 +48,7 @@
         [alias('MailNickname')][string] $NickName,
         [string] $OfficeLocation,
 
-        [string] $ParentFolderId,
+        [string] $ContactFolderID,
         [string] $PersonalNotes,
         #$Photo,
         [string] $Profession,
@@ -112,7 +112,7 @@
             PostalCode      = $OtherPostalCode
             CountryOrRegion = $OtherCountryOrRegion
         }
-        ParentFolderId   = $ParentFolderId
+        ContactFolderID  = $ContactFolderID
         PersonalNotes    = $PersonalNotes
         Profession       = $Profession
         SpouseName       = $SpouseName
@@ -126,6 +126,21 @@
     }
     Remove-EmptyValue -Hashtable $ContactSplat -Recursive -Rerun 2
 
-    $null = New-MgUserContact @contactSplat
-    $true
+    if ($null -eq $ContactFolderID) {
+        try {
+            $null = New-MgUserContact @contactSplat
+            $true
+        } catch {
+            Write-Color -Text "[!] ", "Failed to create contact for ", $DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            $false
+        }
+    } else {
+        try {
+            $null = New-MgUserContactFolderContact @contactSplat
+            $true
+        } catch {
+            Write-Color -Text "[!] ", "Failed to create contact for ", $DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            $false
+        }
+    }
 }

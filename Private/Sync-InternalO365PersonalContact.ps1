@@ -18,6 +18,9 @@
     .PARAMETER GuidPrefix
     Parameter description
 
+    .PARAMETER FolderInformation
+    Parameter description
+
     .PARAMETER ExistingUsers
     Users and contacts in GAL that will be synchronized to user's personal contacts
 
@@ -36,6 +39,7 @@
         [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes,
         [switch] $RequireEmailAddress,
         [string] $GuidPrefix,
+        [object] $FolderInformation,
         [System.Collections.IDictionary] $ExistingUsers,
         [System.Collections.IDictionary] $ExistingContacts
     )
@@ -56,11 +60,11 @@
             $ListActions.Add($OutputObject)
         } else {
             # Contact does not exist, lets create it
-            $OutputObject = New-O365InternalContact -UserId $UserId -User $User -GuidPrefix $GuidPrefix -RequireEmailAddress:$RequireEmailAddress
+            $OutputObject = New-O365InternalContact -UserId $UserId -User $User -GuidPrefix $GuidPrefix -RequireEmailAddress:$RequireEmailAddress -FolderInformation $FolderInformation
             $ListActions.Add($OutputObject)
         }
     }
-    # now lets remove any contacts that are not required or filtered out
+    # now lets remove any contacts that are not required or filtered out, folder name is not needed here
     $RemoveActions = Remove-O365InternalContact -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -UserId $UserId
     foreach ($Remove in $RemoveActions) {
         $ListActions.Add($Remove)

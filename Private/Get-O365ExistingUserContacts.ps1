@@ -2,11 +2,32 @@
     [cmdletbinding()]
     param(
         [string] $UserID,
-        [string] $GuidPrefix
+        [string] $GuidPrefix,
+        [string] $FolderName
     )
     # Lets get all contacts of given person and cache them
     $ExistingContacts = [ordered] @{}
-    $CurrentContacts = Get-MgUserContact -UserId $UserId -All
+    if ($FolderName) {
+        try {
+            $CurrentContactsFolder = Get-MgUserContactFolder -UserId $UserId -Filter "DisplayName eq '$FolderName'" -ExpandProperty Contacts -ErrorAction Stop
+        } catch {
+            Write-Color -Text "[!] ", "Getting user folder ", $FolderName, " failed for ", $UserId, ". Error: ", $_.Exception.Message -Color Red, White, Red, White
+            return
+        }
+        if (-not $CurrentContactsFolder) {
+            Write-Color -Text "[!] ", "User folder ", $FolderName, " not found for ", $UserId -Color Yellow, Yellow, Red, Yellow, Red
+            return
+        }
+
+        $CurrentContacts = $CurrentContactsFolder.Contacts
+    } else {
+        try {
+            $CurrentContacts = Get-MgUserContact -UserId $UserId -All -ErrorAction Stop
+        } catch {
+            Write-Color -Text "[!] ", "Getting user contacts for ", $UserId, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
+            return
+        }
+    }
     foreach ($Contact in $CurrentContacts) {
         if (-not $Contact.FileAs) {
             continue

@@ -12,6 +12,8 @@
     .PARAMETER User
     User/Contact object from GAL
 
+    .PARAMETER FolderName
+
     .PARAMETER Contact
     Existing contact in user's personal contacts
 
@@ -25,7 +27,8 @@
     param(
         [string] $UserID,
         [PSCustomObject] $User,
-        [PSCustomObject] $Contact
+        [PSCustomObject] $Contact,
+        [string] $FolderName
     )
 
     $OutputObject = Compare-UserToContact -ExistingContactGAL $User -Contact $Contact -UserID $UserID
