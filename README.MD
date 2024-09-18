@@ -151,3 +151,38 @@ Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl','gmail.com' -V
 ```
 
 You can revert the order and set it up to synchronize from Destination tenant to Source tenant to have a two-way synchronization.
+
+#### Filtering & Folder support
+
+```powershell
+# synchronize contacts for 1 user of two types (Member, Contact) using GUID prefix and filtering by company name
+# this will only synchronize contacts that have CompanyName starting with 'Evotec' or 'Ziomek'
+# this will also require contacts to be in a group by 'e7772951-4b0e-4f10-8f38-eae9b8f55962'
+# this will also create a folder 'O365Sync' in user's personal contacts and put synchronized contacts there
+# this will also return the results in a table
+Sync-O365PersonalContact -UserId 'test@evotec.pl' -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' -PassThru {
+    Sync-O365PersonalContactFilter -Type Include -Property 'CompanyName' -Value 'Evotec*','Ziomek*' -Operator 'like'
+    Sync-O365PersonalContactFilterGroup -Type Include -GroupID 'e7772951-4b0e-4f10-8f38-eae9b8f55962'
+} -FolderName 'O365Sync' | Format-Table
+```
+
+### Clearing personal contacts
+
+```powershell
+# this is useful to clear current user contacts (if you have some)
+# this will only delete synchronized ones (based on FileAs property that has to convert to GUID)
+Clear-O365PersonalContact -Identity 'testAccount@evotec.pl' -WhatIf
+
+# this is useful to clear current user contacts (if you have some)
+# this will only delete synchronized ones (based on FileAs property that has to convert to GUID, with GUID prefix)
+Clear-O365PersonalContact -Identity 'testAccount@evotec.pl' -GuidPrefix 'O365Synchronizer' -WhatIf
+
+# this will delete all contacts
+Clear-O365PersonalContact -Identity 'testAccount@evotec.pl' -All -WhatIf
+
+# this will only delete synchronized ones (based on FileAs property that has to convert to GUID, with GUID prefix) from specific folder
+Clear-O365PersonalContact -Identity 'testAccount@evotec.pl' -GuidPrefix 'O365Synchronizer' -FolderName 'O365' -WhatIf
+
+# this will only delete synchronized ones (based on FileAs property that has to convert to GUID, with GUID prefix) from specific folder, including the folder
+Clear-O365PersonalContact -Identity 'testAccount@evotec.pl' -GuidPrefix 'O365Synchronizer' -FolderName 'O365Sync' -FolderRemove -WhatIf
+```
