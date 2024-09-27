@@ -1,5 +1,8 @@
 ﻿## Changelog
 
+### 1.0.1 - 2024.09.27
+- Fixes too small amount of contacts gathered when using folders
+
 ### 1.0.0 - 2024.09.18
 - Added `Sync-O365PersonalContactFilter` to allow filtering of users to synchronize by properties
 - Added `Sync-O365PersonalContactFilterGroup` to allow filtering of users to synchronize by group membership (ID only)
