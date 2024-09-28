@@ -126,7 +126,7 @@
     }
     Remove-EmptyValue -Hashtable $ContactSplat -Recursive -Rerun 2
 
-    if ($null -eq $ContactFolderID) {
+    if ([string]::IsNullOrEmpty($ContactFolderID)) {
         try {
             $null = New-MgUserContact @contactSplat
             $true
