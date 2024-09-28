@@ -21,7 +21,7 @@
 
 ## Features & ToDo
 
-- [ ] Synchronize Users between tenants as Guests
+- 🚫 Synchronize Users between tenants as Guests
 - ✅ Synchronize Users between tenants as Contacts (organization contacts)
   - ✅ Add
   - ✅ Update
@@ -30,9 +30,15 @@
   - ✅ Add
   - ✅ Update
   - ✅ Remove
-- [ ] Backup current contacts
+  - ✅ Ability to synchronize only specific users (filtering)
+  - ✅ Ability to synchronize only specific users (group membership)
+  - ✅ Ability to synchronize to specific folder
+- 🚫 Backup current contacts
 - ✅ Remove current personal contacts
-- ✅ Remove current personal "synchronized" contacts
+  - ✅ Remove current personal contacts (all)
+  - ✅ Remove current personal "synchronized" contacts
+  - ✅ Remove current personal "synchronized" contacts from specific folder
+  - ✅ Remove current personal "synchronized" contacts from specific folder and remove the folder itself
 
 ## Installing/Updating
 
@@ -69,8 +75,6 @@ If you want to contribute to the module, you can clone the repository and use it
 ```powershell
 $Modules = @(
     'PSSharedGoods'
-    #'Mailozaurr'
-    #'PSWriteHTML'
     'PSWriteColor'
 )
 $ModulesGraph = @(
