@@ -80,7 +80,9 @@
         }
         # Lets get all contacts of given person and cache them
         $ExistingContacts = Get-O365ExistingUserContacts -UserID $User -GuidPrefix $GuidPrefix -FolderName $FolderName
-
+        if ($ExistingContacts -eq $false) {
+            continue
+        }
         $Actions = Sync-InternalO365PersonalContact -FolderInformation $FolderInformation -UserId $User -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
         if ($PassThru) {
             $Actions
