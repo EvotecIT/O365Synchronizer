@@ -1,5 +1,8 @@
 ﻿## Changelog
 
+### 1.0.3 - 2024.10.15
+- Fixes problem with synchronizing proper contacts when using folders
+
 ### 1.0.2 - 2024.09.28
 - Fixes bug when not using folder for synchronization it would prompt for contact folder id
 
