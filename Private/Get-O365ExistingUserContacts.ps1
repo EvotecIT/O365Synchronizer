@@ -9,23 +9,27 @@
     $ExistingContacts = [ordered] @{}
     if ($FolderName) {
         try {
-            $CurrentContactsFolder = Get-MgUserContactFolder -UserId $UserId -Filter "DisplayName eq '$FolderName'" -ExpandProperty Contacts -ErrorAction Stop -All
+            $CurrentContactsFolder = Get-MgUserContactFolder -UserId $UserId -Filter "DisplayName eq '$FolderName'" -ErrorAction Stop -All
         } catch {
             Write-Color -Text "[!] ", "Getting user folder ", $FolderName, " failed for ", $UserId, ". Error: ", $_.Exception.Message -Color Red, White, Red, White
-            return
+            return $false
         }
         if (-not $CurrentContactsFolder) {
             Write-Color -Text "[!] ", "User folder ", $FolderName, " not found for ", $UserId -Color Yellow, Yellow, Red, Yellow, Red
-            return
+            return $false
         }
-
-        $CurrentContacts = $CurrentContactsFolder.Contacts
+        try {
+            $CurrentContacts = Get-MgUserContactFolderContact -ContactFolderId $CurrentContactsFolder.Id -UserId $UserId -ErrorAction Stop -All
+        } catch {
+            Write-Color -Text "[!] ", "Getting user contacts for ", $UserId, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
+            return $false
+        }
     } else {
         try {
             $CurrentContacts = Get-MgUserContact -UserId $UserId -All -ErrorAction Stop
         } catch {
             Write-Color -Text "[!] ", "Getting user contacts for ", $UserId, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
-            return
+            return $false
         }
     }
     foreach ($Contact in $CurrentContacts) {
