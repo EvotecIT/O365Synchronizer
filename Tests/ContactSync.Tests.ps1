@@ -88,6 +88,21 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result.Success | Should -BeFalse
                 $result.ErrorMessage | Should -Match 'boom'
             }
+
+            It 'filters empty values from arrays before update' {
+                Mock Update-MgUserContact {}
+
+                $result = Set-O365WrapperPersonalContact -UserId 'user@contoso.com' -ContactId 'contact-id' -DisplayName 'User One' -EmailAddresses @('', 'user@contoso.com') -BusinessPhones @('', '123') -HomePhones @('') -ImAddresses @('im1', '')
+
+                $result.Success | Should -BeTrue
+                Assert-MockCalled Update-MgUserContact -Times 1 -ParameterFilter {
+                    $EmailAddresses.Count -eq 1 -and
+                    $EmailAddresses[0].Address -eq 'user@contoso.com' -and
+                    $BusinessPhones -eq @('123') -and
+                    $ImAddresses -eq @('im1') -and
+                    -not $PSBoundParameters.ContainsKey('HomePhones')
+                }
+            }
         }
 
         Context 'Set-O365InternalContact error propagation' {
