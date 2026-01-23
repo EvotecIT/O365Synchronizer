@@ -8,7 +8,7 @@ function ConvertTo-CleanContactArray {
     $Clean = [System.Collections.Generic.List[string]]::new()
     foreach ($Value in $Values) {
         if (-not [string]::IsNullOrWhiteSpace($Value)) {
-            $null = $Clean.Add($Value)
+            $null = $Clean.Add($Value.Trim())
         }
     }
     if ($Clean.Count -eq 0) {
