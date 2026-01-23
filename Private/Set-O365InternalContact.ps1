@@ -32,6 +32,7 @@
     )
 
     $OutputObject = Compare-UserToContact -ExistingContactGAL $User -Contact $Contact -UserID $UserID
+    $ErrorMessage = ''
     if ($OutputObject.Update.Count -gt 0) {
         if ($User.Mail) {
             Write-Color -Text "[i] ", "Updating ", $User.DisplayName, " / ", $User.Mail, " properties to update: ", $($OutputObject.Update -join ', '), " properties to skip: ", $($OutputObject.Skip -join ', ') -Color Yellow, White, Green, White, Green, White, Green, White, Cyan

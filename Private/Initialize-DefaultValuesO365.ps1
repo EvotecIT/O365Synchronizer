@@ -10,6 +10,7 @@
         'Surname'
         'Mail'
         'Nickname'
+        'MailNickname'
         'MobilePhone'
         'HomePhone'
         'BusinessPhones'
@@ -30,6 +31,7 @@
         'Country'
         'City'
         'State'
+        'StreetAddress'
         'Street'
         'PostalCode'
     )

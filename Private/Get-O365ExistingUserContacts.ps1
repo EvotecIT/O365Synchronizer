@@ -54,6 +54,6 @@
     }
 
     Write-Color -Text "[i] ", "User ", $UserId, " has ", $CurrentContacts.Count, " contacts, out of which ", $ExistingContacts.Count, " synchronized." -Color Yellow, White, Cyan, White, Cyan, White, Cyan, White
-    Write-Color -Text "[i] ", "Users to process: ", $ExistingUsers.Count, " Contacts to process: ", $ExistingContacts.Count -Color Yellow, White, Cyan, White, Cyan
+    Write-Color -Text "[i] ", "Contacts to process: ", $ExistingContacts.Count -Color Yellow, White, Cyan, White, Cyan
     $ExistingContacts
 }

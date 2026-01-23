@@ -56,7 +56,7 @@
                 Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($ExistingContactGAL.DisplayName) / $($ExistingContactGAL.Mail) different ($($ExistingContactGAL.$Property) vs $($Contact.$Property))"
                 if ($Property -in $AddressProperties) {
                     foreach ($Address in $AddressProperties) {
-                        if ($UpdatedProperties -notcontains $Address) {
+                        if ($UpdateProperties -notcontains $Address) {
                             $UpdateProperties.Add($Address)
                         }
                     }

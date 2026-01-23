@@ -46,7 +46,7 @@
         [string] $Manager,
         [string] $MiddleName,
         [string] $MobilePhone,
-        [string] $NickName,
+        [alias('MailNickname')][string] $NickName,
         [string] $OfficeLocation,
 
         [string] $ParentFolderId,
@@ -127,6 +127,13 @@
         ErrorAction      = 'Stop'
     }
     Remove-EmptyValue -Hashtable $ContactSplat -Recursive -Rerun 2
+    if ($PSBoundParameters.ContainsKey('MobilePhone')) {
+        if ([string]::IsNullOrEmpty($MobilePhone)) {
+            $ContactSplat['MobilePhone'] = $null
+        } else {
+            $ContactSplat['MobilePhone'] = $MobilePhone
+        }
+    }
 
     try {
         $null = Update-MgUserContact @contactSplat
