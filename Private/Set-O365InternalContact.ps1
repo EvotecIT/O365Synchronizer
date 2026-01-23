@@ -62,6 +62,6 @@
     }
 
     $OutputObject | Add-Member -MemberType NoteProperty -Name 'Status' -Value $Status -Force
-    $OutputObject.Error = $ErrorMessage
+    $OutputObject | Add-Member -MemberType NoteProperty -Name 'Error' -Value $ErrorMessage -Force
     $OutputObject
 }
