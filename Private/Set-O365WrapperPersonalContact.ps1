@@ -62,14 +62,15 @@
     )
 
     $EmailAddressesClean = @($EmailAddresses | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-    $EmailAddressEntries = if ($EmailAddressesClean.Count -gt 0) {
+    $EmailAddressEntries = @(
         foreach ($Email in $EmailAddressesClean) {
             @{
                 Address = $Email
             }
         }
-    } else {
-        $null
+    )
+    if ($EmailAddressEntries.Count -eq 0) {
+        $EmailAddressEntries = $null
     }
     $BusinessPhonesClean = @($BusinessPhones | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     $HomePhonesClean = @($HomePhones | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
