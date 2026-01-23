@@ -53,9 +53,6 @@
                 All         = $true
                 ErrorAction = 'Stop'
             }
-            if ($GroupIDs.Keys.Count -gt 0) {
-                $getMgUserSplat.ExpandProperty = 'memberOf'
-            }
             $Users = Get-MgUser @getMgUserSplat
         } catch {
             Write-Color -Text "[e] ", "Failed to get users. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
@@ -76,11 +73,17 @@
                 }
             }
             if ($GroupIDs.Keys.Count -gt 0) {
-                if ($User.MemberOf.Count -eq 0) {
+                try {
+                    $UserGroups = Get-MgUserMemberOf -UserId $User.Id -All
+                } catch {
+                    Write-Color -Text "[e] ", "Failed to get groups for user $($User.UserPrincipalName). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
+                    continue
+                }
+                if ($UserGroups.Count -eq 0) {
                     continue
                 }
                 $GroupExclude = $false
-                foreach ($Group in $User.MemberOf) {
+                foreach ($Group in $UserGroups) {
                     if ($GroupIDsExclude.Keys -contains $Group.Id) {
                         $GroupExclude = $true
                         break
@@ -91,7 +94,7 @@
                     continue
                 }
                 $GroupInclude = $false
-                foreach ($Group in $User.MemberOf) {
+                foreach ($Group in $UserGroups) {
                     if ($GroupIDs.Keys -contains $Group.Id) {
                         $GroupInclude = $true
                         break
@@ -224,9 +227,6 @@
                 All         = $true
                 ErrorAction = 'Stop'
             }
-            if ($GroupIDs.Keys.Count -gt 0) {
-                $getMgContactSplat.ExpandProperty = 'memberOf'
-            }
             $Users = Get-MgContact @getMgContactSplat
         } catch {
             Write-Color -Text "[e] ", "Failed to get contacts. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
@@ -234,13 +234,18 @@
         }
         :NextUser foreach ($User in $Users) {
             $Entry = $User.Id
-
             if ($GroupIDs.Keys.Count -gt 0) {
-                if ($User.MemberOf.Count -eq 0) {
+                try {
+                    $UserGroups = Get-MgContactMemberOf -OrgContactId $User.Id -All
+                } catch {
+                    Write-Color -Text "[e] ", "Failed to get contact memberOf for contact $($User.Id). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
+                    continue
+                }
+                if ($UserGroups.Count -eq 0) {
                     continue
                 }
                 $GroupExclude = $false
-                foreach ($Group in $User.MemberOf) {
+                foreach ($Group in $UserGroups) {
                     if ($GroupIDsExclude.Keys -contains $Group.Id) {
                         $GroupExclude = $true
                         break
@@ -251,7 +256,7 @@
                     continue
                 }
                 $GroupInclude = $false
-                foreach ($Group in $User.MemberOf) {
+                foreach ($Group in $UserGroups) {
                     if ($GroupIDs.Keys -contains $Group.Id) {
                         $GroupInclude = $true
                         break
