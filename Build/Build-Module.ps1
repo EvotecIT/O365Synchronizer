@@ -1,5 +1,3 @@
-Clear-Host
-
 Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
     # Usual defaults as per standard module
     $Manifest = [ordered] @{
@@ -101,7 +99,16 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
 
     New-ConfigurationImportModule -ImportSelf
 
-    New-ConfigurationBuild -Enable:$true -SignModule -MergeModuleOnBuild -MergeFunctionsFromApprovedModules -CertificateThumbprint '483292C9E317AA13B07BB7A96AE9D1A5ED9E7703'
+    $newConfigurationBuildSplat = @{
+        Enable                            = $true
+        SignModule                        = $true
+        MergeModuleOnBuild                = $true
+        MergeFunctionsFromApprovedModules = $true
+        CertificateThumbprint             = '483292C9E317AA13B07BB7A96AE9D1A5ED9E7703'
+        RefreshPSD1Only                   = $true
+    }
+
+    New-ConfigurationBuild @newConfigurationBuildSplat
 
     #New-ConfigurationTest -TestsPath "$PSScriptRoot\..\Tests" -Enable
 
