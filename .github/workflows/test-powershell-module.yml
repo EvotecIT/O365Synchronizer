@@ -25,6 +25,8 @@ jobs:
         shell: pwsh
         run: |
           Install-Module PSPublishModule -Force -Scope CurrentUser -AllowClobber
+          Install-Module PSSharedGoods -Repository PSGallery -Force -SkipPublisherCheck -AllowClobber
+          Install-Module PSWriteColor -Repository PSGallery -Force -SkipPublisherCheck -AllowClobber
 
       - name: Refresh module manifest
         shell: pwsh
