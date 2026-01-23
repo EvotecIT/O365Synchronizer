@@ -58,16 +58,7 @@
         $Status = 'Not required'
     }
 
-    $OutputObject = [PSCustomObject] @{
-        UserId      = $UserId
-        Action      = 'Update'
-        Status      = $Status
-        DisplayName = $User.DisplayName
-        Mail        = $User.Mail
-        Skip        = ''
-        Update      = ''
-        Details     = ''
-        Error       = $ErrorMessage
-    }
+    $OutputObject | Add-Member -MemberType NoteProperty -Name 'Status' -Value $Status -Force
+    $OutputObject.Error = $ErrorMessage
     $OutputObject
 }
