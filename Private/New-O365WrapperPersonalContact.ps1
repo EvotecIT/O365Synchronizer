@@ -60,22 +60,12 @@
         [string] $YomiSurname
     )
 
-    $EmailAddressesClean = @($EmailAddresses | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-    $EmailAddressEntries = @(
-        foreach ($Email in $EmailAddressesClean) {
-            @{
-                Address = $Email
-            }
-        }
-    )
-    if ($EmailAddressEntries.Count -eq 0) {
-        $EmailAddressEntries = $null
-    }
-    $BusinessPhonesClean = @($BusinessPhones | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-    $HomePhonesClean = @($HomePhones | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-    $ImAddressesClean = @($ImAddresses | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-    $ChildrenClean = @($Children | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-    $CategoriesClean = @($Categories | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $EmailAddressEntries = ConvertTo-CleanContactArray -Values $EmailAddresses -AsEmailAddress
+    $BusinessPhonesClean = ConvertTo-CleanContactArray -Values $BusinessPhones
+    $HomePhonesClean = ConvertTo-CleanContactArray -Values $HomePhones
+    $ImAddressesClean = ConvertTo-CleanContactArray -Values $ImAddresses
+    $ChildrenClean = ConvertTo-CleanContactArray -Values $Children
+    $CategoriesClean = ConvertTo-CleanContactArray -Values $Categories
 
     $ContactSplat = [ordered] @{
         UserId           = $UserId
