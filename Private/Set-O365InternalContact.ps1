@@ -46,13 +46,16 @@
         foreach ($Property in $OutputObject.Update) {
             $PropertiesToUpdate[$Property] = $User.$Property
         }
-        $StatusSet = Set-O365WrapperPersonalContact -UserId $UserID -ContactId $Contact.Id @PropertiesToUpdate -WhatIf:$WhatIfPreference
+        $Result = Set-O365WrapperPersonalContact -UserId $UserID -ContactId $Contact.Id @PropertiesToUpdate -WhatIf:$WhatIfPreference
         if ($WhatIfPreference) {
             $Status = 'OK (WhatIf)'
-        } elseif ($StatusSet -eq $true) {
+        } elseif ($Result -and $Result.Success -eq $true) {
             $Status = 'OK'
         } else {
             $Status = 'Failed'
+            if ($Result -and $Result.ErrorMessage) {
+                $ErrorMessage = $Result.ErrorMessage
+            }
         }
     } else {
         $Status = 'Not required'

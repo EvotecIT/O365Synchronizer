@@ -128,6 +128,7 @@
     }
     Remove-EmptyValue -Hashtable $ContactSplat -Recursive -Rerun 2
     if ($PSBoundParameters.ContainsKey('MobilePhone')) {
+        # Preserve explicit clear when caller passes empty MobilePhone.
         if ([string]::IsNullOrEmpty($MobilePhone)) {
             $ContactSplat['MobilePhone'] = $null
         } else {
@@ -137,9 +138,16 @@
 
     try {
         $null = Update-MgUserContact @contactSplat
-        $true
+        [PSCustomObject] @{
+            Success      = $true
+            ErrorMessage = ''
+        }
     } catch {
-        $false
-        Write-Color -Text "[!] ", "Failed to update contact for ", $ContactSplat.DisplayName, " / ", $ContactSplat.EmailAddresses, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+        $ErrorMessage = $_.Exception.Message
+        Write-Color -Text "[!] ", "Failed to update contact for ", $ContactSplat.DisplayName, " / ", $ContactSplat.EmailAddresses, " because: ", $ErrorMessage -Color Yellow, White, Red, White, Red, White, Red
+        [PSCustomObject] @{
+            Success      = $false
+            ErrorMessage = $ErrorMessage
+        }
     }
 }
