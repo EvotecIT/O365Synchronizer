@@ -60,6 +60,12 @@
         }
         :NextUser foreach ($User in $Users) {
             #Write-Verbose -Message "Gathering user $($User.UserPrincipalName)"
+            if (-not $User.MailNickname -and $User.Nickname) {
+                $User | Add-Member -MemberType NoteProperty -Name 'MailNickname' -Value $User.Nickname -Force
+            }
+            if (-not $User.Street -and $User.StreetAddress) {
+                $User | Add-Member -MemberType NoteProperty -Name 'Street' -Value $User.StreetAddress -Force
+            }
             if ($RequireAccountEnabled) {
                 if (-not $User.AccountEnabled) {
                     Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by account is disabled"

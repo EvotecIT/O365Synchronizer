@@ -10,7 +10,17 @@
     if ($RequireEmailAddress) {
         if (-not $User.Mail) {
             #Write-Verbose -Message "Skipping $($User.DisplayName) because they have no email address"
-            continue
+            return [PSCustomObject] @{
+                UserId      = $UserId
+                Action      = 'New'
+                Status      = 'Skipped'
+                DisplayName = $User.DisplayName
+                Mail        = $User.Mail
+                Skip        = 'RequireEmailAddress'
+                Update      = ''
+                Details     = 'Missing email address'
+                Error       = ''
+            }
         }
     }
     if ($User.Mail) {
@@ -22,6 +32,7 @@
     foreach ($Property in $Script:MappingContactToUser.Keys) {
         $PropertiesToUpdate[$Property] = $User.$Property
     }
+    $ErrorMessage = ''
     try {
         $newO365WrapperPersonalContactSplat = @{
             UserId      = $UserID
@@ -56,7 +67,7 @@
         DisplayName = $User.DisplayName
         Mail        = $User.Mail
         Skip        = ''
-        Update      = $newMgUserContactSplat.Keys | Sort-Object
+        Update      = $PropertiesToUpdate.Keys | Sort-Object
         Details     = ''
         Error       = $ErrorMessage
     }

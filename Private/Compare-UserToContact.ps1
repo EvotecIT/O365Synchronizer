@@ -55,8 +55,9 @@
             if ($ExistingContactGAL.$Property -ne $TranslatedContact.$Property) {
                 Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($ExistingContactGAL.DisplayName) / $($ExistingContactGAL.Mail) different ($($ExistingContactGAL.$Property) vs $($Contact.$Property))"
                 if ($Property -in $AddressProperties) {
+                    # Update all address fields together to keep the address consistent.
                     foreach ($Address in $AddressProperties) {
-                        if ($UpdatedProperties -notcontains $Address) {
+                        if ($UpdateProperties -notcontains $Address) {
                             $UpdateProperties.Add($Address)
                         }
                     }
