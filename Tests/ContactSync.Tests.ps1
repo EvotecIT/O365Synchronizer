@@ -90,17 +90,18 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
 
             It 'filters empty values from arrays before update' {
-                $script:Captured = $null
-                Mock Update-MgUserContact { $script:Captured = $PSBoundParameters }
+                Mock Update-MgUserContact {}
 
                 $result = Set-O365WrapperPersonalContact -UserId 'user@contoso.com' -ContactId 'contact-id' -DisplayName 'User One' -EmailAddresses @('', 'user@contoso.com') -BusinessPhones @('', '123') -HomePhones @('') -ImAddresses @('im1', '')
 
                 $result.Success | Should -BeTrue
-                $script:Captured.EmailAddresses.Count | Should -Be 1
-                $script:Captured.EmailAddresses[0].Address | Should -Be 'user@contoso.com'
-                $script:Captured.BusinessPhones | Should -Be @('123')
-                $script:Captured.ImAddresses | Should -Be @('im1')
-                $script:Captured.ContainsKey('HomePhones') | Should -BeFalse
+                Assert-MockCalled Update-MgUserContact -Times 1 -ParameterFilter {
+                    $EmailAddresses.Count -eq 1 -and
+                    $EmailAddresses[0].Address -eq 'user@contoso.com' -and
+                    $BusinessPhones -eq @('123') -and
+                    $ImAddresses -eq @('im1') -and
+                    -not $PSBoundParameters.ContainsKey('HomePhones')
+                }
             }
         }
 
