@@ -60,6 +60,22 @@
         [string] $YomiSurname
     )
 
+    $EmailAddressesClean = @($EmailAddresses | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $EmailAddressEntries = if ($EmailAddressesClean.Count -gt 0) {
+        foreach ($Email in $EmailAddressesClean) {
+            @{
+                Address = $Email
+            }
+        }
+    } else {
+        $null
+    }
+    $BusinessPhonesClean = @($BusinessPhones | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $HomePhonesClean = @($HomePhones | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $ImAddressesClean = @($ImAddresses | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $ChildrenClean = @($Children | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $CategoriesClean = @($Categories | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+
     $ContactSplat = [ordered] @{
         UserId           = $UserId
         AssistantName    = $AssistantName
@@ -72,20 +88,13 @@
             CountryOrRegion = $BusinessCountryOrRegion
         }
         BusinessHomePage = $BusinessHomePage
-        BusinessPhones   = $BusinessPhones
-        Categories       = $Categories
-        Children         = $Children
+        BusinessPhones   = $BusinessPhonesClean
+        Categories       = $CategoriesClean
+        Children         = $ChildrenClean
         CompanyName      = $CompanyName
         Department       = $Department
         DisplayName      = $DisplayName
-        EmailAddresses   = @(
-            foreach ($Email in $EmailAddresses) {
-                @{
-                    Address = $Email
-                }
-            }
-        )
-        Extensions       = $Extensions
+        EmailAddresses   = $EmailAddressEntries
         FileAs           = $FileAs
         Generation       = $Generation
         GivenName        = $GivenName
@@ -96,8 +105,8 @@
             PostalCode      = $HomePostalCode
             CountryOrRegion = $HomeCountryOrRegion
         }
-        HomePhones       = $HomePhones
-        ImAddresses      = $ImAddresses
+        HomePhones       = $HomePhonesClean
+        ImAddresses      = $ImAddressesClean
         Initials         = $Initials
         JobTitle         = $JobTitle
         Manager          = $Manager
@@ -106,7 +115,7 @@
         NickName         = $NickName
         OfficeLocation   = $OfficeLocation
         OtherAddress     = @{
-            Street          = $OtherStreet
+            Street          = $OtherAddress
             City            = $OtherCity
             State           = $OtherState
             PostalCode      = $OtherPostalCode
