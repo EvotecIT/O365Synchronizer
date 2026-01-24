@@ -26,6 +26,11 @@
     Do not require assigned licenses. By default user must have assigned licenses, otherwise it will be skipped.
     The licenses are checked by looking at AssignedLicenses property of the user, and not the actual license types.
 
+    .PARAMETER IncludeExternalUsers
+    Allows unlicensed external users to be included when assigned licenses are required.
+    Use 'Guest' to include users with UserType = Guest.
+    Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.
+
     .PARAMETER GuidPrefix
     Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
     By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
@@ -42,6 +47,9 @@
         Sync-O365PersonalContactFilterGroup -Type Include -GroupID 'e7772951-4b0e-4f10-8f38-eae9b8f55962'
     } -FolderName 'O365Sync' | Format-Table
 
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
+
     .NOTES
     General notes
     #>
@@ -55,6 +63,7 @@
         [string] $FolderName,
         [switch] $DoNotRequireAccountEnabled,
         [switch] $DoNotRequireAssignedLicenses,
+        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
         [switch] $PassThru
     )
 
@@ -65,6 +74,7 @@
         MemberTypes             = $MemberTypes
         RequireAccountEnabled   = -not $DoNotRequireAccountEnabled.IsPresent
         RequireAssignedLicenses = -not $DoNotRequireAssignedLicenses.IsPresent
+        IncludeExternalUsers    = $IncludeExternalUsers
         UserProvidedFilter      = $Filter
     }
 

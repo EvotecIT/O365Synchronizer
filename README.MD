@@ -122,6 +122,18 @@ Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelc
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl', 'adam.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' | Format-Table *
 ```
 
+#### License requirements & external users
+
+By default, users without assigned licenses are skipped. If you need to include all unlicensed users, use `-DoNotRequireAssignedLicenses`.
+If you only want to include external users without licenses, use `-IncludeExternalUsers` with one or both values:
+- `Guest` (UserType = Guest)
+- `ExtUPN` (UserPrincipalName contains `#EXT#`)
+
+```powershell
+# include only external users without licenses (guests and #EXT# UPNs)
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
+```
+
 ### Synchronize users between tenants
 
 #### Permissions required

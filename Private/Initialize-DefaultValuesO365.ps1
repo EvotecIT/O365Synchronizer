@@ -9,6 +9,7 @@
         'GivenName'
         'Surname'
         'Mail'
+        'OtherMails'
         'Nickname'
         'MailNickname'
         'MobilePhone'
