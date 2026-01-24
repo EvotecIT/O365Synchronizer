@@ -13,8 +13,10 @@ Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 ## SYNTAX
 
 ```
-Sync-O365PersonalContact [[-UserId] <String[]>] [[-MemberTypes] <String[]>] [-RequireEmailAddress]
- [[-GuidPrefix] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Sync-O365PersonalContact [[-Filter] <ScriptBlock>] [[-UserId] <String[]>] [[-MemberTypes] <String[]>]
+ [-RequireEmailAddress] [[-GuidPrefix] <String>] [[-FolderName] <String>]
+ [-DoNotRequireAccountEnabled] [-DoNotRequireAssignedLicenses] [[-IncludeExternalUsers] <String[]>]
+ [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -27,7 +29,28 @@ Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
 ```
 
+### EXAMPLE 2
+```
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
+```
+
 ## PARAMETERS
+
+### -Filter
+Filters to apply to users.
+You should use Sync-O365PersonalContactFilter or/and Sync-O365PersonalContactFilterGroup to create filter(s).
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -UserId
 Identity of the user to synchronize contacts to.
@@ -89,6 +112,87 @@ Aliases:
 Required: False
 Position: 3
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FolderName
+Name of the folder to synchronize contacts to.
+If not set it will synchronize contacts to the main folder.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DoNotRequireAccountEnabled
+Do not require account to be enabled.
+By default account must be enabled, otherwise it will be skipped.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DoNotRequireAssignedLicenses
+Do not require assigned licenses.
+By default user must have assigned licenses, otherwise it will be skipped.
+The licenses are checked by looking at AssignedLicenses property of the user, and not the actual license types.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IncludeExternalUsers
+Allows unlicensed external users to be included when assigned licenses are required.
+Use 'Guest' to include users with UserType = Guest.
+Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PassThru
+Returns actions taken during synchronization.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

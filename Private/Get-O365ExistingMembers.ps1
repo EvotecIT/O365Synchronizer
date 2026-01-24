@@ -4,7 +4,8 @@
         [scriptblock] $UserProvidedFilter,
         [string[]] $MemberTypes,
         [switch] $RequireAccountEnabled,
-        [switch] $RequireAssignedLicenses
+        [switch] $RequireAssignedLicenses,
+        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers
     )
 
     # Build filtering system
@@ -87,9 +88,9 @@
             if ($RequireAssignedLicenses) {
                 if ($User.AssignedLicenses.Count -eq 0) {
                     $IsExternalUser = $false
-                    if ($User.UserType -eq 'Guest') {
+                    if ($IncludeExternalUsers -contains 'Guest' -and $User.UserType -eq 'Guest') {
                         $IsExternalUser = $true
-                    } elseif ($User.UserPrincipalName -and $User.UserPrincipalName -like '*#EXT#*') {
+                    } elseif ($IncludeExternalUsers -contains 'ExtUPN' -and $User.UserPrincipalName -and $User.UserPrincipalName -like '*#EXT#*') {
                         $IsExternalUser = $true
                     }
                     if (-not $IsExternalUser) {

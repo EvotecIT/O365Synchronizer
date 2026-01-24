@@ -125,7 +125,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result['1'].Mail | Should -Be 'external@domain.com'
             }
 
-            It 'keeps external users without licenses when RequireAssignedLicenses is set' {
+            It 'filters external users without licenses when RequireAssignedLicenses is set and no override' {
                 Mock Get-MgUser {
                     @([pscustomobject]@{
                             Id                = '2'
@@ -141,7 +141,45 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $result = Get-O365ExistingMembers -MemberTypes @('Member') -RequireAssignedLicenses
 
-                $result['2'] | Should -Not -BeNullOrEmpty
+                $result['2'] | Should -BeNullOrEmpty
+            }
+
+            It 'keeps external users without licenses when IncludeExternalUsers contains ExtUPN' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '3'
+                            UserPrincipalName = 'ext_user#EXT#@tenant.onmicrosoft.com'
+                            Mail              = 'external@domain.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @()
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -RequireAssignedLicenses -IncludeExternalUsers 'ExtUPN'
+
+                $result['3'] | Should -Not -BeNullOrEmpty
+            }
+
+            It 'keeps guest users without licenses when IncludeExternalUsers contains Guest' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '4'
+                            UserPrincipalName = 'guest_user@external.com'
+                            Mail              = 'guest@external.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @()
+                            AccountEnabled    = $true
+                            UserType          = 'Guest'
+                            MemberOf          = @()
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -RequireAssignedLicenses -IncludeExternalUsers 'Guest'
+
+                $result['4'] | Should -Not -BeNullOrEmpty
             }
         }
 
