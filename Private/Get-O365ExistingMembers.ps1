@@ -534,7 +534,6 @@
                 JobTitle       = $User.JobTitle                     #: Tytul
                 Mail           = $User.Mail                         #: new_contact@evotec.pl
                 MailNickname   = $User.MailNickname                 #: new_contact
-                Manager        = $User.Manager                      #:
                 MemberOf       = $User.MemberOf                     #:
                 #OnPremisesLastSyncDateTime   = $User.OnPremisesLastSyncDateTime   #:
                 #OnPremisesProvisioningErrors = $User.OnPremisesProvisioningErrors #:
