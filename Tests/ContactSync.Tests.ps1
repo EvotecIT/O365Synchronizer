@@ -192,7 +192,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 }
 
                 Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
-                    $Filter -eq "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTERCRITERIA'" -and
+                    $Filter -eq "(onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTERCRITERIA')" -and
                     $ConsistencyLevel -eq 'eventual' -and
                     $CountVariable -eq 'userCount' -and
                     $PageSize -eq 999

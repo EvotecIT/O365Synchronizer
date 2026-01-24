@@ -176,18 +176,7 @@
             }
             foreach ($Property in $PropertyFilterExclude.Keys) {
                 $Filter = $PropertyFilterExclude[$Property]
-                $Value = $null
-                if ($Property -like '*.*') {
-                    $Value = $User
-                    foreach ($Segment in ($Property -split '\.')) {
-                        if ($null -eq $Value) {
-                            break
-                        }
-                        $Value = $Value.$Segment
-                    }
-                } else {
-                    $Value = $User.$Property
-                }
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {
@@ -242,18 +231,7 @@
             }
             foreach ($Property in $PropertyFilter.Keys) {
                 $Filter = $PropertyFilter[$Property]
-                $Value = $null
-                if ($Property -like '*.*') {
-                    $Value = $User
-                    foreach ($Segment in ($Property -split '\.')) {
-                        if ($null -eq $Value) {
-                            break
-                        }
-                        $Value = $Value.$Segment
-                    }
-                } else {
-                    $Value = $User.$Property
-                }
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {
@@ -360,18 +338,7 @@
             }
             foreach ($Property in $PropertyFilterExclude.Keys) {
                 $Filter = $PropertyFilterExclude[$Property]
-                $Value = $null
-                if ($Property -like '*.*') {
-                    $Value = $User
-                    foreach ($Segment in ($Property -split '\.')) {
-                        if ($null -eq $Value) {
-                            break
-                        }
-                        $Value = $Value.$Segment
-                    }
-                } else {
-                    $Value = $User.$Property
-                }
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {
@@ -427,18 +394,7 @@
 
             foreach ($Property in $PropertyFilter.Keys) {
                 $Filter = $PropertyFilter[$Property]
-                $Value = $null
-                if ($Property -like '*.*') {
-                    $Value = $User
-                    foreach ($Segment in ($Property -split '\.')) {
-                        if ($null -eq $Value) {
-                            break
-                        }
-                        $Value = $Value.$Segment
-                    }
-                } else {
-                    $Value = $User.$Property
-                }
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {

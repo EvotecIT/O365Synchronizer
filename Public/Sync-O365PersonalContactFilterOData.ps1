@@ -29,11 +29,15 @@ function Sync-O365PersonalContactFilterOData {
     #>
     [cmdletBinding()]
     param(
-        [Parameter(Mandatory)][string] $Filter,
+        [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $Filter,
         [string] $ConsistencyLevel,
         [string] $CountVariable,
         [int] $PageSize
     )
+
+    if ([string]::IsNullOrWhiteSpace($Filter)) {
+        throw "Filter cannot be empty."
+    }
 
     $FilterInformation = [ordered] @{
         FilterType       = 'OData'
