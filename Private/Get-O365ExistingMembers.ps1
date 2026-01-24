@@ -66,6 +66,18 @@
             if (-not $User.Street -and $User.StreetAddress) {
                 $User | Add-Member -MemberType NoteProperty -Name 'Street' -Value $User.StreetAddress -Force
             }
+            if ([string]::IsNullOrWhiteSpace($User.Mail) -and $User.OtherMails) {
+                $FallbackMail = $null
+                foreach ($MailCandidate in $User.OtherMails) {
+                    if (-not [string]::IsNullOrWhiteSpace($MailCandidate)) {
+                        $FallbackMail = $MailCandidate.Trim()
+                        break
+                    }
+                }
+                if ($FallbackMail) {
+                    $User | Add-Member -MemberType NoteProperty -Name 'Mail' -Value $FallbackMail -Force
+                }
+            }
             if ($RequireAccountEnabled) {
                 if (-not $User.AccountEnabled) {
                     Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by account is disabled"
@@ -74,8 +86,16 @@
             }
             if ($RequireAssignedLicenses) {
                 if ($User.AssignedLicenses.Count -eq 0) {
-                    Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by no assigned licenses"
-                    continue
+                    $IsExternalUser = $false
+                    if ($User.UserType -eq 'Guest') {
+                        $IsExternalUser = $true
+                    } elseif ($User.UserPrincipalName -and $User.UserPrincipalName -like '*#EXT#*') {
+                        $IsExternalUser = $true
+                    }
+                    if (-not $IsExternalUser) {
+                        Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by no assigned licenses"
+                        continue
+                    }
                 }
             }
             if ($GroupIDs.Keys.Count -gt 0) {

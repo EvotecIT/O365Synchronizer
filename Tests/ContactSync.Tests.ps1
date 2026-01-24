@@ -105,6 +105,46 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Get-O365ExistingMembers external mail handling' {
+            It 'uses OtherMails when Mail is empty' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '1'
+                            UserPrincipalName = 'ext_user#EXT#@tenant.onmicrosoft.com'
+                            Mail              = $null
+                            OtherMails        = @('', ' external@domain.com ')
+                            AssignedLicenses  = @()
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member')
+
+                $result['1'].Mail | Should -Be 'external@domain.com'
+            }
+
+            It 'keeps external users without licenses when RequireAssignedLicenses is set' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '2'
+                            UserPrincipalName = 'ext_user#EXT#@tenant.onmicrosoft.com'
+                            Mail              = 'external@domain.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @()
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -RequireAssignedLicenses
+
+                $result['2'] | Should -Not -BeNullOrEmpty
+            }
+        }
+
         Context 'Set-O365InternalContact error propagation' {
             It 'preserves update details and returns error on failure' {
                 Mock Compare-UserToContact {
