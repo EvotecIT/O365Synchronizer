@@ -106,6 +106,9 @@
                 All         = $true
                 ErrorAction = 'Stop'
             }
+            if ($Script:MappingContactToUser -and $Script:MappingContactToUser.Contains('Manager')) {
+                $getMgUserSplat['ExpandProperty'] = 'Manager'
+            }
             if ($ODataFilters.Count -gt 0) {
                 $ODataFilter = ($ODataFilters | ForEach-Object { "($_)" }) -join ' and '
                 $getMgUserSplat['Filter'] = $ODataFilter
@@ -142,6 +145,14 @@
                 }
                 if ($FallbackMail) {
                     $User | Add-Member -MemberType NoteProperty -Name 'Mail' -Value $FallbackMail -Force
+                }
+            }
+            if ($User.Manager) {
+                $ManagerName = Get-O365ManagerName -Manager $User.Manager
+                if ($ManagerName) {
+                    $User | Add-Member -MemberType NoteProperty -Name 'Manager' -Value $ManagerName -Force
+                } elseif ($User.PSObject.Properties.Name -contains 'Manager') {
+                    $User.PSObject.Properties.Remove('Manager')
                 }
             }
             if ($RequireAccountEnabled) {
@@ -500,15 +511,13 @@
                 Street         = $User.Addresses.Street                               #: 1st Street
                 PostalCode     = $User.Addresses.PostalCode                           #: 00-000
                 CompanyName    = $User.CompanyName                  #: Ziomek
-                #DeletedDateTime              = $User.DeletedDateTime              #:
-                #Department                   = $User.Department                   #:
+                Department     = $User.Department                   #:
                 #DirectReports                = $User.DirectReports                #:
                 DisplayName    = $User.DisplayName                  #: new_contact
                 GivenName      = $User.GivenName                    #: My
                 JobTitle       = $User.JobTitle                     #: Tytul
                 Mail           = $User.Mail                         #: new_contact@evotec.pl
                 MailNickname   = $User.MailNickname                 #: new_contact
-                #Manager                      = $User.Manager                      #: Microsoft.Graph.PowerShell.Models.MicrosoftGraphDirectoryObject
                 MemberOf       = $User.MemberOf                     #:
                 #OnPremisesLastSyncDateTime   = $User.OnPremisesLastSyncDateTime   #:
                 #OnPremisesProvisioningErrors = $User.OnPremisesProvisioningErrors #:
@@ -521,6 +530,12 @@
                 Surname        = $User.Surname                      #: Test Contact
                 #TransitiveMemberOf           = $User.TransitiveMemberOf           #:
                 #AdditionalProperties         = $User.AdditionalProperties         #: {}
+            }
+            if ($User.Manager) {
+                $ManagerName = Get-O365ManagerName -Manager $User.Manager
+                if ($ManagerName) {
+                    $NewUser['Manager'] = $ManagerName
+                }
             }
             foreach ($Phone in $User.Phones) {
                 if ($Phone.Type -eq 'Mobile') {

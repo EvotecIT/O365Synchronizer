@@ -21,6 +21,7 @@ Sync-O365PersonalContact [[-Filter] <ScriptBlock>] [[-UserId] <String[]>] [[-Mem
 
 ## DESCRIPTION
 Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
+Includes Department and Manager fields when available.
 
 ## EXAMPLES
 

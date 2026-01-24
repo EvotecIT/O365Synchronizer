@@ -44,6 +44,9 @@
     $SkippedProperties = [System.Collections.Generic.List[string]]::new()
     $UpdateProperties = [System.Collections.Generic.List[string]]::new()
     foreach ($Property in $Script:MappingContactToUser.Keys) {
+        if (-not ($ExistingContactGAL.PSObject.Properties.Name -contains $Property)) {
+            continue
+        }
         if ([string]::IsNullOrEmpty($ExistingContactGAL.$Property) -and [string]::IsNullOrEmpty($TranslatedContact.$Property)) {
             $SkippedProperties.Add($Property)
         } else {
