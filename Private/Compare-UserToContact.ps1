@@ -1,25 +1,20 @@
 ﻿function Compare-UserToContact {
     <#
     .SYNOPSIS
-    Short description
+    Compares a GAL user/contact with an existing personal contact.
 
     .DESCRIPTION
-    Long description
+    Maps the personal contact into the same shape as the GAL object and
+    returns which properties should be updated or skipped.
 
     .PARAMETER UserID
-    Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName
+    User mailbox identifier used for logging and result metadata.
 
     .PARAMETER ExistingContactGAL
-    User/Contact object from GAL
+    User or contact object from Microsoft Graph/GAL.
 
     .PARAMETER Contact
-    Existing contact in user's personal contacts
-
-    .EXAMPLE
-    An example
-
-    .NOTES
-    General notes
+    Existing personal contact from the user's mailbox.
     #>
     [CmdletBinding()]
     param(

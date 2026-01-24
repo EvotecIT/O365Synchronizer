@@ -1,4 +1,24 @@
 ﻿function Remove-O365InternalContact {
+    <#
+    .SYNOPSIS
+    Removes personal contacts that are no longer required.
+
+    .DESCRIPTION
+    Compares existing personal contacts with current users and removes
+    contacts that are no longer synchronized.
+
+    .PARAMETER ToPotentiallyRemove
+    Reserved list of contacts to remove (not currently used).
+
+    .PARAMETER ExistingUsers
+    Dictionary of current users keyed by id.
+
+    .PARAMETER ExistingContacts
+    Dictionary of existing personal contacts keyed by id.
+
+    .PARAMETER UserId
+    User mailbox identifier.
+    #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [System.Collections.Generic.List[object]] $ToPotentiallyRemove,

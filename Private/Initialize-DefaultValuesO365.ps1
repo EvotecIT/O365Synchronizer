@@ -1,4 +1,12 @@
 ﻿function Initialize-DefaultValuesO365 {
+    <#
+    .SYNOPSIS
+    Initializes script-level property lists and mappings.
+
+    .DESCRIPTION
+    Sets the user/contact property lists and contact-to-user mapping
+    used during synchronization.
+    #>
     [cmdletBinding()]
     param(
 

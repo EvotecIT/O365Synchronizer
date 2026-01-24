@@ -1,4 +1,25 @@
 ﻿function New-O365WrapperPersonalContact {
+    <#
+    .SYNOPSIS
+    Creates a personal contact through Microsoft Graph.
+
+    .DESCRIPTION
+    Wraps New-MgUserContact/New-MgUserContactFolderContact and cleans
+    array inputs before sending. Remaining parameters map directly to
+    Graph contact fields.
+
+    .PARAMETER UserId
+    User mailbox identifier.
+
+    .PARAMETER FileAs
+    FileAs value used to tag synchronized contacts.
+
+    .PARAMETER EmailAddresses
+    Email addresses for the contact.
+
+    .PARAMETER ContactFolderID
+    Optional contact folder id.
+    #>
     [cmdletBinding(SupportsShouldProcess)]
     param(
         [string] $UserId,

@@ -1,4 +1,27 @@
 ﻿function Set-O365OrgContact {
+    <#
+    .SYNOPSIS
+    Updates organization contacts in Exchange when changes are detected.
+
+    .DESCRIPTION
+    Compares source objects with existing contacts and updates mail
+    contact/contact properties as needed.
+
+    .PARAMETER CurrentContactsCache
+    Cache of current contacts keyed by SMTP address.
+
+    .PARAMETER MailContact
+    Existing mail contact object.
+
+    .PARAMETER Contact
+    Existing contact object.
+
+    .PARAMETER Source
+    Source user object.
+
+    .PARAMETER SourceContact
+    Source contact object.
+    #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [System.Collections.IDictionary] $CurrentContactsCache,

@@ -1,4 +1,24 @@
 ﻿function Set-O365WrapperPersonalContact {
+    <#
+    .SYNOPSIS
+    Updates a personal contact through Microsoft Graph.
+
+    .DESCRIPTION
+    Wraps Update-MgUserContact and cleans array inputs before sending.
+    Remaining parameters map directly to Graph contact fields.
+
+    .PARAMETER ContactId
+    Contact identifier to update.
+
+    .PARAMETER UserId
+    User mailbox identifier.
+
+    .PARAMETER EmailAddresses
+    Email addresses for the contact.
+
+    .PARAMETER ParentFolderId
+    Optional folder id that contains the contact.
+    #>
     [cmdletBinding(SupportsShouldProcess)]
     param(
         [string] $ContactId,

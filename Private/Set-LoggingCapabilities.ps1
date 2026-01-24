@@ -1,4 +1,23 @@
 ﻿function Set-LoggingCapabilities {
+    <#
+    .SYNOPSIS
+    Configures Write-Color logging defaults.
+
+    .DESCRIPTION
+    Sets default logging parameters and optionally prunes old log files.
+
+    .PARAMETER LogPath
+    Path to the log file.
+
+    .PARAMETER LogMaximum
+    Maximum number of log files to keep.
+
+    .PARAMETER ShowTime
+    Enables timestamp output.
+
+    .PARAMETER TimeFormat
+    Format string for timestamps.
+    #>
     [CmdletBinding()]
     param(
         [string] $LogPath,

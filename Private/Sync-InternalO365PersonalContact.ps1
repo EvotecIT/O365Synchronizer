@@ -1,37 +1,32 @@
 ﻿function Sync-InternalO365PersonalContact {
     <#
     .SYNOPSIS
-    Short description
+    Synchronizes personal contacts for a single mailbox.
 
     .DESCRIPTION
-    Long description
+    Creates, updates, and removes personal contacts based on the
+    provided GAL users/contacts and existing mailbox contacts.
 
     .PARAMETER UserId
-    Parameter description
+    User mailbox identifier to synchronize.
 
     .PARAMETER MemberTypes
-    Parameter description
+    Member types included in synchronization (Member/Guest/Contact).
 
     .PARAMETER RequireEmailAddress
-    Parameter description
+    When set, skips users without an email address.
 
     .PARAMETER GuidPrefix
-    Parameter description
+    Optional prefix used to identify synchronized contacts.
 
     .PARAMETER FolderInformation
-    Parameter description
+    Folder metadata for the target contact folder.
 
     .PARAMETER ExistingUsers
-    Users and contacts in GAL that will be synchronized to user's personal contacts
+    Users and contacts from GAL used as sync sources.
 
     .PARAMETER ExistingContacts
-    Existing contacts in user's personal contacts
-
-    .EXAMPLE
-    An example
-
-    .NOTES
-    General notes
+    Existing personal contacts from the mailbox.
     #>
     [cmdletBinding(SupportsShouldProcess)]
     param(
