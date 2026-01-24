@@ -11,6 +11,9 @@ Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelc
 # synchronize contacts for two users of two types (Member, Contact) using GUID prefix
 Sync-O365PersonalContact -UserId 'test@evotec.pl', 'test1@evotec.pl' -Verbose -MemberTypes 'Member', 'Contact' -GuidPrefix 'O365Synchronizer' -WhatIf | Format-Table *
 
+# synchronize contacts for 1 user with contact categories applied
+Sync-O365PersonalContact -UserId 'test@evotec.pl' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose -WhatIf | Format-Table *
+
 # synchronize contacts for 1 user of two types (Member, Contact) using GUID prefix and filtering by company name
 # this will only synchronize contacts that have CompanyName starting with 'Evotec' or 'Ziomek'
 # this will also require contacts to be in a group by 'e7772951-4b0e-4f10-8f38-eae9b8f55962'
