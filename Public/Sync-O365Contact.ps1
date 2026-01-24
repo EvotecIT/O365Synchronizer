@@ -27,6 +27,12 @@
     .PARAMETER SkipRemove
     Disable the removing of non-existing contacts functionality. This is useful if you want to only add new contacts or update existing contacts.
 
+    .PARAMETER LogPath
+    Path to the log file.
+
+    .PARAMETER LogMaximum
+    Maximum number of log files to keep.
+
     .EXAMPLE
     # Source tenant
     $ClientID = '9e1b3c36'
