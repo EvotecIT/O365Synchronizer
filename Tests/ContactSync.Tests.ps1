@@ -104,6 +104,93 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Get-O365ExistingMembers manager resolution' {
+            It 'resolves manager from string' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '10'
+                            UserPrincipalName = 'user10@contoso.com'
+                            Mail              = 'user10@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                            Manager           = ' Manager One '
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member')
+
+                $result['10'].Manager | Should -Be 'Manager One'
+            }
+
+            It 'resolves manager from object displayName' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '11'
+                            UserPrincipalName = 'user11@contoso.com'
+                            Mail              = 'user11@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                            Manager           = [pscustomobject]@{ DisplayName = 'Manager Two' }
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member')
+
+                $result['11'].Manager | Should -Be 'Manager Two'
+            }
+
+            It 'resolves manager from AdditionalProperties' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '12'
+                            UserPrincipalName = 'user12@contoso.com'
+                            Mail              = 'user12@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                            Manager           = [pscustomobject]@{
+                                AdditionalProperties = @{
+                                    displayName      = 'Manager Three'
+                                    userPrincipalName = 'manager3@contoso.com'
+                                }
+                            }
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member')
+
+                $result['12'].Manager | Should -Be 'Manager Three'
+            }
+
+            It 'does not set manager when empty' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '13'
+                            UserPrincipalName = 'user13@contoso.com'
+                            Mail              = 'user13@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                            Manager           = '   '
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member')
+
+                $result['13'].PSObject.Properties.Name | Should -Not -Contain 'Manager'
+            }
+        }
+
         Context 'New-O365InternalContact require email' {
             It 'skips users without email when RequireEmailAddress is set' {
                 Mock New-O365WrapperPersonalContact { throw 'Should not be called' }

@@ -148,26 +148,8 @@
                 }
             }
             if ($User.Manager) {
-                $ManagerName = $null
-                if ($User.Manager -is [string]) {
-                    $ManagerName = $User.Manager
-                } elseif ($User.Manager.PSObject.Properties.Name -contains 'DisplayName') {
-                    $ManagerName = $User.Manager.DisplayName
-                } elseif ($User.Manager.PSObject.Properties.Name -contains 'AdditionalProperties') {
-                    $Additional = $User.Manager.AdditionalProperties
-                    if ($Additional) {
-                        if ($Additional.ContainsKey('displayName')) {
-                            $ManagerName = $Additional['displayName']
-                        } elseif ($Additional.ContainsKey('DisplayName')) {
-                            $ManagerName = $Additional['DisplayName']
-                        } elseif ($Additional.ContainsKey('userPrincipalName')) {
-                            $ManagerName = $Additional['userPrincipalName']
-                        } elseif ($Additional.ContainsKey('UserPrincipalName')) {
-                            $ManagerName = $Additional['UserPrincipalName']
-                        }
-                    }
-                }
-                if (-not [string]::IsNullOrWhiteSpace($ManagerName)) {
+                $ManagerName = Get-O365ManagerName -Manager $User.Manager
+                if ($ManagerName) {
                     $User | Add-Member -MemberType NoteProperty -Name 'Manager' -Value $ManagerName -Force
                 }
             }
@@ -546,6 +528,12 @@
                 Surname        = $User.Surname                      #: Test Contact
                 #TransitiveMemberOf           = $User.TransitiveMemberOf           #:
                 #AdditionalProperties         = $User.AdditionalProperties         #: {}
+            }
+            if ($User.Manager) {
+                $ManagerName = Get-O365ManagerName -Manager $User.Manager
+                if ($ManagerName) {
+                    $NewUser['Manager'] = $ManagerName
+                }
             }
             foreach ($Phone in $User.Phones) {
                 if ($Phone.Type -eq 'Mobile') {

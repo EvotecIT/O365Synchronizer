@@ -59,6 +59,7 @@
         'OnPremisesSyncEnabled'
         'Addresses'
         'MemberOf'
+        'Manager'
         'MobilePhone'
         'Phones'
         'HomePhone'
