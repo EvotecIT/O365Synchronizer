@@ -23,6 +23,7 @@
         'CreatedDateTime'
         'AssignedLicenses'
         'MemberOf'
+        'OnPremisesExtensionAttributes'
         'CompanyName'
         'JobTitle'
         'EmployeeId'

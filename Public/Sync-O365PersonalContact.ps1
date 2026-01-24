@@ -8,7 +8,7 @@
 
     .PARAMETER Filter
     Filters to apply to users. It can be used to filter out users that you don't want to synchronize.
-    You should use Sync-O365PersonalContactFilter or/and Sync-O365PersonalContactFilterGroup to create filter(s).
+    You should use Sync-O365PersonalContactFilter, Sync-O365PersonalContactFilterGroup, or Sync-O365PersonalContactFilterOData to create filter(s).
 
     .PARAMETER UserId
     Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName.

@@ -23,6 +23,10 @@
     $GroupIDsExclude = [ordered] @{}
     $PropertyFilter = [ordered] @{}
     $PropertyFilterExclude = [ordered] @{}
+    $ODataFilters = [System.Collections.Generic.List[string]]::new()
+    $ODataConsistencyLevel = $null
+    $ODataCountVariable = $null
+    $ODataPageSize = $null
     foreach ($Filter in $FilterInformation) {
         if ($Filter.FilterType -eq 'Group') {
             if ($Filter.Type -eq 'Include') {
@@ -40,6 +44,31 @@
             } elseif ($Filter.Type -eq 'Exclude') {
                 $PropertyFilterExclude[$Filter.Property] = $Filter
             }
+        } elseif ($Filter.FilterType -eq 'OData') {
+            if ($Filter.Filter) {
+                $ODataFilters.Add($Filter.Filter)
+            }
+            if ($Filter.ConsistencyLevel) {
+                if (-not $ODataConsistencyLevel) {
+                    $ODataConsistencyLevel = $Filter.ConsistencyLevel
+                } elseif ($ODataConsistencyLevel -ne $Filter.ConsistencyLevel) {
+                    Write-Verbose -Message "Multiple OData ConsistencyLevel values supplied. Using '$ODataConsistencyLevel'."
+                }
+            }
+            if ($Filter.CountVariable) {
+                if (-not $ODataCountVariable) {
+                    $ODataCountVariable = $Filter.CountVariable
+                } elseif ($ODataCountVariable -ne $Filter.CountVariable) {
+                    Write-Verbose -Message "Multiple OData CountVariable values supplied. Using '$ODataCountVariable'."
+                }
+            }
+            if ($Filter.PageSize) {
+                if (-not $ODataPageSize) {
+                    $ODataPageSize = $Filter.PageSize
+                } elseif ($ODataPageSize -ne $Filter.PageSize) {
+                    Write-Verbose -Message "Multiple OData PageSize values supplied. Using '$ODataPageSize'."
+                }
+            }
         } else {
             Write-Color -Text "[e] ", "Unknown filter type: $($Filter.FilterType)" -Color Red, White
             return $false
@@ -53,6 +82,19 @@
                 Property    = $Script:PropertiesUsers
                 All         = $true
                 ErrorAction = 'Stop'
+            }
+            if ($ODataFilters.Count -gt 0) {
+                $ODataFilter = ($ODataFilters | ForEach-Object { "($_)" }) -join ' and '
+                $getMgUserSplat['Filter'] = $ODataFilter
+                if ($ODataConsistencyLevel) {
+                    $getMgUserSplat['ConsistencyLevel'] = $ODataConsistencyLevel
+                }
+                if ($ODataCountVariable) {
+                    $getMgUserSplat['CountVariable'] = $ODataCountVariable
+                }
+                if ($ODataPageSize) {
+                    $getMgUserSplat['PageSize'] = $ODataPageSize
+                }
             }
             $Users = Get-MgUser @getMgUserSplat
         } catch {
@@ -134,7 +176,7 @@
             }
             foreach ($Property in $PropertyFilterExclude.Keys) {
                 $Filter = $PropertyFilterExclude[$Property]
-                $Value = $User.$Property
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {
@@ -189,7 +231,7 @@
             }
             foreach ($Property in $PropertyFilter.Keys) {
                 $Filter = $PropertyFilter[$Property]
-                $Value = $User.$Property
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {
@@ -296,7 +338,7 @@
             }
             foreach ($Property in $PropertyFilterExclude.Keys) {
                 $Filter = $PropertyFilterExclude[$Property]
-                $Value = $User.$Property
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {
@@ -352,7 +394,7 @@
 
             foreach ($Property in $PropertyFilter.Keys) {
                 $Filter = $PropertyFilter[$Property]
-                $Value = $User.$Property
+                $Value = Get-O365PropertyValue -InputObject $User -PropertyPath $Property
                 if ($Filter.Operator -eq 'Like') {
                     $Find = $false
                     foreach ($FilterValue in $Filter.Value) {

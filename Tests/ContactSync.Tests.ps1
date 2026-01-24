@@ -183,6 +183,46 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Get-O365ExistingMembers OData and nested property filters' {
+            It 'passes OData filter settings to Get-MgUser' {
+                Mock Get-MgUser { @() }
+
+                $null = Get-O365ExistingMembers -MemberTypes @('Member') -UserProvidedFilter {
+                    Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTERCRITERIA'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
+                }
+
+                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                    $Filter -eq "(onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTERCRITERIA')" -and
+                    $ConsistencyLevel -eq 'eventual' -and
+                    $CountVariable -eq 'userCount' -and
+                    $PageSize -eq 999
+                }
+            }
+
+            It 'supports nested property path filtering' {
+                $user = [pscustomobject]@{
+                    Id                             = '5'
+                    UserPrincipalName              = 'user@contoso.com'
+                    Mail                           = 'user@contoso.com'
+                    OtherMails                     = @()
+                    AssignedLicenses               = @('license')
+                    AccountEnabled                 = $true
+                    UserType                       = 'Member'
+                    MemberOf                       = @()
+                    OnPremisesExtensionAttributes  = [pscustomobject]@{
+                        ExtensionAttribute5 = 'MYFILTERCRITERIA'
+                    }
+                }
+                Mock Get-MgUser { @($user) }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -UserProvidedFilter {
+                    Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTERCRITERIA') -Operator 'Equal'
+                }
+
+                $result['5'] | Should -Not -BeNullOrEmpty
+            }
+        }
+
         Context 'Set-O365InternalContact error propagation' {
             It 'preserves update details and returns error on failure' {
                 Mock Compare-UserToContact {

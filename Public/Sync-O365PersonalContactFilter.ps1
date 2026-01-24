@@ -15,6 +15,7 @@
 
     .PARAMETER Property
     Property to use for comparison. Keep in mind that it has to exists on the object.
+    You can use dot notation for nested properties (for example, OnPremisesExtensionAttributes.ExtensionAttribute5).
 
     .PARAMETER Value
     Value to compare against. It can be single value or multiple values.
