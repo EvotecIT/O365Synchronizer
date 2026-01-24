@@ -279,6 +279,14 @@
         ErrorAction      = 'Stop'
     }
     Remove-EmptyValue -Hashtable $ContactSplat -Recursive -Rerun 2
+    if ($PSBoundParameters.ContainsKey('Categories')) {
+        if ($null -eq $CategoriesClean) {
+            # Preserve explicit clear for categories.
+            $ContactSplat['Categories'] = @()
+        } else {
+            $ContactSplat['Categories'] = $CategoriesClean
+        }
+    }
     if ($PSBoundParameters.ContainsKey('MobilePhone')) {
         # Preserve explicit clear when caller passes empty MobilePhone.
         if ([string]::IsNullOrEmpty($MobilePhone)) {

@@ -123,6 +123,9 @@ Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl', 'adam.klys@test.pl' 
 
 # tag synchronized contacts with categories
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
+
+# clear categories assigned by sync
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -Category @() -Verbose
 ```
 
 #### License requirements & external users

@@ -233,6 +233,7 @@ Describe 'O365Synchronizer contact sync helpers' {
         Context 'Set-O365InternalContact categories' {
             It 'updates categories when they differ' {
                 $script:CapturedCategories = $null
+                $script:CapturedCategoriesProvided = $false
                 Mock Compare-UserToContact {
                     [pscustomobject]@{
                         UserId      = 'user@contoso.com'
@@ -248,6 +249,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 Mock Set-O365WrapperPersonalContact {
                     param([string[]] $Categories)
                     $script:CapturedCategories = $Categories
+                    $script:CapturedCategoriesProvided = $PSBoundParameters.ContainsKey('Categories')
                     [pscustomobject]@{
                         Success      = $true
                         ErrorMessage = ''
@@ -267,6 +269,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $result.Update | Should -Contain 'Categories'
                 ($script:CapturedCategories -join ',') | Should -Be 'New,Work'
+                $script:CapturedCategoriesProvided | Should -BeTrue
             }
 
             It 'does not update when categories already match' {
@@ -296,6 +299,47 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Set-O365InternalContact -UserID 'user@contoso.com' -User $user -Contact $contact -Category @('Friends', 'Work')
 
                 $result.Status | Should -Be 'Not required'
+            }
+
+            It 'clears categories when empty array provided' {
+                $script:CapturedCategories = $null
+                $script:CapturedCategoriesProvided = $false
+                Mock Compare-UserToContact {
+                    [pscustomobject]@{
+                        UserId      = 'user@contoso.com'
+                        Action      = 'Update'
+                        DisplayName = 'User One'
+                        Mail        = 'user@contoso.com'
+                        Update      = @()
+                        Skip        = @()
+                        Details     = ''
+                        Error       = ''
+                    }
+                }
+                Mock Set-O365WrapperPersonalContact {
+                    param([string[]] $Categories)
+                    $script:CapturedCategories = $Categories
+                    $script:CapturedCategoriesProvided = $PSBoundParameters.ContainsKey('Categories')
+                    [pscustomobject]@{
+                        Success      = $true
+                        ErrorMessage = ''
+                    }
+                }
+
+                $user = [pscustomobject]@{
+                    DisplayName = 'User One'
+                    Mail        = 'user@contoso.com'
+                }
+                $contact = [pscustomobject]@{
+                    Id         = 'contact-id'
+                    Categories = @('Old')
+                }
+
+                $result = Set-O365InternalContact -UserID 'user@contoso.com' -User $user -Contact $contact -Category @()
+
+                $result.Update | Should -Contain 'Categories'
+                $script:CapturedCategoriesProvided | Should -BeTrue
+                $script:CapturedCategories.Count | Should -Be 0
             }
         }
 

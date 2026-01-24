@@ -35,25 +35,26 @@
     $CategoriesClean = $null
     if ($PSBoundParameters.ContainsKey('Category')) {
         $CategoriesClean = ConvertTo-CleanContactArray -Values $Category
+        $RequestedCategories = @()
         if ($null -ne $CategoriesClean) {
             $RequestedCategories = $CategoriesClean | Sort-Object -Unique
-            $ExistingCategories = $null
-            if ($Contact.PSObject.Properties.Name -contains 'Categories') {
-                $ExistingCategories = ConvertTo-CleanContactArray -Values $Contact.Categories
-            }
-            if ($null -eq $ExistingCategories) {
-                $ExistingCategories = @()
-            } else {
+        }
+        $ExistingCategories = @()
+        if ($Contact.PSObject.Properties.Name -contains 'Categories') {
+            $ExistingCategories = ConvertTo-CleanContactArray -Values $Contact.Categories
+            if ($null -ne $ExistingCategories) {
                 $ExistingCategories = $ExistingCategories | Sort-Object -Unique
-            }
-            if ($RequestedCategories.Count -ne $ExistingCategories.Count -or $null -ne (Compare-Object -ReferenceObject $RequestedCategories -DifferenceObject $ExistingCategories)) {
-                if ($OutputObject.Update -notcontains 'Categories') {
-                    $OutputObject.Update += 'Categories'
-                }
             } else {
-                if ($OutputObject.Skip -notcontains 'Categories') {
-                    $OutputObject.Skip += 'Categories'
-                }
+                $ExistingCategories = @()
+            }
+        }
+        if ($RequestedCategories.Count -ne $ExistingCategories.Count -or $null -ne (Compare-Object -ReferenceObject $RequestedCategories -DifferenceObject $ExistingCategories)) {
+            if ($OutputObject.Update -notcontains 'Categories') {
+                $OutputObject.Update += 'Categories'
+            }
+        } else {
+            if ($OutputObject.Skip -notcontains 'Categories') {
+                $OutputObject.Skip += 'Categories'
             }
         }
     }

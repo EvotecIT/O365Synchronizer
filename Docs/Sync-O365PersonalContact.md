@@ -48,12 +48,18 @@ Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Categ
 
 ### EXAMPLE 5
 ```
+# clear categories assigned by sync
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category @() -Verbose
+```
+
+### EXAMPLE 6
+```
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
     Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTER'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
 }
 ```
 
-### EXAMPLE 6
+### EXAMPLE 7
 ```
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
     Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
