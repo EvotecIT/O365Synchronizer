@@ -151,6 +151,8 @@
                 $ManagerName = Get-O365ManagerName -Manager $User.Manager
                 if ($ManagerName) {
                     $User | Add-Member -MemberType NoteProperty -Name 'Manager' -Value $ManagerName -Force
+                } elseif ($User.PSObject.Properties.Name -contains 'Manager') {
+                    $User.PSObject.Properties.Remove('Manager')
                 }
             }
             if ($RequireAccountEnabled) {
