@@ -43,6 +43,15 @@
     Connect-ExchangeOnline -AppId $ClientID -CertificateThumbprint '2EC710' -Organization 'xxxxx.onmicrosoft.com'
     Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl', 'gmail.com' -Verbose -WhatIf
 
+    .EXAMPLE
+    # Use all domains from source objects
+    $UsersToSync = Get-MgUser -All
+    Sync-O365Contact -SourceObjects $UsersToSync -Verbose -WhatIf
+
+    .EXAMPLE
+    # Skip removals and log actions
+    Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
+
     .NOTES
     General notes
     #>

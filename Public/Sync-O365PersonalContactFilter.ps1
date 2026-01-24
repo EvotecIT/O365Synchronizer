@@ -26,6 +26,11 @@
         Sync-O365PersonalContactFilterGroup -Type Include -GroupID 'e7772951-4b0e-4f10-8f38-eae9b8f55962' # filter out on GroupID
     } | Format-Table
 
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
+        Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
+    } | Format-Table
+
     .NOTES
     General notes
     #>

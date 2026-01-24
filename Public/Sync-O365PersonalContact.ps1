@@ -50,6 +50,19 @@
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
 
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -RequireEmailAddress -Verbose
+
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
+        Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTER'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
+    }
+
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
+        Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
+    }
+
     .NOTES
     General notes
     #>

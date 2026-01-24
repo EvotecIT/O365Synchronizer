@@ -24,6 +24,11 @@ function Sync-O365PersonalContactFilterOData {
         Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTER'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
     }
 
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Filter {
+        Sync-O365PersonalContactFilterOData -Filter "startsWith(displayName,'Test')"
+    }
+
     .NOTES
     General notes
     #>

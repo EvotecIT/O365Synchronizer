@@ -36,6 +36,12 @@
     .EXAMPLE
     Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -All -WhatIf
 
+    .EXAMPLE
+    Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -FolderName 'O365Sync' -FolderRemove -WhatIf
+
+    .EXAMPLE
+    Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -GuidPrefix 'O365Synchronizer' -FullLogging -WhatIf
+
     .NOTES
     General notes
     #>
