@@ -38,7 +38,7 @@ Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Gues
 
 ### -Filter
 Filters to apply to users.
-You should use Sync-O365PersonalContactFilter or/and Sync-O365PersonalContactFilterGroup to create filter(s).
+You should use Sync-O365PersonalContactFilter, Sync-O365PersonalContactFilterGroup, or Sync-O365PersonalContactFilterOData to create filter(s).
 
 ```yaml
 Type: ScriptBlock

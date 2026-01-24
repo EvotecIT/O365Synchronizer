@@ -182,6 +182,20 @@ Sync-O365PersonalContact -UserId 'test@evotec.pl' -MemberTypes 'Contact', 'Membe
 } -FolderName 'O365Sync' | Format-Table
 ```
 
+#### OData prefilter & extension attributes
+
+```powershell
+# prefilter users in Microsoft Graph before downloading all users
+Sync-O365PersonalContact -UserId 'test@evotec.pl' -MemberTypes 'Member' -PassThru {
+    Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTERCRITERIA'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
+} | Format-Table
+
+# filter locally by extension attribute after retrieval
+Sync-O365PersonalContact -UserId 'test@evotec.pl' -MemberTypes 'Member' -PassThru {
+    Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTERCRITERIA') -Operator 'Equal'
+} | Format-Table
+```
+
 ### Clearing personal contacts
 
 ```powershell
