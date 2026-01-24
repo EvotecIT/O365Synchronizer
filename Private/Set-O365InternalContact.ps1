@@ -1,27 +1,23 @@
 ﻿function Set-O365InternalContact {
     <#
     .SYNOPSIS
-    Short description
+    Updates an existing personal contact when changes are detected.
 
     .DESCRIPTION
-    Long description
+    Compares the user/contact from GAL with the existing personal contact
+    and applies only the necessary updates via Graph.
 
     .PARAMETER UserID
-    Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName.
+    User mailbox identifier used for updates and logging.
 
     .PARAMETER User
-    User/Contact object from GAL
-
-    .PARAMETER FolderName
+    User or contact object from Microsoft Graph/GAL.
 
     .PARAMETER Contact
-    Existing contact in user's personal contacts
+    Existing personal contact from the user's mailbox.
 
-    .EXAMPLE
-    An example
-
-    .NOTES
-    General notes
+    .PARAMETER FolderName
+    Optional folder name used for reporting.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(

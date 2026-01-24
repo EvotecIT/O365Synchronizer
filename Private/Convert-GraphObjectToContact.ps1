@@ -1,4 +1,15 @@
 ﻿function Convert-GraphObjectToContact {
+    <#
+    .SYNOPSIS
+    Converts a Graph object into Exchange contact shapes.
+
+    .DESCRIPTION
+    Builds PSCustomObject payloads for Contact and MailContact updates
+    based on a Graph source object.
+
+    .PARAMETER SourceObject
+    Graph user/contact object to map.
+    #>
     [cmdletbinding()]
     param(
         $SourceObject

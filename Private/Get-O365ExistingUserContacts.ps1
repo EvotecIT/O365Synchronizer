@@ -1,4 +1,21 @@
 ﻿function Get-O365ExistingUserContacts {
+    <#
+    .SYNOPSIS
+    Retrieves existing personal contacts for a mailbox.
+
+    .DESCRIPTION
+    Loads personal contacts from Microsoft Graph (optionally from a folder)
+    and returns a dictionary keyed by the contact's FileAs GUID.
+
+    .PARAMETER UserID
+    User mailbox identifier.
+
+    .PARAMETER GuidPrefix
+    Optional prefix used to identify synchronized contacts.
+
+    .PARAMETER FolderName
+    Optional folder name to scope the query.
+    #>
     [cmdletbinding()]
     param(
         [string] $UserID,

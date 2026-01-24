@@ -13,8 +13,8 @@ Removes personal contacts from user on Office 365.
 ## SYNTAX
 
 ```
-Clear-O365PersonalContact [-Identity] <String> [[-GuidPrefix] <String>] [-FullLogging] [-All] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Clear-O365PersonalContact [-Identity] <String> [[-GuidPrefix] <String>] [[-FolderName] <String>]
+ [-FolderRemove] [-FullLogging] [-All] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,6 +37,16 @@ Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -GuidPrefix 'O365'
 ### EXAMPLE 3
 ```
 Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -All -WhatIf
+```
+
+### EXAMPLE 4
+```
+Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -FolderName 'O365Sync' -FolderRemove -WhatIf
+```
+
+### EXAMPLE 5
+```
+Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -GuidPrefix 'O365Synchronizer' -FullLogging -WhatIf
 ```
 
 ## PARAMETERS
@@ -68,6 +78,37 @@ Aliases:
 Required: False
 Position: 2
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FolderName
+Name of the folder to remove contacts from.
+If not set it will remove contacts from the main folder.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FolderRemove
+If set it will remove the folder as well, once the contacts are removed.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

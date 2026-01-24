@@ -1,4 +1,17 @@
 ﻿function Initialize-FolderName {
+    <#
+    .SYNOPSIS
+    Ensures the target contact folder exists.
+
+    .DESCRIPTION
+    Looks up the folder by name and creates it if missing.
+
+    .PARAMETER UserId
+    User mailbox identifier.
+
+    .PARAMETER FolderName
+    Name of the personal contacts folder.
+    #>
     [cmdletbinding()]
     param(
         [string] $UserId,

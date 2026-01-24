@@ -1,4 +1,18 @@
 function ConvertTo-CleanContactArray {
+    <#
+    .SYNOPSIS
+    Cleans contact arrays for Graph payloads.
+
+    .DESCRIPTION
+    Trims values, removes empty entries, and optionally wraps values
+    as EmailAddress objects.
+
+    .PARAMETER Values
+    String values to clean.
+
+    .PARAMETER AsEmailAddress
+    When set, returns objects with an Address property.
+    #>
     [CmdletBinding()]
     param(
         [string[]] $Values,

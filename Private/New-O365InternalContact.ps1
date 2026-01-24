@@ -1,4 +1,26 @@
 ﻿function New-O365InternalContact {
+    <#
+    .SYNOPSIS
+    Creates a personal contact from a GAL user/contact.
+
+    .DESCRIPTION
+    Builds the contact payload and creates it in the user's mailbox.
+
+    .PARAMETER UserId
+    User mailbox identifier.
+
+    .PARAMETER User
+    User/contact object from Microsoft Graph.
+
+    .PARAMETER GuidPrefix
+    Optional prefix to mark synchronized contacts.
+
+    .PARAMETER RequireEmailAddress
+    When set, skips users without an email address.
+
+    .PARAMETER FolderInformation
+    Folder metadata for the target contact folder.
+    #>
     [CmdletBinding()]
     param(
         [string] $UserId,

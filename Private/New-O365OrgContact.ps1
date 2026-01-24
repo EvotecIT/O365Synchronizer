@@ -1,4 +1,14 @@
 ﻿function New-O365OrgContact {
+    <#
+    .SYNOPSIS
+    Creates an organization contact in Exchange.
+
+    .DESCRIPTION
+    Creates a mail contact and applies additional contact fields.
+
+    .PARAMETER Source
+    Source object used to populate the contact.
+    #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Object] $Source

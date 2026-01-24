@@ -13,8 +13,8 @@ Synchronize contacts between source and target Office 365 tenant.
 ## SYNTAX
 
 ```
-Sync-O365Contact [-SourceObjects] <Array> [[-Domains] <Array>] [-SkipAdd] [-SkipUpdate] [-SkipRemove] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Sync-O365Contact [-SourceObjects] <Array> [[-Domains] <Array>] [-SkipAdd] [-SkipUpdate] [-SkipRemove]
+ [[-LogPath] <String>] [[-LogMaximum] <Int32>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,7 +30,33 @@ It will asses whether it needs to add/update/remove contacts based on provided d
 
 ### EXAMPLE 1
 ```
-An example
+# Source tenant
+$ClientID = '9e1b3c36'
+$TenantID = 'ceb371f6'
+$ClientSecret = 'NDE8Q'
+
+$Credentials = [pscredential]::new($ClientID, (ConvertTo-SecureString $ClientSecret -AsPlainText -Force))
+Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelcome
+
+$UsersToSync = Get-MgUser | Select-Object -First 5
+
+# Destination tenant
+$ClientID = 'edc4302e'
+Connect-ExchangeOnline -AppId $ClientID -CertificateThumbprint '2EC710' -Organization 'xxxxx.onmicrosoft.com'
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl', 'gmail.com' -Verbose -WhatIf
+```
+
+### EXAMPLE 2
+```
+# Use all domains from source objects
+$UsersToSync = Get-MgUser -All
+Sync-O365Contact -SourceObjects $UsersToSync -Verbose -WhatIf
+```
+
+### EXAMPLE 3
+```
+# Skip removals and log actions
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
 ```
 
 ## PARAMETERS
@@ -112,6 +138,36 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LogPath
+Path to the log file.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LogMaximum
+Maximum number of log files to keep.
+
+```yaml
+Type: Int32
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

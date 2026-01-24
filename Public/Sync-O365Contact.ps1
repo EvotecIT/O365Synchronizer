@@ -27,6 +27,12 @@
     .PARAMETER SkipRemove
     Disable the removing of non-existing contacts functionality. This is useful if you want to only add new contacts or update existing contacts.
 
+    .PARAMETER LogPath
+    Path to the log file.
+
+    .PARAMETER LogMaximum
+    Maximum number of log files to keep.
+
     .EXAMPLE
     # Source tenant
     $ClientID = '9e1b3c36'
@@ -42,6 +48,15 @@
     $ClientID = 'edc4302e'
     Connect-ExchangeOnline -AppId $ClientID -CertificateThumbprint '2EC710' -Organization 'xxxxx.onmicrosoft.com'
     Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl', 'gmail.com' -Verbose -WhatIf
+
+    .EXAMPLE
+    # Use all domains from source objects
+    $UsersToSync = Get-MgUser -All
+    Sync-O365Contact -SourceObjects $UsersToSync -Verbose -WhatIf
+
+    .EXAMPLE
+    # Skip removals and log actions
+    Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
 
     .NOTES
     General notes

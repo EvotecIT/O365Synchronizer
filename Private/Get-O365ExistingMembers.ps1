@@ -1,4 +1,27 @@
 ﻿function Get-O365ExistingMembers {
+    <#
+    .SYNOPSIS
+    Retrieves users and contacts from Microsoft Graph with filters applied.
+
+    .DESCRIPTION
+    Loads users/contacts from Graph, applies group and property filters,
+    and returns a dictionary keyed by object id.
+
+    .PARAMETER UserProvidedFilter
+    ScriptBlock that returns filter definitions.
+
+    .PARAMETER MemberTypes
+    Member types to include (Member/Guest/Contact).
+
+    .PARAMETER RequireAccountEnabled
+    When set, skips disabled accounts.
+
+    .PARAMETER RequireAssignedLicenses
+    When set, skips users without assigned licenses.
+
+    .PARAMETER IncludeExternalUsers
+    Allows specified external user types when licenses are required.
+    #>
     [cmdletbinding()]
     param(
         [scriptblock] $UserProvidedFilter,

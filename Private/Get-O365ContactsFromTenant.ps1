@@ -1,4 +1,15 @@
 ﻿function Get-O365ContactsFromTenant {
+    <#
+    .SYNOPSIS
+    Retrieves Exchange contacts for configured domains.
+
+    .DESCRIPTION
+    Loads contacts and mail contacts from Exchange and returns a cache
+    keyed by primary SMTP address for the provided domains.
+
+    .PARAMETER Domains
+    Allowed SMTP domains to include.
+    #>
     [cmdletbinding()]
     param(
         [Array] $Domains
