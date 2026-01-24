@@ -106,6 +106,9 @@
                 All         = $true
                 ErrorAction = 'Stop'
             }
+            if ($Script:MappingContactToUser -and $Script:MappingContactToUser.Contains('Manager')) {
+                $getMgUserSplat['ExpandProperty'] = 'Manager'
+            }
             if ($ODataFilters.Count -gt 0) {
                 $ODataFilter = ($ODataFilters | ForEach-Object { "($_)" }) -join ' and '
                 $getMgUserSplat['Filter'] = $ODataFilter
@@ -142,6 +145,30 @@
                 }
                 if ($FallbackMail) {
                     $User | Add-Member -MemberType NoteProperty -Name 'Mail' -Value $FallbackMail -Force
+                }
+            }
+            if ($User.Manager) {
+                $ManagerName = $null
+                if ($User.Manager -is [string]) {
+                    $ManagerName = $User.Manager
+                } elseif ($User.Manager.PSObject.Properties.Name -contains 'DisplayName') {
+                    $ManagerName = $User.Manager.DisplayName
+                } elseif ($User.Manager.PSObject.Properties.Name -contains 'AdditionalProperties') {
+                    $Additional = $User.Manager.AdditionalProperties
+                    if ($Additional) {
+                        if ($Additional.ContainsKey('displayName')) {
+                            $ManagerName = $Additional['displayName']
+                        } elseif ($Additional.ContainsKey('DisplayName')) {
+                            $ManagerName = $Additional['DisplayName']
+                        } elseif ($Additional.ContainsKey('userPrincipalName')) {
+                            $ManagerName = $Additional['userPrincipalName']
+                        } elseif ($Additional.ContainsKey('UserPrincipalName')) {
+                            $ManagerName = $Additional['UserPrincipalName']
+                        }
+                    }
+                }
+                if (-not [string]::IsNullOrWhiteSpace($ManagerName)) {
+                    $User | Add-Member -MemberType NoteProperty -Name 'Manager' -Value $ManagerName -Force
                 }
             }
             if ($RequireAccountEnabled) {
@@ -500,15 +527,14 @@
                 Street         = $User.Addresses.Street                               #: 1st Street
                 PostalCode     = $User.Addresses.PostalCode                           #: 00-000
                 CompanyName    = $User.CompanyName                  #: Ziomek
-                #DeletedDateTime              = $User.DeletedDateTime              #:
-                #Department                   = $User.Department                   #:
+                Department     = $User.Department                   #:
                 #DirectReports                = $User.DirectReports                #:
                 DisplayName    = $User.DisplayName                  #: new_contact
                 GivenName      = $User.GivenName                    #: My
                 JobTitle       = $User.JobTitle                     #: Tytul
                 Mail           = $User.Mail                         #: new_contact@evotec.pl
                 MailNickname   = $User.MailNickname                 #: new_contact
-                #Manager                      = $User.Manager                      #: Microsoft.Graph.PowerShell.Models.MicrosoftGraphDirectoryObject
+                Manager        = $User.Manager                      #:
                 MemberOf       = $User.MemberOf                     #:
                 #OnPremisesLastSyncDateTime   = $User.OnPremisesLastSyncDateTime   #:
                 #OnPremisesProvisioningErrors = $User.OnPremisesProvisioningErrors #:

@@ -5,6 +5,7 @@
 
     .DESCRIPTION
     Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
+    Includes Department and Manager fields when available.
 
     .PARAMETER Filter
     Filters to apply to users. It can be used to filter out users that you don't want to synchronize.

@@ -53,6 +53,57 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Compare-UserToContact department and manager updates' {
+            It 'updates department and manager when changed' {
+                $existing = [pscustomobject]@{
+                    DisplayName    = 'User Two'
+                    Mail           = 'user2@example.com'
+                    MailNickname   = 'user2'
+                    GivenName      = 'User'
+                    Surname        = 'Two'
+                    CompanyName    = 'Evotec'
+                    BusinessPhones = '123'
+                    MobilePhone    = '111'
+                    HomePhone      = '222'
+                    JobTitle       = 'Engineer'
+                    Department     = 'Sales'
+                    Manager        = 'Boss One'
+                    Country        = 'PL'
+                    City           = 'Warsaw'
+                    State          = 'Mazovia'
+                    Street         = 'Street'
+                    PostalCode     = '00-000'
+                }
+
+                $contact = [pscustomobject]@{
+                    Nickname       = 'user2'
+                    DisplayName    = 'User Two'
+                    GivenName      = 'User'
+                    Surname        = 'Two'
+                    EmailAddresses = @([pscustomobject]@{ Address = 'user2@example.com' })
+                    BusinessPhones = '123'
+                    MobilePhone    = '111'
+                    HomePhone      = '222'
+                    CompanyName    = 'Evotec'
+                    JobTitle       = 'Engineer'
+                    Department     = 'Support'
+                    Manager        = 'Boss Two'
+                    BusinessAddress = [pscustomobject]@{
+                        CountryOrRegion = 'PL'
+                        City            = 'Warsaw'
+                        State           = 'Mazovia'
+                        Street          = 'Street'
+                        PostalCode      = '00-000'
+                    }
+                }
+
+                $result = Compare-UserToContact -ExistingContactGAL $existing -Contact $contact -UserID 'user2@example.com'
+
+                $result.Update | Should -Contain 'Department'
+                $result.Update | Should -Contain 'Manager'
+            }
+        }
+
         Context 'New-O365InternalContact require email' {
             It 'skips users without email when RequireEmailAddress is set' {
                 Mock New-O365WrapperPersonalContact { throw 'Should not be called' }
