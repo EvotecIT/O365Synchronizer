@@ -46,7 +46,7 @@
             } else {
                 $ExistingCategories = $ExistingCategories | Sort-Object -Unique
             }
-            if ($RequestedCategories.Count -ne $ExistingCategories.Count -or (Compare-Object -ReferenceObject $RequestedCategories -DifferenceObject $ExistingCategories)) {
+            if ($RequestedCategories.Count -ne $ExistingCategories.Count -or $null -ne (Compare-Object -ReferenceObject $RequestedCategories -DifferenceObject $ExistingCategories)) {
                 if ($OutputObject.Update -notcontains 'Categories') {
                     $OutputObject.Update += 'Categories'
                 }
