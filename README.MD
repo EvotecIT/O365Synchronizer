@@ -209,6 +209,7 @@ Sync-O365PersonalContact -UserId 'test@evotec.pl' -MemberTypes 'Member' -PassThr
 # this will only delete synchronized ones (based on FileAs property that has to convert to GUID)
 Clear-O365PersonalContact -Identity 'testAccount@evotec.pl' -WhatIf
 
+# folder removal requires the folder to be empty; use -All if you want to remove every contact in that folder
 # this is useful to clear current user contacts (if you have some)
 # this will only delete synchronized ones (based on FileAs property that has to convert to GUID, with GUID prefix)
 Clear-O365PersonalContact -Identity 'testAccount@evotec.pl' -GuidPrefix 'O365Synchronizer' -WhatIf

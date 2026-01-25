@@ -20,6 +20,7 @@
 
     .PARAMETER FolderRemove
     If set it will remove the folder as well, once the contacts are removed.
+    The folder is removed only when empty; use -All to remove all contacts first if needed.
 
     .PARAMETER FullLogging
     If set it will log all actions. By default it will only log actions that meant contact is getting removed or an error happens.
@@ -54,12 +55,22 @@
         [switch] $FullLogging,
         [switch] $All
     )
+    $SupportsFolderContactRemove = $false
+    if ($FolderName -and (Get-Command Remove-MgUserContactFolderContact -ErrorAction SilentlyContinue)) {
+        $SupportsFolderContactRemove = $true
+    }
     if ($FolderName) {
         try {
             $CurrentContactsFolder = Get-MgUserContactFolder -UserId $Identity -Filter "DisplayName eq '$FolderName'" -ErrorAction Stop -All
         } catch {
             Write-Color -Text "[!] ", "Getting user folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Red, White, Red, White
             return
+        }
+        if ($CurrentContactsFolder -is [array]) {
+            if ($CurrentContactsFolder.Count -gt 1) {
+                Write-Color -Text "[!] ", "Multiple folders named ", $FolderName, " found for ", $Identity, ". Using the first match." -Color Yellow, White, Red, White, Red
+            }
+            $CurrentContactsFolder = $CurrentContactsFolder | Select-Object -First 1
         }
         if (-not $CurrentContactsFolder) {
             Write-Color -Text "[!] ", "User folder ", $FolderName, " not found for ", $Identity -Color Yellow, Yellow, Red, Yellow, Red
@@ -101,9 +112,44 @@
             }
         }
         Write-Color -Text "[i] ", "Removing ", $Contact.DisplayName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
-        Remove-MgUserContact -UserId $Identity -ContactId $Contact.Id -WhatIf:$WhatIfPreference
+        try {
+            if ($SupportsFolderContactRemove -and $CurrentContactsFolder) {
+                Remove-MgUserContactFolderContact -UserId $Identity -ContactFolderId $CurrentContactsFolder.Id -ContactId $Contact.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
+            } else {
+                Remove-MgUserContact -UserId $Identity -ContactId $Contact.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
+            }
+        } catch {
+            Write-Color -Text "[!] ", "Failed to remove contact ", $Contact.Id, " from ", $Identity, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+        }
     }
     if ($CurrentContactsFolder -and $FolderName -and $FolderRemove) {
+        if (-not $WhatIfPreference) {
+            $RemainingContacts = @()
+            $MaxAttempts = 3
+            for ($Attempt = 1; $Attempt -le $MaxAttempts; $Attempt++) {
+                try {
+                    $RemainingContacts = Get-MgUserContactFolderContact -ContactFolderId $CurrentContactsFolder.Id -UserId $Identity -ErrorAction Stop -All
+                } catch {
+                    Write-Color -Text "[!] ", "Checking remaining contacts in folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+                    break
+                }
+                if (-not $RemainingContacts -or @($RemainingContacts).Count -eq 0) {
+                    break
+                }
+                if ($Attempt -lt $MaxAttempts) {
+                    Start-Sleep -Seconds 2
+                }
+            }
+
+            $RemainingCount = @($RemainingContacts).Count
+            if ($RemainingCount -gt 0) {
+                Write-Color -Text "[!] ", "Folder ", $FolderName, " not removed for ", $Identity, " because it still contains ", $RemainingCount, " contact(s). Use -All or remove remaining contacts first." -Color Yellow, White, Red, White, Red, White, Red, White, Red
+                return
+            }
+        } else {
+            Write-Color -Text "[i] ", "Skipping empty-folder check for ", $FolderName, " because WhatIf is set." -Color Yellow, White, Cyan, White
+        }
+
         Write-Color -Text "[i] ", "Removing folder ", $FolderName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
         try {
             Remove-MgUserContactFolder -UserId $Identity -ContactFolderId $CurrentContactsFolder.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
