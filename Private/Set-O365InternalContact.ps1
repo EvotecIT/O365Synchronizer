@@ -18,16 +18,46 @@
 
     .PARAMETER FolderName
     Optional folder name used for reporting.
+
+    .PARAMETER Category
+    Categories assigned to synchronized personal contacts.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [string] $UserID,
         [PSCustomObject] $User,
         [PSCustomObject] $Contact,
-        [string] $FolderName
+        [string] $FolderName,
+        [string[]] $Category
     )
 
     $OutputObject = Compare-UserToContact -ExistingContactGAL $User -Contact $Contact -UserID $UserID
+    $CategoriesClean = $null
+    if ($PSBoundParameters.ContainsKey('Category')) {
+        $CategoriesClean = ConvertTo-CleanContactArray -Values $Category
+        $RequestedCategories = @()
+        if ($null -ne $CategoriesClean) {
+            $RequestedCategories = $CategoriesClean | Sort-Object -Unique
+        }
+        $ExistingCategories = @()
+        if ($Contact.PSObject.Properties.Name -contains 'Categories') {
+            $ExistingCategories = ConvertTo-CleanContactArray -Values $Contact.Categories
+            if ($null -ne $ExistingCategories) {
+                $ExistingCategories = $ExistingCategories | Sort-Object -Unique
+            } else {
+                $ExistingCategories = @()
+            }
+        }
+        if ($RequestedCategories.Count -ne $ExistingCategories.Count -or $null -ne (Compare-Object -ReferenceObject $RequestedCategories -DifferenceObject $ExistingCategories)) {
+            if ($OutputObject.Update -notcontains 'Categories') {
+                $OutputObject.Update += 'Categories'
+            }
+        } else {
+            if ($OutputObject.Skip -notcontains 'Categories') {
+                $OutputObject.Skip += 'Categories'
+            }
+        }
+    }
     $ErrorMessage = ''
     if ($OutputObject.Update.Count -gt 0) {
         if ($User.Mail) {
@@ -40,7 +70,11 @@
     if ($OutputObject.Update.Count -gt 0) {
         $PropertiesToUpdate = [ordered] @{}
         foreach ($Property in $OutputObject.Update) {
-            $PropertiesToUpdate[$Property] = $User.$Property
+            if ($Property -eq 'Categories') {
+                $PropertiesToUpdate[$Property] = $CategoriesClean
+            } else {
+                $PropertiesToUpdate[$Property] = $User.$Property
+            }
         }
         $Result = Set-O365WrapperPersonalContact -UserId $UserID -ContactId $Contact.Id @PropertiesToUpdate -WhatIf:$WhatIfPreference
         if ($WhatIfPreference) {

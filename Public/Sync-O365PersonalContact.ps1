@@ -6,6 +6,7 @@
     .DESCRIPTION
     Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
     Includes Department and Manager fields when available.
+    When Category is provided, assigns those categories to synchronized contacts.
 
     .PARAMETER Filter
     Filters to apply to users. It can be used to filter out users that you don't want to synchronize.
@@ -39,6 +40,9 @@
     .PARAMETER FolderName
     Name of the folder to synchronize contacts to. If not set it will synchronize contacts to the main folder.
 
+    .PARAMETER Category
+    Categories assigned to synchronized personal contacts.
+
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
 
@@ -53,6 +57,13 @@
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -RequireEmailAddress -Verbose
+
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
+
+    .EXAMPLE
+    # clear categories assigned by sync
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category @() -Verbose
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
@@ -78,6 +89,7 @@
         [switch] $DoNotRequireAccountEnabled,
         [switch] $DoNotRequireAssignedLicenses,
         [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
+        [Alias('Categories')][string[]] $Category,
         [switch] $PassThru
     )
 
@@ -107,7 +119,20 @@
         if ($ExistingContacts -eq $false) {
             continue
         }
-        $Actions = Sync-InternalO365PersonalContact -FolderInformation $FolderInformation -UserId $User -ExistingUsers $ExistingUsers -ExistingContacts $ExistingContacts -MemberTypes $MemberTypes -RequireEmailAddress:$RequireEmailAddress.IsPresent -GuidPrefix $GuidPrefix -WhatIf:$WhatIfPreference
+        $syncInternalSplat = @{
+            FolderInformation  = $FolderInformation
+            UserId             = $User
+            ExistingUsers      = $ExistingUsers
+            ExistingContacts   = $ExistingContacts
+            MemberTypes        = $MemberTypes
+            RequireEmailAddress = $RequireEmailAddress.IsPresent
+            GuidPrefix         = $GuidPrefix
+            WhatIf             = $WhatIfPreference
+        }
+        if ($PSBoundParameters.ContainsKey('Category')) {
+            $syncInternalSplat['Category'] = $Category
+        }
+        $Actions = Sync-InternalO365PersonalContact @syncInternalSplat
         if ($PassThru) {
             $Actions
         }

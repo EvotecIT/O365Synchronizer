@@ -27,6 +27,9 @@
 
     .PARAMETER ExistingContacts
     Existing personal contacts from the mailbox.
+
+    .PARAMETER Category
+    Categories assigned to synchronized personal contacts.
     #>
     [cmdletBinding(SupportsShouldProcess)]
     param(
@@ -36,7 +39,8 @@
         [string] $GuidPrefix,
         [object] $FolderInformation,
         [System.Collections.IDictionary] $ExistingUsers,
-        [System.Collections.IDictionary] $ExistingContacts
+        [System.Collections.IDictionary] $ExistingContacts,
+        [string[]] $Category
     )
     $ListActions = [System.Collections.Generic.List[object]]::new()
     foreach ($UsersInternalID in $ExistingUsers.Keys) {
@@ -51,11 +55,29 @@
 
         if ($Contact) {
             # Contact exists, lets check if we need to update it
-            $OutputObject = Set-O365InternalContact -UserID $UserId -User $User -Contact $Contact
+            $setInternalSplat = @{
+                UserID  = $UserId
+                User    = $User
+                Contact = $Contact
+            }
+            if ($PSBoundParameters.ContainsKey('Category')) {
+                $setInternalSplat['Category'] = $Category
+            }
+            $OutputObject = Set-O365InternalContact @setInternalSplat
             $ListActions.Add($OutputObject)
         } else {
             # Contact does not exist, lets create it
-            $OutputObject = New-O365InternalContact -UserId $UserId -User $User -GuidPrefix $GuidPrefix -RequireEmailAddress:$RequireEmailAddress -FolderInformation $FolderInformation
+            $newInternalSplat = @{
+                UserId             = $UserId
+                User               = $User
+                GuidPrefix         = $GuidPrefix
+                RequireEmailAddress = $RequireEmailAddress
+                FolderInformation  = $FolderInformation
+            }
+            if ($PSBoundParameters.ContainsKey('Category')) {
+                $newInternalSplat['Category'] = $Category
+            }
+            $OutputObject = New-O365InternalContact @newInternalSplat
             $ListActions.Add($OutputObject)
         }
     }

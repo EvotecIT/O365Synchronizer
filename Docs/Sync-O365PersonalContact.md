@@ -16,12 +16,13 @@ Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 Sync-O365PersonalContact [[-Filter] <ScriptBlock>] [[-UserId] <String[]>] [[-MemberTypes] <String[]>]
  [-RequireEmailAddress] [[-GuidPrefix] <String>] [[-FolderName] <String>]
  [-DoNotRequireAccountEnabled] [-DoNotRequireAssignedLicenses] [[-IncludeExternalUsers] <String[]>]
- [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-Category] <String[]>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 Includes Department and Manager fields when available.
+When Category is provided, assigns those categories to synchronized contacts.
 
 ## EXAMPLES
 
@@ -42,12 +43,23 @@ Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -Requ
 
 ### EXAMPLE 4
 ```
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
+```
+
+### EXAMPLE 5
+```
+# clear categories assigned by sync
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category @() -Verbose
+```
+
+### EXAMPLE 6
+```
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
     Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTER'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
 }
 ```
 
-### EXAMPLE 5
+### EXAMPLE 7
 ```
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
     Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
@@ -194,6 +206,21 @@ Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.
 Type: String[]
 Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Category
+Categories assigned to synchronized personal contacts.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases: Categories
 
 Required: False
 Position: Named

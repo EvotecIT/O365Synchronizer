@@ -20,6 +20,9 @@
 
     .PARAMETER FolderInformation
     Folder metadata for the target contact folder.
+
+    .PARAMETER Category
+    Categories assigned to synchronized personal contacts.
     #>
     [CmdletBinding()]
     param(
@@ -27,7 +30,8 @@
         [PSCustomObject] $User,
         [string] $GuidPrefix,
         [switch] $RequireEmailAddress,
-        [object] $FolderInformation
+        [object] $FolderInformation,
+        [string[]] $Category
     )
     if ($RequireEmailAddress) {
         if (-not $User.Mail) {
@@ -53,6 +57,12 @@
     $PropertiesToUpdate = [ordered] @{}
     foreach ($Property in $Script:MappingContactToUser.Keys) {
         $PropertiesToUpdate[$Property] = $User.$Property
+    }
+    if ($PSBoundParameters.ContainsKey('Category')) {
+        $CategoriesClean = ConvertTo-CleanContactArray -Values $Category
+        if ($null -ne $CategoriesClean) {
+            $PropertiesToUpdate['Categories'] = $CategoriesClean
+        }
     }
     $ErrorMessage = ''
     try {

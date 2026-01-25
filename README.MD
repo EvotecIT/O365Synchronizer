@@ -120,6 +120,12 @@ Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelc
 
 # Synchronization per user or multiple users in one
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl', 'adam.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' | Format-Table *
+
+# tag synchronized contacts with categories
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
+
+# clear categories assigned by sync
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -Category @() -Verbose
 ```
 
 #### License requirements & external users
