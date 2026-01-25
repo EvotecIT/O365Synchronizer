@@ -100,6 +100,7 @@ Accept wildcard characters: False
 
 ### -FolderRemove
 If set it will remove the folder as well, once the contacts are removed.
+The folder is removed only when empty; use -All to remove all contacts first if needed.
 
 ```yaml
 Type: SwitchParameter
