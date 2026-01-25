@@ -133,7 +133,7 @@
                 Write-Color -Text "[!] ", "Checking remaining contacts in folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Yellow, White, Red, White, Red
                 break
             }
-            if (-not $RemainingContacts -or $RemainingContacts.Count -eq 0) {
+            if (-not $RemainingContacts -or @($RemainingContacts).Count -eq 0) {
                 break
             }
             $Attempt++
@@ -142,8 +142,9 @@
             }
         } while ($Attempt -lt $MaxAttempts)
 
-        if ($RemainingContacts -and $RemainingContacts.Count -gt 0) {
-            Write-Color -Text "[!] ", "Folder ", $FolderName, " not removed for ", $Identity, " because it still contains ", $RemainingContacts.Count, " contact(s). Use -All or remove remaining contacts first." -Color Yellow, White, Red, White, Red, White, Red, White, Red
+        $RemainingCount = @($RemainingContacts).Count
+        if ($RemainingCount -gt 0) {
+            Write-Color -Text "[!] ", "Folder ", $FolderName, " not removed for ", $Identity, " because it still contains ", $RemainingCount, " contact(s). Use -All or remove remaining contacts first." -Color Yellow, White, Red, White, Red, White, Red, White, Red
             return
         }
 
