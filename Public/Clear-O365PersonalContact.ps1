@@ -123,29 +123,31 @@
         }
     }
     if ($CurrentContactsFolder -and $FolderName -and $FolderRemove) {
-        $RemainingContacts = @()
-        $Attempt = 0
-        $MaxAttempts = 3
-        do {
-            try {
-                $RemainingContacts = Get-MgUserContactFolderContact -ContactFolderId $CurrentContactsFolder.Id -UserId $Identity -ErrorAction Stop -All
-            } catch {
-                Write-Color -Text "[!] ", "Checking remaining contacts in folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Yellow, White, Red, White, Red
-                break
+        if (-not $WhatIfPreference) {
+            $RemainingContacts = @()
+            $MaxAttempts = 3
+            for ($Attempt = 1; $Attempt -le $MaxAttempts; $Attempt++) {
+                try {
+                    $RemainingContacts = Get-MgUserContactFolderContact -ContactFolderId $CurrentContactsFolder.Id -UserId $Identity -ErrorAction Stop -All
+                } catch {
+                    Write-Color -Text "[!] ", "Checking remaining contacts in folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+                    break
+                }
+                if (-not $RemainingContacts -or @($RemainingContacts).Count -eq 0) {
+                    break
+                }
+                if ($Attempt -lt $MaxAttempts) {
+                    Start-Sleep -Seconds 2
+                }
             }
-            if (-not $RemainingContacts -or @($RemainingContacts).Count -eq 0) {
-                break
-            }
-            $Attempt++
-            if ($Attempt -lt $MaxAttempts) {
-                Start-Sleep -Seconds 2
-            }
-        } while ($Attempt -lt $MaxAttempts)
 
-        $RemainingCount = @($RemainingContacts).Count
-        if ($RemainingCount -gt 0) {
-            Write-Color -Text "[!] ", "Folder ", $FolderName, " not removed for ", $Identity, " because it still contains ", $RemainingCount, " contact(s). Use -All or remove remaining contacts first." -Color Yellow, White, Red, White, Red, White, Red, White, Red
-            return
+            $RemainingCount = @($RemainingContacts).Count
+            if ($RemainingCount -gt 0) {
+                Write-Color -Text "[!] ", "Folder ", $FolderName, " not removed for ", $Identity, " because it still contains ", $RemainingCount, " contact(s). Use -All or remove remaining contacts first." -Color Yellow, White, Red, White, Red, White, Red, White, Red
+                return
+            }
+        } else {
+            Write-Color -Text "[i] ", "Skipping empty-folder check for ", $FolderName, " because WhatIf is set." -Color Yellow, White, Cyan, White
         }
 
         Write-Color -Text "[i] ", "Removing folder ", $FolderName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan

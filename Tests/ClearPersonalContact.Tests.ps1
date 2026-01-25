@@ -1,5 +1,10 @@
 Describe 'Clear-O365PersonalContact folder removal' {
     InModuleScope O365Synchronizer {
+        BeforeEach {
+            Mock Write-Color {}
+            Mock Get-Command { @{ Name = 'Remove-MgUserContactFolderContact' } }
+        }
+
         Context 'when contacts remain in folder' {
             It 'skips folder removal' {
                 $script:FolderContactCall = 0
@@ -26,6 +31,32 @@ Describe 'Clear-O365PersonalContact folder removal' {
                 Clear-O365PersonalContact -Identity 'user@contoso.com' -FolderName 'O365Sync' -FolderRemove
 
                 Assert-MockCalled Remove-MgUserContactFolder -Times 0
+            }
+        }
+
+        Context 'when WhatIf is set' {
+            It 'skips the empty-folder retry check' {
+                $script:FolderContactCall = 0
+
+                Mock Get-MgUserContactFolder {
+                    [pscustomobject]@{ Id = 'folder-id' }
+                }
+                Mock Get-MgUserContactFolderContact {
+                    $script:FolderContactCall++
+                    @([pscustomobject]@{
+                            Id          = 'contact-1'
+                            FileAs      = '11111111-1111-1111-1111-111111111111'
+                            DisplayName = 'Contact One'
+                        })
+                }
+                Mock Remove-MgUserContactFolderContact {}
+                Mock Remove-MgUserContact {}
+                Mock Remove-MgUserContactFolder {}
+
+                Clear-O365PersonalContact -Identity 'user@contoso.com' -FolderName 'O365Sync' -FolderRemove -WhatIf
+
+                Assert-MockCalled Get-MgUserContactFolderContact -Times 1
+                Assert-MockCalled Remove-MgUserContactFolder -Times 1
             }
         }
 
