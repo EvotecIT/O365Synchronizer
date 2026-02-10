@@ -50,11 +50,11 @@
         }
         if ($RequestedCategories.Count -ne $ExistingCategories.Count -or $null -ne (Compare-Object -ReferenceObject $RequestedCategories -DifferenceObject $ExistingCategories)) {
             if ($OutputObject.Update -notcontains 'Categories') {
-                $OutputObject.Update += 'Categories'
+                $OutputObject.Update = @($OutputObject.Update) + 'Categories'
             }
         } else {
             if ($OutputObject.Skip -notcontains 'Categories') {
-                $OutputObject.Skip += 'Categories'
+                $OutputObject.Skip = @($OutputObject.Skip) + 'Categories'
             }
         }
     }
@@ -71,9 +71,10 @@
         $PropertiesToUpdate = [ordered] @{}
         foreach ($Property in $OutputObject.Update) {
             if ($Property -eq 'Categories') {
-                $PropertiesToUpdate[$Property] = $CategoriesClean
+                $PropertiesToUpdate['Categories'] = $CategoriesClean
             } else {
-                $PropertiesToUpdate[$Property] = $User.$Property
+                $PropName = [string]$Property
+                $PropertiesToUpdate[$PropName] = $User.$Property
             }
         }
         $Result = Set-O365WrapperPersonalContact -UserId $UserID -ContactId $Contact.Id @PropertiesToUpdate -WhatIf:$WhatIfPreference
