@@ -46,6 +46,9 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $result = Compare-UserToContact -ExistingContactGAL $existing -Contact $contact -UserID 'user1@example.com'
 
+                ($result.Update -is [array]) | Should -BeTrue
+                ($result.Skip -is [array]) | Should -BeTrue
+
                 $addressProperties = @('City', 'State', 'Street', 'PostalCode', 'Country')
                 foreach ($Property in $addressProperties) {
                     $result.Update | Should -Contain $Property

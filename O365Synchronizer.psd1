@@ -6,7 +6,7 @@
     CompatiblePSEditions = @('Desktop', 'Core')
     Copyright            = '(c) 2011 - 2024 Przemyslaw Klys @ Evotec. All rights reserved.'
     Description          = 'This module allows to synchronize users to/from Office 365. You can synchronize users information to personal contacts or synchronize tenants between each other.'
-    FunctionsToExport    = @('Clear-O365PersonalContact', 'Sync-O365Contact', 'Sync-O365PersonalContact', 'Sync-O365PersonalContactFilter', 'Sync-O365PersonalContactFilterGroup')
+    FunctionsToExport    = @('Clear-O365PersonalContact', 'Sync-O365Contact', 'Sync-O365PersonalContact', 'Sync-O365PersonalContactFilter', 'Sync-O365PersonalContactFilterGroup', 'Sync-O365PersonalContactFilterOData')
     GUID                 = '81e907a0-a475-4d6a-a80d-20e9f08ad6b7'
     ModuleVersion        = '1.0.3'
     PowerShellVersion    = '5.1'

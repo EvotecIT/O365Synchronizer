@@ -88,5 +88,26 @@ Describe 'Clear-O365PersonalContact folder removal' {
                 Assert-MockCalled Remove-MgUserContactFolder -Times 1
             }
         }
+
+                Context 'when folder name contains a single quote' {
+            It 'escapes the folder name in the Graph filter' {
+                Mock Get-MgUserContactFolder { throw "Unexpected filter: $Filter" }
+                Mock Get-MgUserContactFolder -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" } {
+                    [pscustomobject]@{ Id = 'folder-id' }
+                }
+                Mock Get-MgUserContactFolderContact {
+                    @([pscustomobject]@{
+                            Id          = 'contact-1'
+                            FileAs      = '11111111-1111-1111-1111-111111111111'
+                            DisplayName = 'Contact One'
+                        })
+                }
+                Mock Remove-MgUserContactFolderContact {}
+
+                Clear-O365PersonalContact -Identity 'user@contoso.com' -FolderName "O'365Sync"
+
+                Assert-MockCalled Get-MgUserContactFolder -Times 1 -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" }
+            }
+        }
     }
 }

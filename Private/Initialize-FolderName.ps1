@@ -18,7 +18,8 @@
         [string] $FolderName
     )
     if ($FolderName) {
-        $FolderInformation = Get-MgUserContactFolder -UserId $UserId -Filter "DisplayName eq '$FolderName'"
+        $FolderNameEscaped = $FolderName.Replace("'", "''")
+        $FolderInformation = Get-MgUserContactFolder -UserId $UserId -Filter "DisplayName eq '$FolderNameEscaped'"
         if (-not $FolderInformation) {
             Write-Color -Text "[!] ", "User folder ", $FolderName, " not found for ", $UserId -Color Yellow, Yellow, Red, Yellow, Red
             # Create folder
