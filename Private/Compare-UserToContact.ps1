@@ -73,8 +73,9 @@
         Action      = 'Update'
         DisplayName = $ExistingContactGAL.DisplayName
         Mail        = $ExistingContactGAL.Mail
-        Update      = $UpdateProperties | Sort-Object -Unique
-        Skip        = $SkippedProperties | Sort-Object -Unique
+        # Force array output even when only a single property is present.
+        Update      = @($UpdateProperties | Sort-Object -Unique)
+        Skip        = @($SkippedProperties | Sort-Object -Unique)
         Details     = ''
         Error       = ''
     }

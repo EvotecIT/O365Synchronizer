@@ -26,7 +26,8 @@
     $ExistingContacts = [ordered] @{}
     if ($FolderName) {
         try {
-            $CurrentContactsFolder = Get-MgUserContactFolder -UserId $UserId -Filter "DisplayName eq '$FolderName'" -ErrorAction Stop -All
+            $FolderNameEscaped = $FolderName.Replace("'", "''")
+            $CurrentContactsFolder = Get-MgUserContactFolder -UserId $UserId -Filter "DisplayName eq '$FolderNameEscaped'" -ErrorAction Stop -All
         } catch {
             Write-Color -Text "[!] ", "Getting user folder ", $FolderName, " failed for ", $UserId, ". Error: ", $_.Exception.Message -Color Red, White, Red, White
             return $false
