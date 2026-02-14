@@ -1,6 +1,6 @@
 ﻿<p align="center">
   <a href="https://www.powershellgallery.com/packages/O365Synchronizer"><img src="https://img.shields.io/powershellgallery/v/O365Synchronizer.svg"></a>
-  <a href="https://www.powershellgallery.com/packages/O365Synchronizer"><img src="https://img.shields.io/powershellgallery/vpre/O365Synchronizer.svg?label=powershell%20gallery%20preview&colorB=yellow"></a>
+  <a href="https://www.powershellgallery.com/packages/O365Synchronizer"><img src="https://img.shields.io/powershellgallery/v/O365Synchronizer.svg?label=powershell%20gallery%20preview&colorB=yellow&include_prereleases"></a>
   <a href="https://github.com/EvotecIT/O365Synchronizer"><img src="https://img.shields.io/github/license/EvotecIT/O365Synchronizer.svg"></a>
 </p>
 
