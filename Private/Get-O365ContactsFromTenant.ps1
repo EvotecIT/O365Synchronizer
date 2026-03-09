@@ -40,7 +40,7 @@
         if ($Contact.Name) {
             $null = $ReservedNames.Add([string] $Contact.Name)
         }
-        if ($Contact.DisplayName) {
+        if ($Contact.DisplayName -and -not $CurrentContactsCache[$Contact.WindowsEmailAddress]) {
             if ($ReservedDisplayNames.Contains($Contact.DisplayName)) {
                 $ReservedDisplayNames[$Contact.DisplayName]++
             } else {

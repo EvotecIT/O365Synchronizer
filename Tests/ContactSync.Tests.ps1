@@ -584,6 +584,64 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $script:CreatedDisplayNames[0] | Should -Be 'Mario Rossi'
                 $script:CreatedDisplayNames[1] | Should -Be 'Mario Rossi2'
             }
+
+            It 'does not rename an unchanged existing contact when the same display name already exists once' {
+                $script:UpdatedDisplayNames = [System.Collections.Generic.List[string]]::new()
+                Mock Write-Color {}
+                Mock Set-LoggingCapabilities {}
+                Mock Start-TimeLog { [System.Diagnostics.Stopwatch]::StartNew() }
+                Mock Stop-TimeLog { 'done' }
+                Mock Convert-GraphObjectToContact {
+                    param($SourceObject)
+                    [ordered]@{
+                        MailContact = [pscustomobject]@{
+                            DisplayName        = $SourceObject.DisplayName
+                            PrimarySmtpAddress = $SourceObject.Mail
+                        }
+                        Contact = [pscustomobject]@{
+                            DisplayName = $SourceObject.DisplayName
+                        }
+                    }
+                }
+                Mock Get-O365ContactsFromTenant {
+                    $cache = [ordered]@{
+                        'alice@contoso.com' = [ordered]@{
+                            MailContact = [pscustomobject]@{
+                                DisplayName        = 'Alice'
+                                PrimarySmtpAddress = 'alice@contoso.com'
+                            }
+                            Contact = [pscustomobject]@{
+                                DisplayName = 'Alice'
+                            }
+                        }
+                    }
+                    [pscustomobject]@{
+                        ContactsCache        = $cache
+                        ReservedNames        = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                        ReservedDisplayNames = @{
+                            'Alice' = 1
+                        }
+                    }
+                }
+                Mock Set-O365OrgContact {
+                    param($Source)
+                    $script:UpdatedDisplayNames.Add($Source.DisplayName)
+                    $true
+                }
+                Mock New-O365OrgContact {}
+
+                $sourceObjects = @(
+                    [pscustomobject]@{
+                        DisplayName = 'Alice'
+                        Mail        = 'alice@contoso.com'
+                    }
+                )
+
+                Sync-O365Contact -SourceObjects $sourceObjects -Domains @('contoso.com') -EnsureUniqueDisplayName
+
+                $script:UpdatedDisplayNames[0] | Should -Be 'Alice'
+                Assert-MockCalled New-O365OrgContact -Times 0
+            }
         }
         Context 'Get-O365ExistingMembers OData and nested property filters' {
             It 'passes OData filter settings to Get-MgUser' {

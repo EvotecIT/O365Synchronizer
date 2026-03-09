@@ -10,6 +10,7 @@
     During synchronization new contacts will be created matching given domains in target tenant on Exchange Online.
     If contact already exists, it will be updated if needed, even if it wasn't synchronized by this module.
     It will asses whether it needs to add/update/remove contacts based on provided domain names from source objects.
+    New contacts get a unique internal Exchange Name by default, and you can opt in to unique visible display names for homonyms.
 
     .PARAMETER SourceObjects
     Source objects to synchronize. You can use Get-MgUser to get users from Microsoft Graph and provide them as source objects.
