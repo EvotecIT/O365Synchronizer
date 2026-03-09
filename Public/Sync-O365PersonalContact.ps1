@@ -33,6 +33,10 @@
     Use 'Guest' to include users with UserType = Guest.
     Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.
 
+    .PARAMETER ExcludeHiddenFromAddressList
+    Excludes users whose Graph showInAddressList property is explicitly set to false.
+    This applies only to user objects; Microsoft Graph org contacts do not expose an equivalent property.
+
     .PARAMETER GuidPrefix
     Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
     By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
@@ -54,6 +58,9 @@
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
+
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -Verbose
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -RequireEmailAddress -Verbose
@@ -89,19 +96,28 @@
         [switch] $DoNotRequireAccountEnabled,
         [switch] $DoNotRequireAssignedLicenses,
         [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
+        [switch] $ExcludeHiddenFromAddressList,
         [Alias('Categories')][string[]] $Category,
         [switch] $PassThru
     )
 
     Initialize-DefaultValuesO365
+    if ($ExcludeHiddenFromAddressList -and $MemberTypes -contains 'Contact') {
+        Write-Warning 'ExcludeHiddenFromAddressList applies only to user objects. Microsoft Graph org contacts do not expose an equivalent hidden-from-address-list property.'
+    }
 
     # Lets get all users and cache them
     $getO365ExistingMembersSplat = @{
         MemberTypes             = $MemberTypes
         RequireAccountEnabled   = -not $DoNotRequireAccountEnabled.IsPresent
         RequireAssignedLicenses = -not $DoNotRequireAssignedLicenses.IsPresent
-        IncludeExternalUsers    = $IncludeExternalUsers
         UserProvidedFilter      = $Filter
+    }
+    if ($PSBoundParameters.ContainsKey('IncludeExternalUsers')) {
+        $getO365ExistingMembersSplat['IncludeExternalUsers'] = $IncludeExternalUsers
+    }
+    if ($ExcludeHiddenFromAddressList) {
+        $getO365ExistingMembersSplat['ExcludeHiddenFromAddressList'] = $true
     }
 
     $ExistingUsers = Get-O365ExistingMembers @getO365ExistingMembersSplat

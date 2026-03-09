@@ -459,6 +459,78 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Get-O365ExistingMembers hidden address list filtering' {
+            It 'filters users hidden from address list when requested' {
+                Mock Get-MgUser {
+                    @(
+                        [pscustomobject]@{
+                            Id                = '30'
+                            UserPrincipalName = 'hidden@contoso.com'
+                            Mail              = 'hidden@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                            ShowInAddressList = $false
+                        },
+                        [pscustomobject]@{
+                            Id                = '31'
+                            UserPrincipalName = 'visible@contoso.com'
+                            Mail              = 'visible@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                            ShowInAddressList = $true
+                        }
+                    )
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList
+
+                $result.Keys | Should -Not -Contain '30'
+                $result.Keys | Should -Contain '31'
+            }
+
+            It 'does not filter users when ShowInAddressList is null' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '32'
+                            UserPrincipalName = 'unknown@contoso.com'
+                            Mail              = 'unknown@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                            ShowInAddressList = $null
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList
+
+                $result.Keys | Should -Contain '32'
+            }
+        }
+
+        Context 'Sync-O365PersonalContact hidden address list warnings' {
+            It 'warns when hidden-address-list filtering is used with Contact member types' {
+                Mock Write-Warning {}
+                Mock Initialize-DefaultValuesO365 {}
+                Mock Get-O365ExistingMembers { [ordered]@{} }
+                Mock Initialize-FolderName { [pscustomobject]@{ Id = 'folder-id' } }
+                Mock Get-O365ExistingUserContacts { [ordered]@{} }
+
+                Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes @('Member', 'Contact') -ExcludeHiddenFromAddressList
+
+                Assert-MockCalled Write-Warning -Times 1 -ParameterFilter {
+                    $Message -like '*applies only to user objects*'
+                }
+            }
+        }
+
         Context 'Get-O365ExistingMembers OData and nested property filters' {
             It 'passes OData filter settings to Get-MgUser' {
                 Mock Get-MgUser { @() }

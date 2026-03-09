@@ -28,7 +28,8 @@
         [string[]] $MemberTypes,
         [switch] $RequireAccountEnabled,
         [switch] $RequireAssignedLicenses,
-        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers
+        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
+        [switch] $ExcludeHiddenFromAddressList
     )
 
     # Build filtering system
@@ -174,6 +175,13 @@
                         continue
                     }
                 }
+            }
+            if ($ExcludeHiddenFromAddressList -and
+                $User.PSObject.Properties.Name -contains 'ShowInAddressList' -and
+                $null -ne $User.ShowInAddressList -and
+                -not $User.ShowInAddressList) {
+                Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) because ShowInAddressList is false"
+                continue
             }
             if ($GroupIDs.Keys.Count -gt 0) {
                 try {
