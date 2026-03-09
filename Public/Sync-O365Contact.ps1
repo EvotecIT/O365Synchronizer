@@ -33,6 +33,10 @@
     .PARAMETER LogMaximum
     Maximum number of log files to keep.
 
+    .PARAMETER EnsureUniqueDisplayName
+    Makes visible org-contact display names unique by appending a numeric
+    suffix when duplicates are detected during synchronization.
+
     .EXAMPLE
     # Source tenant
     $ClientID = '9e1b3c36'
@@ -58,6 +62,10 @@
     # Skip removals and log actions
     Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
 
+    .EXAMPLE
+    # Make visible display names unique for homonyms
+    Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -EnsureUniqueDisplayName -Verbose
+
     .NOTES
     General notes
     #>
@@ -69,7 +77,8 @@
         [switch] $SkipUpdate,
         [switch] $SkipRemove,
         [string] $LogPath,
-        [int] $LogMaximum
+        [int] $LogMaximum,
+        [switch] $EnsureUniqueDisplayName
     )
     # this won't be logged to file
     Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
@@ -108,6 +117,7 @@
     }
     $CurrentContactsCache = $CurrentContactsInfo.ContactsCache
     $ReservedContactNames = $CurrentContactsInfo.ReservedNames
+    $ReservedContactDisplayNames = $CurrentContactsInfo.ReservedDisplayNames
 
     $CountAdd = 0
     $CountRemove = 0
@@ -131,6 +141,23 @@
             }
             # We cache all sources to make sure we can remove users later on
             $SourceObjectsCache[$Source.PrimarySmtpAddress] = $Source
+
+            if ($EnsureUniqueDisplayName) {
+                $CurrentMailContact = $null
+                if ($CurrentContactsCache[$Source.PrimarySmtpAddress]) {
+                    $CurrentMailContact = $CurrentContactsCache[$Source.PrimarySmtpAddress].MailContact
+                }
+                if ($CurrentMailContact -and $CurrentMailContact.DisplayName -and $ReservedContactDisplayNames.Contains($CurrentMailContact.DisplayName)) {
+                    $ReservedContactDisplayNames[$CurrentMailContact.DisplayName]--
+                    if ($ReservedContactDisplayNames[$CurrentMailContact.DisplayName] -le 0) {
+                        $ReservedContactDisplayNames.Remove($CurrentMailContact.DisplayName)
+                    }
+                }
+
+                $UniqueDisplayName = Get-UniqueO365OrgContactDisplayName -DisplayName $Source.DisplayName -ReservedDisplayNames $ReservedContactDisplayNames
+                $Source.DisplayName = $UniqueDisplayName
+                $SourceContact.DisplayName = $UniqueDisplayName
+            }
 
             if ($CurrentContactsCache[$Source.PrimarySmtpAddress]) {
                 # Contact already exists, but lets check if the data is the same

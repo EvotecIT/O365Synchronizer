@@ -174,6 +174,18 @@ Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl','gmail.com' -V
 
 You can revert the order and set it up to synchronize from Destination tenant to Source tenant to have a two-way synchronization.
 
+#### Homonyms and duplicate display names
+
+By default, organization contact synchronization now generates a unique internal Exchange `Name` for each contact, which avoids creation failures for homonyms.
+
+If you also want the visible `DisplayName` in Exchange/GAL to be unique, enable `-EnsureUniqueDisplayName`.
+This keeps the first contact as-is and appends numeric suffixes such as `2`, `3`, and `4` for later duplicates.
+
+```powershell
+# keep visible names unique for homonyms
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl','gmail.com' -EnsureUniqueDisplayName -Verbose -WhatIf
+```
+
 #### Filtering & Folder support
 
 ```powershell
