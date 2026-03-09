@@ -1,10 +1,5 @@
 ﻿## Changelog
 
-### Unreleased
-- `Sync-O365Contact` now generates a unique internal Exchange `Name` for new org contacts to avoid homonym creation failures.
-- `Sync-O365Contact -EnsureUniqueDisplayName` can make visible GAL display names unique for homonyms with numeric suffixes.
-- `Sync-O365PersonalContact -ExcludeHiddenFromAddressList` can exclude users hidden from the address list when Microsoft Graph exposes `showInAddressList = false`.
-
 ### 1.0.3 - 2024.10.15
 - Fixes problem with synchronizing proper contacts when using folders
 
