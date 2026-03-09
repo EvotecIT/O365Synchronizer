@@ -15,6 +15,7 @@
         [Array] $Domains
     )
     $CurrentContactsCache = [ordered]@{}
+    $ReservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     Write-Color -Text "[>] ", "Getting current contacts" -Color Yellow, White, Cyan
     try {
         $CurrentContacts = Get-Contact -ResultSize Unlimited -ErrorAction Stop
@@ -35,6 +36,9 @@
 
     # We need to do this because Get-MailContact doesn't have all data
     foreach ($Contact in $CurrentMailContacts) {
+        if ($Contact.Name) {
+            $null = $ReservedNames.Add([string] $Contact.Name)
+        }
         $Found = $false
         foreach ($Domain in $Domains) {
             if ($Contact.PrimarySmtpAddress -notlike "*@$Domain") {
@@ -52,11 +56,17 @@
     }
     # We need to do this because Get-Contact doesn't have all data
     foreach ($Contact in $CurrentContacts) {
+        if ($Contact.Name) {
+            $null = $ReservedNames.Add([string] $Contact.Name)
+        }
         if ($CurrentContactsCache[$Contact.WindowsEmailAddress]) {
             $CurrentContactsCache[$Contact.WindowsEmailAddress].Contact = $Contact
         } else {
             # shouldn't really happen
         }
     }
-    $CurrentContactsCache
+    [PSCustomObject] @{
+        ContactsCache = $CurrentContactsCache
+        ReservedNames = $ReservedNames
+    }
 }

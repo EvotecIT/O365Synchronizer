@@ -459,6 +459,61 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Get-UniqueO365OrgContactName' {
+            It 'uses the smtp local part when available' {
+                $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+                $result = Get-UniqueO365OrgContactName -PrimarySmtpAddress 'mario.rossi@contoso.com' -DisplayName 'Mario Rossi' -ReservedNames $reservedNames
+
+                $result | Should -Be 'mario.rossi'
+                $reservedNames.Contains('mario.rossi') | Should -BeTrue
+            }
+
+            It 'adds a numeric suffix when the preferred name is already reserved' {
+                $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                $null = $reservedNames.Add('mario.rossi')
+
+                $result = Get-UniqueO365OrgContactName -PrimarySmtpAddress 'mario.rossi@contoso.com' -DisplayName 'Mario Rossi' -ReservedNames $reservedNames
+
+                $result | Should -Be 'mario.rossi-2'
+                $reservedNames.Contains('mario.rossi-2') | Should -BeTrue
+            }
+
+            It 'falls back to display name when smtp local part is unavailable' {
+                $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+                $result = Get-UniqueO365OrgContactName -PrimarySmtpAddress $null -DisplayName 'Mario Rossi' -ReservedNames $reservedNames
+
+                $result | Should -Be 'Mario Rossi'
+            }
+        }
+
+        Context 'New-O365OrgContact unique naming' {
+            It 'creates a new mail contact with a unique internal name' {
+                $script:CreatedContactName = $null
+                $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                $null = $reservedNames.Add('mario.rossi')
+                function New-MailContact {
+                    param([string] $Name)
+                    $script:CreatedContactName = $Name
+                    [pscustomobject]@{ Identity = 'contact-1' }
+                }
+                Mock Set-O365OrgContact {}
+
+                $source = [pscustomobject]@{
+                    DisplayName        = 'Mario Rossi'
+                    PrimarySmtpAddress = 'mario.rossi@contoso.com'
+                }
+                $sourceContact = [pscustomobject]@{
+                    DisplayName = 'Mario Rossi'
+                }
+
+                New-O365OrgContact -Source $source -SourceContact $sourceContact -ReservedNames $reservedNames
+
+                $script:CreatedContactName | Should -Be 'mario.rossi-2'
+                Assert-MockCalled Set-O365OrgContact -Times 1
+            }
+        }
         Context 'Get-O365ExistingMembers OData and nested property filters' {
             It 'passes OData filter settings to Get-MgUser' {
                 Mock Get-MgUser { @() }

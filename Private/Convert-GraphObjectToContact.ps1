@@ -17,7 +17,6 @@
 
     $MappingMailContact = [ordered] @{
         DisplayName               = 'DisplayName'
-        Name                      = 'DisplayName'
         PrimarySmtpAddress        = 'Mail'
         CustomAttribute1          = 'CustomAttribute1'
         CustomAttribute2          = 'CustomAttribute2'
@@ -26,7 +25,6 @@
     }
     $MappingContact = [ordered] @{
         DisplayName         = 'DisplayName'
-        Name                = 'DisplayName'
         WindowsEmailAddress = 'Mail'
         Title               = 'JobTitle'
         FirstName           = 'GivenName'

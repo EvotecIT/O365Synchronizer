@@ -102,10 +102,12 @@
         Convert-GraphObjectToContact -SourceObject $Source
     }
 
-    $CurrentContactsCache = Get-O365ContactsFromTenant -Domains $Domains
-    if ($null -eq $CurrentContactsCache) {
+    $CurrentContactsInfo = Get-O365ContactsFromTenant -Domains $Domains
+    if ($null -eq $CurrentContactsInfo) {
         return
     }
+    $CurrentContactsCache = $CurrentContactsInfo.ContactsCache
+    $ReservedContactNames = $CurrentContactsInfo.ReservedNames
 
     $CountAdd = 0
     $CountRemove = 0
@@ -141,7 +143,7 @@
             } else {
                 # Contact is new
                 if (-not $SkipAdd) {
-                    New-O365OrgContact -Source $Source
+                    New-O365OrgContact -Source $Source -SourceContact $SourceContact -ReservedNames $ReservedContactNames
                     $CountAdd++
                 }
             }
