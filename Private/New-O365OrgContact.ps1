@@ -24,5 +24,9 @@
     }
     if ($Created) {
         $null = Set-O365OrgContact -MailContact $Created -Contact @{} -Source $Source -SourceContact $SourceContact
+        [PSCustomObject] @{
+            MailContact = $Created
+            Name        = $ContactName
+        }
     }
 }

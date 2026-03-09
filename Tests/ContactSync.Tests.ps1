@@ -460,6 +460,12 @@ Describe 'O365Synchronizer contact sync helpers' {
         }
 
         Context 'Get-UniqueO365OrgContactName' {
+            It 'returns the preferred base name before uniqueness is applied' {
+                $result = Get-PreferredO365OrgContactName -PrimarySmtpAddress 'mario.rossi@contoso.com' -DisplayName 'Mario Rossi'
+
+                $result | Should -Be 'mario.rossi'
+            }
+
             It 'uses the smtp local part when available' {
                 $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
@@ -641,6 +647,85 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $script:UpdatedDisplayNames[0] | Should -Be 'Alice'
                 Assert-MockCalled New-O365OrgContact -Times 0
+            }
+
+            It 'normalizes the internal Exchange name after removing a replaced contact' {
+                $script:NormalizedIdentity = $null
+                $script:NormalizedName = $null
+                $script:RemovedIdentity = $null
+                Mock Write-Color {}
+                Mock Set-LoggingCapabilities {}
+                Mock Start-TimeLog { [System.Diagnostics.Stopwatch]::StartNew() }
+                Mock Stop-TimeLog { 'done' }
+                Mock Convert-GraphObjectToContact {
+                    param($SourceObject)
+                    [ordered]@{
+                        MailContact = [pscustomobject]@{
+                            DisplayName        = $SourceObject.DisplayName
+                            PrimarySmtpAddress = $SourceObject.Mail
+                        }
+                        Contact = [pscustomobject]@{
+                            DisplayName = $SourceObject.DisplayName
+                        }
+                    }
+                }
+                Mock Get-O365ContactsFromTenant {
+                    $cache = [ordered]@{
+                        'alice@old.com' = [ordered]@{
+                            MailContact = [pscustomobject]@{
+                                Name               = 'alice'
+                                DisplayName        = 'Alice'
+                                PrimarySmtpAddress = 'alice@old.com'
+                            }
+                            Contact = [pscustomobject]@{
+                                DisplayName = 'Alice'
+                            }
+                        }
+                    }
+                    $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                    $null = $reservedNames.Add('alice')
+                    [pscustomobject]@{
+                        ContactsCache        = $cache
+                        ReservedNames        = $reservedNames
+                        ReservedNameOwners   = @{
+                            'alice' = 'alice@old.com'
+                        }
+                        ReservedDisplayNames = @{
+                            'Alice' = 1
+                        }
+                    }
+                }
+                Mock New-O365OrgContact {
+                    [pscustomobject]@{
+                        MailContact = [pscustomobject]@{
+                            Identity = 'new-contact'
+                        }
+                        Name = 'alice-2'
+                    }
+                }
+                function Remove-MailContact {
+                    param($Identity)
+                    $script:RemovedIdentity = $Identity
+                }
+                function Set-MailContact {
+                    param($Identity, $Name)
+                    $script:NormalizedIdentity = $Identity
+                    $script:NormalizedName = $Name
+                }
+                Mock Set-O365OrgContact {}
+
+                $sourceObjects = @(
+                    [pscustomobject]@{
+                        DisplayName = 'Alice'
+                        Mail        = 'alice@new.com'
+                    }
+                )
+
+                Sync-O365Contact -SourceObjects $sourceObjects -Domains @('old.com', 'new.com')
+
+                $script:NormalizedIdentity | Should -Be 'new-contact'
+                $script:NormalizedName | Should -Be 'alice'
+                $script:RemovedIdentity | Should -Be 'alice@old.com'
             }
         }
         Context 'Get-O365ExistingMembers OData and nested property filters' {

@@ -16,6 +16,7 @@
     )
     $CurrentContactsCache = [ordered]@{}
     $ReservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $ReservedNameOwners = @{}
     $ReservedDisplayNames = @{}
     Write-Color -Text "[>] ", "Getting current contacts" -Color Yellow, White, Cyan
     try {
@@ -39,6 +40,9 @@
     foreach ($Contact in $CurrentMailContacts) {
         if ($Contact.Name) {
             $null = $ReservedNames.Add([string] $Contact.Name)
+            if ($Contact.PrimarySmtpAddress) {
+                $ReservedNameOwners[[string] $Contact.Name] = [string] $Contact.PrimarySmtpAddress
+            }
         }
         if ($Contact.DisplayName -and -not $CurrentContactsCache[$Contact.WindowsEmailAddress]) {
             if ($ReservedDisplayNames.Contains($Contact.DisplayName)) {
@@ -66,6 +70,9 @@
     foreach ($Contact in $CurrentContacts) {
         if ($Contact.Name) {
             $null = $ReservedNames.Add([string] $Contact.Name)
+            if ($Contact.WindowsEmailAddress -and -not $ReservedNameOwners[[string] $Contact.Name]) {
+                $ReservedNameOwners[[string] $Contact.Name] = [string] $Contact.WindowsEmailAddress
+            }
         }
         if ($Contact.DisplayName) {
             if ($ReservedDisplayNames.Contains($Contact.DisplayName)) {
@@ -83,6 +90,7 @@
     [PSCustomObject] @{
         ContactsCache         = $CurrentContactsCache
         ReservedNames         = $ReservedNames
+        ReservedNameOwners    = $ReservedNameOwners
         ReservedDisplayNames  = $ReservedDisplayNames
     }
 }

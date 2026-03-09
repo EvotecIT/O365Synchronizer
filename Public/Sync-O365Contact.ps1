@@ -118,11 +118,28 @@
     }
     $CurrentContactsCache = $CurrentContactsInfo.ContactsCache
     $ReservedContactNames = $CurrentContactsInfo.ReservedNames
+    $ReservedContactNameOwners = $CurrentContactsInfo.ReservedNameOwners
     $ReservedContactDisplayNames = $CurrentContactsInfo.ReservedDisplayNames
+    $DesiredSourceAddresses = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($Object in $ConvertedObjects) {
+        $Source = $Object.MailContact
+        if (-not $Source.PrimarySmtpAddress) {
+            continue
+        }
+        foreach ($Domain in $Domains) {
+            if ($Source.PrimarySmtpAddress -like "*@$Domain") {
+                $null = $DesiredSourceAddresses.Add([string] $Source.PrimarySmtpAddress)
+                break
+            }
+        }
+    }
 
     $CountAdd = 0
     $CountRemove = 0
     $CountUpdate = 0
+    $PendingNameNormalizations = [System.Collections.Generic.List[object]]::new()
+    $RemovedContacts = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
     foreach ($Object in $ConvertedObjects) {
         $Source = $Object.MailContact
@@ -171,8 +188,28 @@
             } else {
                 # Contact is new
                 if (-not $SkipAdd) {
-                    New-O365OrgContact -Source $Source -SourceContact $SourceContact -ReservedNames $ReservedContactNames
-                    $CountAdd++
+                    $PreferredContactName = Get-PreferredO365OrgContactName -PrimarySmtpAddress $Source.PrimarySmtpAddress -DisplayName $Source.DisplayName
+                    $ConflictingContactAddress = $null
+                    $ShouldNormalizeNameAfterRemoval = $false
+                    if (-not $SkipRemove -and $ReservedContactNameOwners -and $ReservedContactNameOwners[$PreferredContactName]) {
+                        $ConflictingContactAddress = [string] $ReservedContactNameOwners[$PreferredContactName]
+                        if ($CurrentContactsCache[$ConflictingContactAddress] -and -not $DesiredSourceAddresses.Contains($ConflictingContactAddress)) {
+                            $ShouldNormalizeNameAfterRemoval = $true
+                        }
+                    }
+
+                    $CreatedContact = New-O365OrgContact -Source $Source -SourceContact $SourceContact -ReservedNames $ReservedContactNames
+                    if ($CreatedContact) {
+                        if ($ShouldNormalizeNameAfterRemoval -and $CreatedContact.Name -ne $PreferredContactName) {
+                            $PendingNameNormalizations.Add([PSCustomObject] @{
+                                    Identity            = if ($CreatedContact.MailContact.Identity) { $CreatedContact.MailContact.Identity } else { $Source.PrimarySmtpAddress }
+                                    CurrentName         = $CreatedContact.Name
+                                    PreferredName       = $PreferredContactName
+                                    ConflictingIdentity = $ConflictingContactAddress
+                                })
+                        }
+                        $CountAdd++
+                    }
                 }
             }
         } else {
@@ -190,11 +227,31 @@
                 try {
                     Remove-MailContact -Identity $Contact.PrimarySmtpAddress -WhatIf:$WhatIfPreference -Confirm:$false -ErrorAction Stop
                     $CountRemove++
+                    $null = $RemovedContacts.Add([string] $Contact.PrimarySmtpAddress)
                 } catch {
                     Write-Color -Text "[e] ", "Failed to remove contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
                 }
 
             }
+        }
+    }
+    foreach ($PendingNameNormalization in $PendingNameNormalizations) {
+        if (-not $RemovedContacts.Contains($PendingNameNormalization.ConflictingIdentity)) {
+            continue
+        }
+        Write-Color -Text "[*] ", "Normalizing Exchange Name for ", $PendingNameNormalization.Identity, " to ", $PendingNameNormalization.PreferredName -Color Yellow, Green, DarkCyan, White, Cyan
+        try {
+            Set-MailContact -Identity $PendingNameNormalization.Identity -Name $PendingNameNormalization.PreferredName -WhatIf:$WhatIfPreference -ErrorAction Stop
+            if ($ReservedContactNames) {
+                $null = $ReservedContactNames.Remove($PendingNameNormalization.CurrentName)
+                $null = $ReservedContactNames.Add($PendingNameNormalization.PreferredName)
+            }
+            if ($ReservedContactNameOwners) {
+                $ReservedContactNameOwners.Remove($PendingNameNormalization.CurrentName)
+                $ReservedContactNameOwners[$PendingNameNormalization.PreferredName] = [string] $PendingNameNormalization.Identity
+            }
+        } catch {
+            Write-Color -Text "[e] ", "Failed to normalize Exchange Name. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
         }
     }
     Write-Color -Text "[i] ", "Synchronization summary: ", $CountAdd, " added, ", $CountUpdate, " updated, ", $CountRemove, " removed" -Color Yellow, White, Cyan, White, Cyan, White, Cyan, White, Cyan
