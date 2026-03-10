@@ -34,8 +34,8 @@
     Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.
 
     .PARAMETER ExcludeHiddenFromAddressList
-    Excludes users whose Graph showInAddressList property is explicitly set to false.
-    Users are left in scope when showInAddressList is null or missing.
+    Best-effort exclusion for users whose Graph showInAddressList property is explicitly set to false.
+    Users are left in scope when showInAddressList is null, missing, or not returned by Graph.
     This applies only to user objects; Microsoft Graph org contacts do not expose an equivalent property.
 
     .PARAMETER GuidPrefix
@@ -61,6 +61,7 @@
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
 
     .EXAMPLE
+    # best-effort filtering when Graph exposes showInAddressList
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -Verbose
 
     .EXAMPLE
