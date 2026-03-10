@@ -23,6 +23,9 @@
         Write-Color -Text "[e] ", "Failed to create contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
     }
     if ($Created) {
+        if ($ReservedNames) {
+            $null = $ReservedNames.Add($ContactName)
+        }
         $null = Set-O365OrgContact -MailContact $Created -Contact @{} -Source $Source -SourceContact $SourceContact
         [PSCustomObject] @{
             MailContact = $Created

@@ -66,8 +66,5 @@ function Get-UniqueO365OrgContactName {
         $Index++
     }
 
-    if ($ReservedNames) {
-        $null = $ReservedNames.Add($Candidate)
-    }
     $Candidate
 }

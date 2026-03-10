@@ -472,7 +472,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Get-UniqueO365OrgContactName -PrimarySmtpAddress 'mario.rossi@contoso.com' -DisplayName 'Mario Rossi' -ReservedNames $reservedNames
 
                 $result | Should -Be 'mario.rossi'
-                $reservedNames.Contains('mario.rossi') | Should -BeTrue
+                $reservedNames.Contains('mario.rossi') | Should -BeFalse
             }
 
             It 'adds a numeric suffix when the preferred name is already reserved' {
@@ -482,7 +482,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Get-UniqueO365OrgContactName -PrimarySmtpAddress 'mario.rossi@contoso.com' -DisplayName 'Mario Rossi' -ReservedNames $reservedNames
 
                 $result | Should -Be 'mario.rossi-2'
-                $reservedNames.Contains('mario.rossi-2') | Should -BeTrue
+                $reservedNames.Contains('mario.rossi-2') | Should -BeFalse
             }
 
             It 'falls back to display name when smtp local part is unavailable' {
@@ -539,7 +539,31 @@ Describe 'O365Synchronizer contact sync helpers' {
                 New-O365OrgContact -Source $source -SourceContact $sourceContact -ReservedNames $reservedNames
 
                 $script:CreatedContactName | Should -Be 'mario.rossi-2'
+                $reservedNames.Contains('mario.rossi-2') | Should -BeTrue
                 Assert-MockCalled Set-O365OrgContact -Times 1
+            }
+
+            It 'does not reserve the generated name when contact creation fails' {
+                $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                function New-MailContact {
+                    throw 'boom'
+                }
+                Mock Write-Color {}
+                Mock Set-O365OrgContact {}
+
+                $source = [pscustomobject]@{
+                    DisplayName        = 'Mario Rossi'
+                    PrimarySmtpAddress = 'mario.rossi@contoso.com'
+                }
+                $sourceContact = [pscustomobject]@{
+                    DisplayName = 'Mario Rossi'
+                }
+
+                $result = New-O365OrgContact -Source $source -SourceContact $sourceContact -ReservedNames $reservedNames
+
+                $result | Should -BeNullOrEmpty
+                $reservedNames.Contains('mario.rossi') | Should -BeFalse
+                Assert-MockCalled Set-O365OrgContact -Times 0
             }
         }
 
