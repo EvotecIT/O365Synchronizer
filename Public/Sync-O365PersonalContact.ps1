@@ -100,18 +100,18 @@
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [scriptblock] $Filter,
-        [string[]] $UserId,
-        [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
+        [Parameter(Position = 0)][scriptblock] $Filter,
+        [Parameter(Position = 1)][string[]] $UserId,
+        [Parameter(Position = 2)][ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
         [switch] $RequireEmailAddress,
-        [string] $GuidPrefix,
-        [string] $FolderName,
+        [Parameter(Position = 3)][string] $GuidPrefix,
+        [Parameter(Position = 4)][string] $FolderName,
         [switch] $DoNotRequireAccountEnabled,
         [switch] $DoNotRequireAssignedLicenses,
-        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
+        [Parameter(Position = 5)][ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
         [switch] $ExcludeHiddenFromAddressList,
         [HiddenAddressListSource] $HiddenAddressListSource = [HiddenAddressListSource]::Graph,
-        [Alias('Categories')][string[]] $Category,
+        [Parameter(Position = 6)][Alias('Categories')][string[]] $Category,
         [switch] $PassThru
     )
 

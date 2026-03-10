@@ -631,6 +631,28 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $script:CapturedHiddenAddressListSource | Should -Be ([HiddenAddressListSource]::Exchange)
             }
+
+            It 'keeps the new hidden-address-list parameters named-only so existing positional parameters stay stable' {
+                $command = Get-Command Sync-O365PersonalContact
+
+                $filterPosition = ($command.Parameters['Filter'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+                $userIdPosition = ($command.Parameters['UserId'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+                $memberTypesPosition = ($command.Parameters['MemberTypes'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+                $guidPrefixPosition = ($command.Parameters['GuidPrefix'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+                $folderNamePosition = ($command.Parameters['FolderName'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+                $includeExternalUsersPosition = ($command.Parameters['IncludeExternalUsers'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+                $categoryPosition = ($command.Parameters['Category'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+                $hiddenAddressListSourcePosition = ($command.Parameters['HiddenAddressListSource'].Attributes | Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] } | Select-Object -First 1).Position
+
+                $filterPosition | Should -Be 0
+                $userIdPosition | Should -Be 1
+                $memberTypesPosition | Should -Be 2
+                $guidPrefixPosition | Should -Be 3
+                $folderNamePosition | Should -Be 4
+                $includeExternalUsersPosition | Should -Be 5
+                $categoryPosition | Should -Be 6
+                $hiddenAddressListSourcePosition | Should -Be ([int] [System.Management.Automation.ParameterAttribute]::new().Position)
+            }
         }
 
         Context 'Get-O365ExistingMembers OData and nested property filters' {
