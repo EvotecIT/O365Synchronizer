@@ -44,6 +44,7 @@ Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Exclu
 
 ### EXAMPLE 4
 ```
+# Connect-ExchangeOnline first when using Exchange mode
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 ```
 
@@ -244,7 +245,7 @@ Accept wildcard characters: False
 
 ### -HiddenAddressListSource
 Controls whether hidden-address-list filtering uses Microsoft Graph or Exchange Online as the source of truth.
-Graph preserves the current auth model and remains best-effort; Exchange requires an active Exchange session.
+Graph preserves the current auth model and remains best-effort; Exchange requires an active `Connect-ExchangeOnline` session and rights to read recipients.
 
 ```yaml
 Type: HiddenAddressListSource

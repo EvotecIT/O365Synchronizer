@@ -69,10 +69,10 @@
 
     .EXAMPLE
     # best-effort filtering when Graph exposes showInAddressList
-    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -Verbose
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
 
     .EXAMPLE
-    # authoritative filtering via Exchange Online
+    # authoritative filtering via Exchange Online (Connect-ExchangeOnline first)
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 
     .EXAMPLE

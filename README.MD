@@ -148,6 +148,15 @@ Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member'
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 ```
 
+Use `-HiddenAddressListSource Graph` when you want to stay on the existing Graph-only auth model and best-effort filtering is acceptable.
+Use `-HiddenAddressListSource Exchange` when you want a stronger signal from Exchange Online and can provide an active Exchange session.
+
+```powershell
+# Exchange-backed hidden-address filtering requires an Exchange Online session
+Connect-ExchangeOnline -UserPrincipalName 'admin@contoso.com'
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
+```
+
 ### Synchronize users between tenants
 
 #### Permissions required
