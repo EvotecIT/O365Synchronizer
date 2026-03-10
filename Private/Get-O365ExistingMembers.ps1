@@ -101,6 +101,8 @@
     # Lets get all users and cache them
     $ExistingUsers = [ordered] @{}
     if ($MemberTypes -contains 'Member' -or $MemberTypes -contains 'Guest') {
+        $HiddenAddressListFilteredCount = 0
+        $HiddenAddressListUnknownCount = 0
         try {
             $getMgUserSplat = @{
                 Property    = $Script:PropertiesUsers
@@ -176,12 +178,18 @@
                     }
                 }
             }
-            if ($ExcludeHiddenFromAddressList -and
-                $User.PSObject.Properties.Name -contains 'ShowInAddressList' -and
-                $null -ne $User.ShowInAddressList -and
-                -not $User.ShowInAddressList) {
-                Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) because ShowInAddressList is false"
-                continue
+            if ($ExcludeHiddenFromAddressList) {
+                if ($User.PSObject.Properties.Name -contains 'ShowInAddressList') {
+                    if ($null -eq $User.ShowInAddressList) {
+                        $HiddenAddressListUnknownCount++
+                    } elseif (-not $User.ShowInAddressList) {
+                        $HiddenAddressListFilteredCount++
+                        Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) because ShowInAddressList is false"
+                        continue
+                    }
+                } else {
+                    $HiddenAddressListUnknownCount++
+                }
             }
             if ($GroupIDs.Keys.Count -gt 0) {
                 try {
@@ -329,6 +337,12 @@
             Add-Member -MemberType NoteProperty -Name 'Type' -Value $User.UserType -InputObject $User
             $Entry = $User.Id
             $ExistingUsers[$Entry] = $User
+        }
+        if ($ExcludeHiddenFromAddressList) {
+            Write-Verbose -Message "ExcludeHiddenFromAddressList filtered $HiddenAddressListFilteredCount users where ShowInAddressList is false"
+            if ($HiddenAddressListUnknownCount -gt 0) {
+                Write-Verbose -Message "ExcludeHiddenFromAddressList left $HiddenAddressListUnknownCount users in scope because ShowInAddressList was null or missing"
+            }
         }
     }
     if ($MemberTypes -contains 'Contact') {

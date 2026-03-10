@@ -141,6 +141,8 @@ Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member'
 
 # exclude users hidden from the address list when Graph reports showInAddressList = $false
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -Verbose
+
+# users stay in scope when Graph returns showInAddressList as null or does not return it
 ```
 
 ### Synchronize users between tenants

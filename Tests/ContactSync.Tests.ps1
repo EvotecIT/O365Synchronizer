@@ -495,6 +495,7 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
 
             It 'does not filter users when ShowInAddressList is null' {
+                Mock Write-Verbose {}
                 Mock Get-MgUser {
                     @([pscustomobject]@{
                             Id                = '32'
@@ -512,6 +513,9 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList
 
                 $result.Keys | Should -Contain '32'
+                Assert-MockCalled Write-Verbose -Times 1 -ParameterFilter {
+                    $Message -like '*left 1 users in scope because ShowInAddressList was null or missing*'
+                }
             }
         }
 

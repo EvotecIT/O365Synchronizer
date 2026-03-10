@@ -222,6 +222,7 @@ Accept wildcard characters: False
 
 ### -ExcludeHiddenFromAddressList
 Excludes users whose Graph showInAddressList property is explicitly set to false.
+Users are left in scope when showInAddressList is null or missing.
 This applies only to user objects; Microsoft Graph org contacts do not expose an equivalent property.
 
 ```yaml
