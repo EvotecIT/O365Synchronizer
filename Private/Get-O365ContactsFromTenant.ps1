@@ -18,6 +18,7 @@
     $ReservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     $ReservedNameOwners = @{}
     $ReservedDisplayNames = @{}
+    $ReservedDisplayNameOwners = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     Write-Color -Text "[>] ", "Getting current contacts" -Color Yellow, White, Cyan
     try {
         $CurrentContacts = Get-Contact -ResultSize Unlimited -ErrorAction Stop
@@ -44,7 +45,16 @@
                 $ReservedNameOwners[[string] $Contact.Name] = [string] $Contact.PrimarySmtpAddress
             }
         }
-        if ($Contact.DisplayName -and -not $CurrentContactsCache[$Contact.WindowsEmailAddress]) {
+        $DisplayReservationOwner = if ($Contact.WindowsEmailAddress) {
+            [string] $Contact.WindowsEmailAddress
+        } elseif ($Contact.PrimarySmtpAddress) {
+            [string] $Contact.PrimarySmtpAddress
+        } elseif ($Contact.Identity) {
+            [string] $Contact.Identity
+        } else {
+            [string] $Contact.Name
+        }
+        if ($Contact.DisplayName -and $DisplayReservationOwner -and $ReservedDisplayNameOwners.Add($DisplayReservationOwner)) {
             if ($ReservedDisplayNames.Contains($Contact.DisplayName)) {
                 $ReservedDisplayNames[$Contact.DisplayName]++
             } else {
@@ -74,7 +84,16 @@
                 $ReservedNameOwners[[string] $Contact.Name] = [string] $Contact.WindowsEmailAddress
             }
         }
-        if ($Contact.DisplayName) {
+        $DisplayReservationOwner = if ($Contact.WindowsEmailAddress) {
+            [string] $Contact.WindowsEmailAddress
+        } elseif ($Contact.PrimarySmtpAddress) {
+            [string] $Contact.PrimarySmtpAddress
+        } elseif ($Contact.Identity) {
+            [string] $Contact.Identity
+        } else {
+            [string] $Contact.Name
+        }
+        if ($Contact.DisplayName -and $DisplayReservationOwner -and $ReservedDisplayNameOwners.Add($DisplayReservationOwner)) {
             if ($ReservedDisplayNames.Contains($Contact.DisplayName)) {
                 $ReservedDisplayNames[$Contact.DisplayName]++
             } else {

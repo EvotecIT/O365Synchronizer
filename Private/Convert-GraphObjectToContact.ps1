@@ -21,7 +21,6 @@
         CustomAttribute1          = 'CustomAttribute1'
         CustomAttribute2          = 'CustomAttribute2'
         ExtensionCustomAttribute1 = 'ExtensionCustomAttribute1'
-        #HiddenFromAddressListsEnabled = 'HiddenFromAddressListsEnabled'
     }
     $MappingContact = [ordered] @{
         DisplayName         = 'DisplayName'
@@ -40,7 +39,6 @@
         StateOrProvince     = 'StateOrProvince'
         PostalCode          = 'PostalCode'
         CountryOrRegion     = 'CountryOrRegion'
-        #Fax                 = 'Fax'
     }
 
     $NewContact = [ordered] @{}
@@ -55,11 +53,7 @@
     $NewMailContact = [ordered] @{}
     foreach ($Property in $MappingMailContact.Keys) {
         $PropertyName = $MappingMailContact[$Property]
-        #if ($PropertyName -eq 'BusinessPhones') {
-        #    $NewMailContact[$Property] = [string] $SourceObject.$PropertyName
-        # } else {
         $NewMailContact[$Property] = $SourceObject.$PropertyName
-        # }
     }
     $Output = [ordered] @{
         Contact     = [PSCustomObject] $NewContact

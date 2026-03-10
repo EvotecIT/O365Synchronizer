@@ -239,9 +239,6 @@
                     }
                 }
             }
-        } else {
-            #Write-Color -Text "[i] ", "Processing stopped, as no email ", $Source.DisplayName -Color Yellow, White, Red
-            #New-Contact -DisplayName $Source.DisplayName -Name $Source.DisplayName -WhatIf:$WhatIfPreference
         }
     }
     if (-not $SkipRemove) {
@@ -253,6 +250,12 @@
                 Write-Color -Text "[-] ", "Removing ", $Contact.DisplayName, " / ", $Contact.PrimarySmtpAddress -Color Yellow, Red, DarkCyan, White, Cyan
                 try {
                     Remove-MailContact -Identity $Contact.PrimarySmtpAddress -WhatIf:$WhatIfPreference -Confirm:$false -ErrorAction Stop
+                    if ($Contact.Name -and $ReservedContactNames) {
+                        $null = $ReservedContactNames.Remove([string] $Contact.Name)
+                    }
+                    if ($Contact.Name -and $ReservedContactNameOwners) {
+                        $ReservedContactNameOwners.Remove([string] $Contact.Name)
+                    }
                     $CountRemove++
                     $null = $RemovedContacts.Add([string] $Contact.PrimarySmtpAddress)
                 } catch {
@@ -266,18 +269,36 @@
         if (-not $RemovedContacts.Contains($PendingNameNormalization.ConflictingIdentity)) {
             continue
         }
-        Write-Color -Text "[*] ", "Normalizing Exchange Name for ", $PendingNameNormalization.Identity, " to ", $PendingNameNormalization.PreferredName -Color Yellow, Green, DarkCyan, White, Cyan
+        $NormalizedName = $PendingNameNormalization.PreferredName
+        $RemovedCurrentName = $false
+        if ($ReservedContactNames) {
+            $RemovedCurrentName = $ReservedContactNames.Remove($PendingNameNormalization.CurrentName)
+            $Index = 2
+            while ($ReservedContactNames.Contains($NormalizedName)) {
+                $NormalizedName = "$($PendingNameNormalization.PreferredName)-$Index"
+                $Index++
+            }
+        }
+        if ($NormalizedName -eq $PendingNameNormalization.CurrentName) {
+            if ($ReservedContactNames -and $RemovedCurrentName) {
+                $null = $ReservedContactNames.Add($PendingNameNormalization.CurrentName)
+            }
+            continue
+        }
+        Write-Color -Text "[*] ", "Normalizing Exchange Name for ", $PendingNameNormalization.Identity, " to ", $NormalizedName -Color Yellow, Green, DarkCyan, White, Cyan
         try {
-            Set-MailContact -Identity $PendingNameNormalization.Identity -Name $PendingNameNormalization.PreferredName -WhatIf:$WhatIfPreference -ErrorAction Stop
+            Set-MailContact -Identity $PendingNameNormalization.Identity -Name $NormalizedName -WhatIf:$WhatIfPreference -ErrorAction Stop
             if ($ReservedContactNames) {
-                $null = $ReservedContactNames.Remove($PendingNameNormalization.CurrentName)
-                $null = $ReservedContactNames.Add($PendingNameNormalization.PreferredName)
+                $null = $ReservedContactNames.Add($NormalizedName)
             }
             if ($ReservedContactNameOwners) {
                 $ReservedContactNameOwners.Remove($PendingNameNormalization.CurrentName)
-                $ReservedContactNameOwners[$PendingNameNormalization.PreferredName] = [string] $PendingNameNormalization.Identity
+                $ReservedContactNameOwners[$NormalizedName] = [string] $PendingNameNormalization.Identity
             }
         } catch {
+            if ($ReservedContactNames -and $RemovedCurrentName) {
+                $null = $ReservedContactNames.Add($PendingNameNormalization.CurrentName)
+            }
             Write-Color -Text "[e] ", "Failed to normalize Exchange Name. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
         }
     }

@@ -516,6 +516,31 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Get-O365ContactsFromTenant reservations' {
+            It 'counts each existing display name only once per real contact' {
+                function Write-Color {}
+                function Get-Contact {
+                    @([pscustomobject]@{
+                            Name                = 'alice'
+                            DisplayName         = 'Alice'
+                            WindowsEmailAddress = 'alice@contoso.com'
+                        })
+                }
+                function Get-MailContact {
+                    @([pscustomobject]@{
+                            Name                = 'alice'
+                            DisplayName         = 'Alice'
+                            WindowsEmailAddress = 'alice@contoso.com'
+                            PrimarySmtpAddress  = 'alice@contoso.com'
+                        })
+                }
+
+                $result = Get-O365ContactsFromTenant -Domains @('contoso.com')
+
+                $result.ReservedDisplayNames['Alice'] | Should -Be 1
+            }
+        }
+
         Context 'New-O365OrgContact unique naming' {
             It 'creates a new mail contact with a unique internal name' {
                 $script:CreatedContactName = $null
@@ -810,7 +835,151 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $script:NormalizedName | Should -Be 'alice'
                 $script:RemovedIdentity | Should -Be 'alice@old.com'
             }
+
+            It 'recomputes the normalized name when another contact already claimed the preferred name' {
+                $script:NormalizedNames = [System.Collections.Generic.List[string]]::new()
+                Mock Write-Color {}
+                Mock Set-LoggingCapabilities {}
+                Mock Start-TimeLog { [System.Diagnostics.Stopwatch]::StartNew() }
+                Mock Stop-TimeLog { 'done' }
+                Mock Convert-GraphObjectToContact {
+                    param($SourceObject)
+                    [ordered]@{
+                        MailContact = [pscustomobject]@{
+                            DisplayName        = $SourceObject.DisplayName
+                            PrimarySmtpAddress = $SourceObject.Mail
+                        }
+                        Contact = [pscustomobject]@{
+                            DisplayName = $SourceObject.DisplayName
+                        }
+                    }
+                }
+                Mock Get-O365ContactsFromTenant {
+                    $cache = [ordered]@{
+                        'shared@old.com' = [ordered]@{
+                            MailContact = [pscustomobject]@{
+                                Name               = 'shared'
+                                DisplayName        = 'Shared'
+                                PrimarySmtpAddress = 'shared@old.com'
+                            }
+                            Contact = [pscustomobject]@{
+                                DisplayName = 'Shared'
+                            }
+                        }
+                    }
+                    $reservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                    $null = $reservedNames.Add('shared')
+                    $null = $reservedNames.Add('shared-2')
+                    $null = $reservedNames.Add('shared-3')
+                    [pscustomobject]@{
+                        ContactsCache        = $cache
+                        ReservedNames        = $reservedNames
+                        ReservedNameOwners   = @{
+                            'shared' = 'shared@old.com'
+                        }
+                        ReservedDisplayNames = @{
+                            'Shared' = 1
+                        }
+                    }
+                }
+                $script:CreatedContactCounter = 0
+                Mock New-O365OrgContact {
+                    $script:CreatedContactCounter++
+                    [pscustomobject]@{
+                        MailContact = [pscustomobject]@{
+                            Identity = "new-contact-$($script:CreatedContactCounter)"
+                        }
+                        Name = "shared-$($script:CreatedContactCounter + 1)"
+                    }
+                }
+                function Remove-MailContact {}
+                function Set-MailContact {
+                    param($Identity, $Name)
+                    $script:NormalizedNames.Add("$Identity=$Name")
+                }
+                Mock Set-O365OrgContact {}
+
+                $sourceObjects = @(
+                    [pscustomobject]@{
+                        DisplayName = 'Shared'
+                        Mail        = 'shared@new.com'
+                    },
+                    [pscustomobject]@{
+                        DisplayName = 'Shared'
+                        Mail        = 'shared@another.com'
+                    }
+                )
+
+                Sync-O365Contact -SourceObjects $sourceObjects -Domains @('old.com', 'new.com', 'another.com')
+
+                $script:NormalizedNames | Should -Contain 'new-contact-1=shared'
+                $script:NormalizedNames | Should -Contain 'new-contact-2=shared-2'
+            }
         }
+        Context 'Get-O365ExistingMembers group filters' {
+            It 'applies exclude-only group filters for users' {
+                Mock Get-MgUser {
+                    @([pscustomobject]@{
+                            Id                = '41'
+                            UserPrincipalName = 'user@contoso.com'
+                            Mail              = 'user@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                        })
+                }
+                Mock Get-MgUserMemberOf {
+                    @([pscustomobject]@{
+                            Id = 'group-exclude'
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -RequireAccountEnabled -RequireAssignedLicenses -UserProvidedFilter {
+                    Sync-O365PersonalContactFilterGroup -Type Exclude -GroupID 'group-exclude'
+                }
+
+                $result.Keys | Should -Not -Contain '41'
+            }
+
+            It 'applies exclude-only group filters for contacts' {
+                Mock Get-MgContact {
+                    @([pscustomobject]@{
+                            Id           = '42'
+                            MailNickname = 'contact'
+                        })
+                }
+                Mock Get-MgContactMemberOf {
+                    @([pscustomobject]@{
+                            Id = 'group-exclude'
+                        })
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Contact') -UserProvidedFilter {
+                    Sync-O365PersonalContactFilterGroup -Type Exclude -GroupID 'group-exclude'
+                }
+
+                $result.Keys | Should -Not -Contain '42'
+            }
+        }
+
+        Context 'Sync-O365PersonalContact wrapper parameters' {
+            It 'does not pass IncludeExternalUsers when the caller leaves it unset' {
+                $script:IncludeExternalUsersWasBound = $null
+                Mock Initialize-DefaultValuesO365 {}
+                Mock Get-O365ExistingMembers {
+                    $script:IncludeExternalUsersWasBound = $PSBoundParameters.ContainsKey('IncludeExternalUsers')
+                    [ordered]@{}
+                }
+                Mock Initialize-FolderName { [pscustomobject]@{ Id = 'folder-id' } }
+                Mock Get-O365ExistingUserContacts { [ordered]@{} }
+                Mock Sync-InternalO365PersonalContact { @() }
+
+                { Sync-O365PersonalContact -UserId 'user@contoso.com' } | Should -Not -Throw
+                $script:IncludeExternalUsersWasBound | Should -BeFalse
+            }
+        }
+
         Context 'Get-O365ExistingMembers OData and nested property filters' {
             It 'passes OData filter settings to Get-MgUser' {
                 Mock Get-MgUser { @() }
