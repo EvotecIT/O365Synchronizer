@@ -140,9 +140,12 @@ If you only want to include external users without licenses, use `-IncludeExtern
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
 
 # best-effort exclusion when Graph reports showInAddressList = $false
-Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -Verbose
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
 
 # users stay in scope when Graph returns showInAddressList as null, omits it, or does not expose it reliably
+
+# Exchange-backed filtering for stronger hidden-from-address-list decisions
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 ```
 
 ### Synchronize users between tenants

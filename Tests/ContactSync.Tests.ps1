@@ -517,6 +517,88 @@ Describe 'O365Synchronizer contact sync helpers' {
                     $Message -like '*left 1 users in scope because ShowInAddressList was null or missing*'
                 }
             }
+
+            It 'filters users hidden from address list using Exchange when requested' {
+                Mock Get-MgUser {
+                    @(
+                        [pscustomobject]@{
+                            Id                = '33'
+                            UserPrincipalName = 'hidden@contoso.com'
+                            Mail              = 'hidden@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                        },
+                        [pscustomobject]@{
+                            Id                = '34'
+                            UserPrincipalName = 'visible@contoso.com'
+                            Mail              = 'visible@contoso.com'
+                            OtherMails        = @()
+                            AssignedLicenses  = @('license')
+                            AccountEnabled    = $true
+                            UserType          = 'Member'
+                            MemberOf          = @()
+                        }
+                    )
+                }
+                function Get-Recipient {
+                    @(
+                        [pscustomobject]@{
+                            HiddenFromAddressListsEnabled = $true
+                            ExternalDirectoryObjectId     = '33'
+                            PrimarySmtpAddress            = 'hidden@contoso.com'
+                        },
+                        [pscustomobject]@{
+                            HiddenFromAddressListsEnabled = $false
+                            ExternalDirectoryObjectId     = '34'
+                            PrimarySmtpAddress            = 'visible@contoso.com'
+                        }
+                    )
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange
+
+                $result.Keys | Should -Not -Contain '33'
+                $result.Keys | Should -Contain '34'
+            }
+
+            It 'filters contacts hidden from address list using Exchange when requested' {
+                Mock Get-MgContact {
+                    @(
+                        [pscustomobject]@{
+                            Id           = '35'
+                            Mail         = 'hidden-contact@contoso.com'
+                            MailNickname = 'hidden-contact'
+                        },
+                        [pscustomobject]@{
+                            Id           = '36'
+                            Mail         = 'visible-contact@contoso.com'
+                            MailNickname = 'visible-contact'
+                        }
+                    )
+                }
+                function Get-Recipient {
+                    @(
+                        [pscustomobject]@{
+                            HiddenFromAddressListsEnabled = $true
+                            ExternalDirectoryObjectId     = '35'
+                            PrimarySmtpAddress            = 'hidden-contact@contoso.com'
+                        },
+                        [pscustomobject]@{
+                            HiddenFromAddressListsEnabled = $false
+                            ExternalDirectoryObjectId     = '36'
+                            PrimarySmtpAddress            = 'visible-contact@contoso.com'
+                        }
+                    )
+                }
+
+                $result = Get-O365ExistingMembers -MemberTypes @('Contact') -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange
+
+                $result.Keys | Should -Not -Contain '35'
+                $result.Keys | Should -Contain '36'
+            }
         }
 
         Context 'Sync-O365PersonalContact hidden address list warnings' {
@@ -532,6 +614,22 @@ Describe 'O365Synchronizer contact sync helpers' {
                 Assert-MockCalled Write-Warning -Times 1 -ParameterFilter {
                     $Message -like '*applies only to user objects*'
                 }
+            }
+
+            It 'passes the hidden-address-list source enum to member loading' {
+                $script:CapturedHiddenAddressListSource = $null
+                Mock Initialize-DefaultValuesO365 {}
+                Mock Get-O365ExistingMembers {
+                    param([HiddenAddressListSource] $HiddenAddressListSource)
+                    $script:CapturedHiddenAddressListSource = $HiddenAddressListSource
+                    [ordered]@{}
+                }
+                Mock Initialize-FolderName { [pscustomobject]@{ Id = 'folder-id' } }
+                Mock Get-O365ExistingUserContacts { [ordered]@{} }
+
+                Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes @('Member') -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange
+
+                $script:CapturedHiddenAddressListSource | Should -Be ([HiddenAddressListSource]::Exchange)
             }
         }
 
