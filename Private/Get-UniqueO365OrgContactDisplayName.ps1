@@ -32,12 +32,5 @@ function Get-UniqueO365OrgContactDisplayName {
         $Index++
     }
 
-    if ($ReservedDisplayNames) {
-        if ($ReservedDisplayNames.Contains($Candidate)) {
-            $ReservedDisplayNames[$Candidate]++
-        } else {
-            $ReservedDisplayNames[$Candidate] = 1
-        }
-    }
     $Candidate
 }

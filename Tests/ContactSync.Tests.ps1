@@ -501,7 +501,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Get-UniqueO365OrgContactDisplayName -DisplayName 'Mario Rossi' -ReservedDisplayNames $reservedDisplayNames
 
                 $result | Should -Be 'Mario Rossi'
-                $reservedDisplayNames['Mario Rossi'] | Should -Be 1
+                $reservedDisplayNames.Contains('Mario Rossi') | Should -BeFalse
             }
 
             It 'adds a numeric suffix when the display name is already reserved' {
@@ -512,7 +512,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Get-UniqueO365OrgContactDisplayName -DisplayName 'Mario Rossi' -ReservedDisplayNames $reservedDisplayNames
 
                 $result | Should -Be 'Mario Rossi2'
-                $reservedDisplayNames['Mario Rossi2'] | Should -Be 1
+                $reservedDisplayNames.Contains('Mario Rossi2') | Should -BeFalse
             }
         }
 
@@ -596,6 +596,12 @@ Describe 'O365Synchronizer contact sync helpers' {
                 Mock New-O365OrgContact {
                     param($Source)
                     $script:CreatedDisplayNames.Add($Source.DisplayName)
+                    [pscustomobject]@{
+                        MailContact = [pscustomobject]@{
+                            Identity = "contact-$($script:CreatedDisplayNames.Count)"
+                        }
+                        Name = "contact-$($script:CreatedDisplayNames.Count)"
+                    }
                 }
 
                 $sourceObjects = @(
@@ -613,6 +619,59 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $script:CreatedDisplayNames[0] | Should -Be 'Mario Rossi'
                 $script:CreatedDisplayNames[1] | Should -Be 'Mario Rossi2'
+            }
+
+            It 'does not reserve a visible display name after a failed create' {
+                $script:CreatedDisplayNames = [System.Collections.Generic.List[string]]::new()
+                Mock Write-Color {}
+                Mock Set-LoggingCapabilities {}
+                Mock Start-TimeLog { [System.Diagnostics.Stopwatch]::StartNew() }
+                Mock Stop-TimeLog { 'done' }
+                Mock Convert-GraphObjectToContact {
+                    param($SourceObject)
+                    [ordered]@{
+                        MailContact = [pscustomobject]@{
+                            DisplayName        = $SourceObject.DisplayName
+                            PrimarySmtpAddress = $SourceObject.Mail
+                        }
+                        Contact = [pscustomobject]@{
+                            DisplayName = $SourceObject.DisplayName
+                        }
+                    }
+                }
+                Mock Get-O365ContactsFromTenant {
+                    [pscustomobject]@{
+                        ContactsCache        = [ordered]@{}
+                        ReservedNames        = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                        ReservedNameOwners   = @{}
+                        ReservedDisplayNames = @{}
+                    }
+                }
+                function New-MailContact {
+                    param([string] $DisplayName)
+                    $script:CreatedDisplayNames.Add($DisplayName)
+                    if ($script:CreatedDisplayNames.Count -eq 1) {
+                        throw 'boom'
+                    }
+                    [pscustomobject]@{ Identity = "contact-$($script:CreatedDisplayNames.Count)" }
+                }
+                Mock Set-O365OrgContact {}
+
+                $sourceObjects = @(
+                    [pscustomobject]@{
+                        DisplayName = 'Mario Rossi'
+                        Mail        = 'mario.rossi@contoso.com'
+                    },
+                    [pscustomobject]@{
+                        DisplayName = 'Mario Rossi'
+                        Mail        = 'mario.rossi2@contoso.com'
+                    }
+                )
+
+                Sync-O365Contact -SourceObjects $sourceObjects -Domains @('contoso.com') -EnsureUniqueDisplayName
+
+                $script:CreatedDisplayNames[0] | Should -Be 'Mario Rossi'
+                $script:CreatedDisplayNames[1] | Should -Be 'Mario Rossi'
             }
 
             It 'does not rename an unchanged existing contact when the same display name already exists once' {

@@ -144,6 +144,9 @@
     foreach ($Object in $ConvertedObjects) {
         $Source = $Object.MailContact
         $SourceContact = $Object.Contact
+        $CurrentMailContact = $null
+        $PreviousDisplayName = $null
+        $UniqueDisplayName = $null
         if ($Source.PrimarySmtpAddress) {
             # we only process contacts if it has mail
             $Skip = $true
@@ -161,18 +164,22 @@
             $SourceObjectsCache[$Source.PrimarySmtpAddress] = $Source
 
             if ($EnsureUniqueDisplayName) {
-                $CurrentMailContact = $null
                 if ($CurrentContactsCache[$Source.PrimarySmtpAddress]) {
                     $CurrentMailContact = $CurrentContactsCache[$Source.PrimarySmtpAddress].MailContact
                 }
-                if ($CurrentMailContact -and $CurrentMailContact.DisplayName -and $ReservedContactDisplayNames.Contains($CurrentMailContact.DisplayName)) {
-                    $ReservedContactDisplayNames[$CurrentMailContact.DisplayName]--
-                    if ($ReservedContactDisplayNames[$CurrentMailContact.DisplayName] -le 0) {
-                        $ReservedContactDisplayNames.Remove($CurrentMailContact.DisplayName)
+                $PreviousDisplayName = $CurrentMailContact.DisplayName
+                $DisplayNameReservations = @{}
+                foreach ($DisplayNameKey in $ReservedContactDisplayNames.Keys) {
+                    $DisplayNameReservations[$DisplayNameKey] = $ReservedContactDisplayNames[$DisplayNameKey]
+                }
+                if ($PreviousDisplayName -and $DisplayNameReservations.Contains($PreviousDisplayName)) {
+                    $DisplayNameReservations[$PreviousDisplayName]--
+                    if ($DisplayNameReservations[$PreviousDisplayName] -le 0) {
+                        $DisplayNameReservations.Remove($PreviousDisplayName)
                     }
                 }
 
-                $UniqueDisplayName = Get-UniqueO365OrgContactDisplayName -DisplayName $Source.DisplayName -ReservedDisplayNames $ReservedContactDisplayNames
+                $UniqueDisplayName = Get-UniqueO365OrgContactDisplayName -DisplayName $Source.DisplayName -ReservedDisplayNames $DisplayNameReservations
                 $Source.DisplayName = $UniqueDisplayName
                 $SourceContact.DisplayName = $UniqueDisplayName
             }
@@ -182,6 +189,19 @@
                 if (-not $SkipUpdate) {
                     $Updated = Set-O365OrgContact -CurrentContactsCache $CurrentContactsCache -Source $Source -SourceContact $SourceContact
                     if ($Updated) {
+                        if ($EnsureUniqueDisplayName) {
+                            if ($PreviousDisplayName -and $ReservedContactDisplayNames.Contains($PreviousDisplayName)) {
+                                $ReservedContactDisplayNames[$PreviousDisplayName]--
+                                if ($ReservedContactDisplayNames[$PreviousDisplayName] -le 0) {
+                                    $ReservedContactDisplayNames.Remove($PreviousDisplayName)
+                                }
+                            }
+                            if ($ReservedContactDisplayNames.Contains($UniqueDisplayName)) {
+                                $ReservedContactDisplayNames[$UniqueDisplayName]++
+                            } else {
+                                $ReservedContactDisplayNames[$UniqueDisplayName] = 1
+                            }
+                        }
                         $CountUpdate++
                     }
                 }
@@ -200,6 +220,13 @@
 
                     $CreatedContact = New-O365OrgContact -Source $Source -SourceContact $SourceContact -ReservedNames $ReservedContactNames
                     if ($CreatedContact) {
+                        if ($EnsureUniqueDisplayName) {
+                            if ($ReservedContactDisplayNames.Contains($UniqueDisplayName)) {
+                                $ReservedContactDisplayNames[$UniqueDisplayName]++
+                            } else {
+                                $ReservedContactDisplayNames[$UniqueDisplayName] = 1
+                            }
+                        }
                         if ($ShouldNormalizeNameAfterRemoval -and $CreatedContact.Name -ne $PreferredContactName) {
                             $PendingNameNormalizations.Add([PSCustomObject] @{
                                     Identity            = if ($CreatedContact.MailContact.Identity) { $CreatedContact.MailContact.Identity } else { $Source.PrimarySmtpAddress }
