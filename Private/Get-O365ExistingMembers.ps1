@@ -28,7 +28,9 @@
         [string[]] $MemberTypes,
         [switch] $RequireAccountEnabled,
         [switch] $RequireAssignedLicenses,
-        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers
+        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
+        [switch] $ExcludeHiddenFromAddressList,
+        [HiddenAddressListSource] $HiddenAddressListSource = [HiddenAddressListSource]::Graph
     )
 
     # Build filtering system
@@ -99,10 +101,23 @@
     }
     # Lets get all users and cache them
     $ExistingUsers = [ordered] @{}
+    $ExchangeHiddenAddressListCache = $null
+    if ($ExcludeHiddenFromAddressList -and $HiddenAddressListSource -eq [HiddenAddressListSource]::Exchange) {
+        $ExchangeHiddenAddressListCache = Get-O365ExchangeHiddenAddressListCache
+        if ($ExchangeHiddenAddressListCache -eq $false) {
+            return $false
+        }
+    }
     if ($MemberTypes -contains 'Member' -or $MemberTypes -contains 'Guest') {
+        $HiddenAddressListFilteredCount = 0
+        $HiddenAddressListUnknownCount = 0
         try {
+            $UserProperties = @($Script:PropertiesUsers)
+            if ($ExcludeHiddenFromAddressList -and $HiddenAddressListSource -eq [HiddenAddressListSource]::Graph -and $UserProperties -notcontains 'ShowInAddressList') {
+                $UserProperties += 'ShowInAddressList'
+            }
             $getMgUserSplat = @{
-                Property    = $Script:PropertiesUsers
+                Property    = $UserProperties
                 All         = $true
                 ErrorAction = 'Stop'
             }
@@ -172,6 +187,45 @@
                     if (-not $IsExternalUser) {
                         Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by no assigned licenses"
                         continue
+                    }
+                }
+            }
+            if ($ExcludeHiddenFromAddressList) {
+                if ($HiddenAddressListSource -eq [HiddenAddressListSource]::Exchange) {
+                    $HiddenLookupKeys = @(
+                        if ($User.Id) {
+                            [string] $User.Id
+                        }
+                        if ($User.Mail) {
+                            [string] $User.Mail
+                        }
+                        if ($User.UserPrincipalName) {
+                            [string] $User.UserPrincipalName
+                        }
+                    )
+                    $IsHiddenInExchange = $false
+                    foreach ($LookupKey in $HiddenLookupKeys) {
+                        if ($ExchangeHiddenAddressListCache.ById[$LookupKey] -or $ExchangeHiddenAddressListCache.ByAddress[$LookupKey]) {
+                            $IsHiddenInExchange = $true
+                            break
+                        }
+                    }
+                    if ($IsHiddenInExchange) {
+                        $HiddenAddressListFilteredCount++
+                        Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) because Exchange reports HiddenFromAddressListsEnabled"
+                        continue
+                    }
+                } else {
+                    if ($User.PSObject.Properties.Name -contains 'ShowInAddressList') {
+                        if ($null -eq $User.ShowInAddressList) {
+                            $HiddenAddressListUnknownCount++
+                        } elseif (-not $User.ShowInAddressList) {
+                            $HiddenAddressListFilteredCount++
+                            Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) because ShowInAddressList is false"
+                            continue
+                        }
+                    } else {
+                        $HiddenAddressListUnknownCount++
                     }
                 }
             }
@@ -325,6 +379,16 @@
             $Entry = $User.Id
             $ExistingUsers[$Entry] = $User
         }
+        if ($ExcludeHiddenFromAddressList) {
+            if ($HiddenAddressListSource -eq [HiddenAddressListSource]::Exchange) {
+                Write-Verbose -Message "ExcludeHiddenFromAddressList filtered $HiddenAddressListFilteredCount users where Exchange reports HiddenFromAddressListsEnabled"
+            } else {
+                Write-Verbose -Message "ExcludeHiddenFromAddressList filtered $HiddenAddressListFilteredCount users where ShowInAddressList is false"
+            }
+            if ($HiddenAddressListSource -eq [HiddenAddressListSource]::Graph -and $HiddenAddressListUnknownCount -gt 0) {
+                Write-Verbose -Message "ExcludeHiddenFromAddressList left $HiddenAddressListUnknownCount users in scope because ShowInAddressList was null or missing"
+            }
+        }
     }
     if ($MemberTypes -contains 'Contact') {
         try {
@@ -340,6 +404,30 @@
         }
         :NextUser foreach ($User in $Users) {
             $Entry = $User.Id
+            if ($ExcludeHiddenFromAddressList -and $HiddenAddressListSource -eq [HiddenAddressListSource]::Exchange) {
+                $HiddenLookupKeys = @(
+                    if ($User.Id) {
+                        [string] $User.Id
+                    }
+                    if ($User.Mail) {
+                        [string] $User.Mail
+                    }
+                    if ($User.UserPrincipalName) {
+                        [string] $User.UserPrincipalName
+                    }
+                )
+                $IsHiddenInExchange = $false
+                foreach ($LookupKey in $HiddenLookupKeys) {
+                    if ($ExchangeHiddenAddressListCache.ById[$LookupKey] -or $ExchangeHiddenAddressListCache.ByAddress[$LookupKey]) {
+                        $IsHiddenInExchange = $true
+                        break
+                    }
+                }
+                if ($IsHiddenInExchange) {
+                    Write-Verbose -Message "Filtering out contact $($User.MailNickname) because Exchange reports HiddenFromAddressListsEnabled"
+                    continue
+                }
+            }
             if ($GroupIDs.Keys.Count -gt 0 -or $GroupIDsExclude.Keys.Count -gt 0) {
                 try {
                     $UserGroups = Get-MgContactMemberOf -OrgContactId $User.Id -All

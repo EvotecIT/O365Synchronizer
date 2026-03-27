@@ -138,6 +138,24 @@ If you only want to include external users without licenses, use `-IncludeExtern
 ```powershell
 # include only external users without licenses (guests and #EXT# UPNs)
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
+
+# opt-in, best-effort Graph fallback only
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
+
+# users stay in scope when Graph returns showInAddressList as null, omits it, or does not expose it reliably
+
+# recommended authoritative Exchange-backed filtering
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
+```
+
+Microsoft's Graph user documentation marks `showInAddressList` as "Do not use in Microsoft Graph". Because of that, `-HiddenAddressListSource Graph` is intentionally documented as an opt-in compatibility fallback only.
+Use `-HiddenAddressListSource Graph` only when you want to stay on the existing Graph-only auth model and best-effort filtering is acceptable.
+Use `-HiddenAddressListSource Exchange` when you want the recommended authoritative signal from Exchange Online and can provide an active Exchange session.
+
+```powershell
+# Exchange-backed hidden-address filtering requires an Exchange Online session
+Connect-ExchangeOnline -UserPrincipalName 'admin@contoso.com'
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 ```
 
 ### Synchronize users between tenants

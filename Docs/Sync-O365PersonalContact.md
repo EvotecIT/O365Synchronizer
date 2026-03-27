@@ -16,7 +16,8 @@ Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 Sync-O365PersonalContact [[-Filter] <ScriptBlock>] [[-UserId] <String[]>] [[-MemberTypes] <String[]>]
  [-RequireEmailAddress] [[-GuidPrefix] <String>] [[-FolderName] <String>]
  [-DoNotRequireAccountEnabled] [-DoNotRequireAssignedLicenses] [[-IncludeExternalUsers] <String[]>]
- [[-Category] <String[]>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-ExcludeHiddenFromAddressList] [[-HiddenAddressListSource] <HiddenAddressListSource>] [[-Category] <String[]>] [-PassThru] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,28 +39,40 @@ Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Gues
 
 ### EXAMPLE 3
 ```
-Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -RequireEmailAddress -Verbose
+# opt-in, best-effort Graph fallback only
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
 ```
 
 ### EXAMPLE 4
 ```
-Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
+# recommended authoritative filtering; Connect-ExchangeOnline first
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 ```
 
 ### EXAMPLE 5
+```
+Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -RequireEmailAddress -Verbose
+```
+
+### EXAMPLE 6
+```
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
+```
+
+### EXAMPLE 7
 ```
 # clear categories assigned by sync
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category @() -Verbose
 ```
 
-### EXAMPLE 6
+### EXAMPLE 8
 ```
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
     Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTER'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
 }
 ```
 
-### EXAMPLE 7
+### EXAMPLE 9
 ```
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
     Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
@@ -210,6 +223,41 @@ Aliases:
 Required: False
 Position: Named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExcludeHiddenFromAddressList
+Best-effort exclusion for users whose Graph showInAddressList property is explicitly set to false.
+Microsoft documents showInAddressList as "Do not use in Microsoft Graph", so Graph mode should be treated as an opt-in compatibility fallback only.
+Users are left in scope when showInAddressList is null, missing, or not returned by Graph.
+With HiddenAddressListSource Exchange, Exchange Online is used instead and both users and contacts can be filtered when Exchange reports the recipient as hidden from the address list.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HiddenAddressListSource
+Controls whether hidden-address-list filtering uses Microsoft Graph or Exchange Online as the source of truth.
+Graph preserves the current auth model only for callers that explicitly opt into this fallback and remains best-effort.
+Exchange is the recommended authoritative source and requires an active `Connect-ExchangeOnline` session and rights to read recipients.
+
+```yaml
+Type: HiddenAddressListSource
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: Graph
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

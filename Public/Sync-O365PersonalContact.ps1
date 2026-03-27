@@ -33,6 +33,22 @@
     Use 'Guest' to include users with UserType = Guest.
     Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.
 
+    .PARAMETER ExcludeHiddenFromAddressList
+    Best-effort exclusion for users whose Graph showInAddressList property is explicitly set to false.
+    Microsoft documents showInAddressList as "Do not use in Microsoft Graph", so
+    Graph mode should be treated as an opt-in compatibility fallback only.
+    Users are left in scope when showInAddressList is null, missing, or not returned by Graph.
+    With HiddenAddressListSource Exchange, Exchange Online is used instead and
+    both users and contacts can be filtered when Exchange reports the recipient
+    as hidden from the address list.
+
+    .PARAMETER HiddenAddressListSource
+    Controls whether hidden-address-list filtering uses Microsoft Graph or
+    Exchange Online as the source of truth. Graph is the default only to preserve
+    the current auth model for callers that explicitly opt into this fallback.
+    Exchange is the recommended authoritative source and requires an active
+    Exchange session.
+
     .PARAMETER GuidPrefix
     Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
     By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.
@@ -54,6 +70,14 @@
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
+
+    .EXAMPLE
+    # opt-in, best-effort Graph fallback only
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
+
+    .EXAMPLE
+    # recommended authoritative filtering via Exchange Online (Connect-ExchangeOnline first)
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -RequireEmailAddress -Verbose
@@ -80,20 +104,25 @@
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [scriptblock] $Filter,
-        [string[]] $UserId,
-        [ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
+        [Parameter(Position = 0)][scriptblock] $Filter,
+        [Parameter(Position = 1)][string[]] $UserId,
+        [Parameter(Position = 2)][ValidateSet('Member', 'Guest', 'Contact')][string[]] $MemberTypes = @('Member'),
         [switch] $RequireEmailAddress,
-        [string] $GuidPrefix,
-        [string] $FolderName,
+        [Parameter(Position = 3)][string] $GuidPrefix,
+        [Parameter(Position = 4)][string] $FolderName,
         [switch] $DoNotRequireAccountEnabled,
         [switch] $DoNotRequireAssignedLicenses,
-        [ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
-        [Alias('Categories')][string[]] $Category,
+        [Parameter(Position = 5)][ValidateSet('Guest', 'ExtUPN')][string[]] $IncludeExternalUsers,
+        [switch] $ExcludeHiddenFromAddressList,
+        [HiddenAddressListSource] $HiddenAddressListSource = [HiddenAddressListSource]::Graph,
+        [Parameter(Position = 6)][Alias('Categories')][string[]] $Category,
         [switch] $PassThru
     )
 
     Initialize-DefaultValuesO365
+    if ($ExcludeHiddenFromAddressList -and $HiddenAddressListSource -eq [HiddenAddressListSource]::Graph -and $MemberTypes -contains 'Contact') {
+        Write-Warning 'ExcludeHiddenFromAddressList with HiddenAddressListSource Graph applies only to user objects. Microsoft Graph org contacts do not expose an equivalent hidden-from-address-list property.'
+    }
 
     # Lets get all users and cache them
     $getO365ExistingMembersSplat = @{
@@ -104,6 +133,10 @@
     }
     if ($PSBoundParameters.ContainsKey('IncludeExternalUsers')) {
         $getO365ExistingMembersSplat['IncludeExternalUsers'] = $IncludeExternalUsers
+    }
+    if ($ExcludeHiddenFromAddressList) {
+        $getO365ExistingMembersSplat['ExcludeHiddenFromAddressList'] = $true
+        $getO365ExistingMembersSplat['HiddenAddressListSource'] = $HiddenAddressListSource
     }
 
     $ExistingUsers = Get-O365ExistingMembers @getO365ExistingMembersSplat
