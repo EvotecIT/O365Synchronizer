@@ -15,6 +15,10 @@
         [Array] $Domains
     )
     $CurrentContactsCache = [ordered]@{}
+    $ReservedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $ReservedNameOwners = @{}
+    $ReservedDisplayNames = @{}
+    $ReservedDisplayNameOwners = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     Write-Color -Text "[>] ", "Getting current contacts" -Color Yellow, White, Cyan
     try {
         $CurrentContacts = Get-Contact -ResultSize Unlimited -ErrorAction Stop
@@ -35,6 +39,28 @@
 
     # We need to do this because Get-MailContact doesn't have all data
     foreach ($Contact in $CurrentMailContacts) {
+        if ($Contact.Name) {
+            $null = $ReservedNames.Add([string] $Contact.Name)
+            if ($Contact.PrimarySmtpAddress) {
+                $ReservedNameOwners[[string] $Contact.Name] = [string] $Contact.PrimarySmtpAddress
+            }
+        }
+        $DisplayReservationOwner = if ($Contact.WindowsEmailAddress) {
+            [string] $Contact.WindowsEmailAddress
+        } elseif ($Contact.PrimarySmtpAddress) {
+            [string] $Contact.PrimarySmtpAddress
+        } elseif ($Contact.Identity) {
+            [string] $Contact.Identity
+        } else {
+            [string] $Contact.Name
+        }
+        if ($Contact.DisplayName -and $DisplayReservationOwner -and $ReservedDisplayNameOwners.Add($DisplayReservationOwner)) {
+            if ($ReservedDisplayNames.Contains($Contact.DisplayName)) {
+                $ReservedDisplayNames[$Contact.DisplayName]++
+            } else {
+                $ReservedDisplayNames[$Contact.DisplayName] = 1
+            }
+        }
         $Found = $false
         foreach ($Domain in $Domains) {
             if ($Contact.PrimarySmtpAddress -notlike "*@$Domain") {
@@ -52,11 +78,38 @@
     }
     # We need to do this because Get-Contact doesn't have all data
     foreach ($Contact in $CurrentContacts) {
+        if ($Contact.Name) {
+            $null = $ReservedNames.Add([string] $Contact.Name)
+            if ($Contact.WindowsEmailAddress -and -not $ReservedNameOwners[[string] $Contact.Name]) {
+                $ReservedNameOwners[[string] $Contact.Name] = [string] $Contact.WindowsEmailAddress
+            }
+        }
+        $DisplayReservationOwner = if ($Contact.WindowsEmailAddress) {
+            [string] $Contact.WindowsEmailAddress
+        } elseif ($Contact.PrimarySmtpAddress) {
+            [string] $Contact.PrimarySmtpAddress
+        } elseif ($Contact.Identity) {
+            [string] $Contact.Identity
+        } else {
+            [string] $Contact.Name
+        }
+        if ($Contact.DisplayName -and $DisplayReservationOwner -and $ReservedDisplayNameOwners.Add($DisplayReservationOwner)) {
+            if ($ReservedDisplayNames.Contains($Contact.DisplayName)) {
+                $ReservedDisplayNames[$Contact.DisplayName]++
+            } else {
+                $ReservedDisplayNames[$Contact.DisplayName] = 1
+            }
+        }
         if ($CurrentContactsCache[$Contact.WindowsEmailAddress]) {
             $CurrentContactsCache[$Contact.WindowsEmailAddress].Contact = $Contact
         } else {
             # shouldn't really happen
         }
     }
-    $CurrentContactsCache
+    [PSCustomObject] @{
+        ContactsCache         = $CurrentContactsCache
+        ReservedNames         = $ReservedNames
+        ReservedNameOwners    = $ReservedNameOwners
+        ReservedDisplayNames  = $ReservedDisplayNames
+    }
 }

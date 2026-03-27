@@ -229,14 +229,11 @@
                     }
                 }
             }
-            if ($GroupIDs.Keys.Count -gt 0) {
+            if ($GroupIDs.Keys.Count -gt 0 -or $GroupIDsExclude.Keys.Count -gt 0) {
                 try {
                     $UserGroups = Get-MgUserMemberOf -UserId $User.Id -All
                 } catch {
                     Write-Color -Text "[e] ", "Failed to get groups for user $($User.UserPrincipalName). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
-                    continue
-                }
-                if ($UserGroups.Count -eq 0) {
                     continue
                 }
                 $GroupExclude = $false
@@ -250,16 +247,22 @@
                     Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by group exclusion"
                     continue
                 }
-                $GroupInclude = $false
-                foreach ($Group in $UserGroups) {
-                    if ($GroupIDs.Keys -contains $Group.Id) {
-                        $GroupInclude = $true
-                        break
+                if ($GroupIDs.Keys.Count -gt 0) {
+                    if ($UserGroups.Count -eq 0) {
+                        Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by group inclusion"
+                        continue
                     }
-                }
-                if ($GroupInclude -eq $false) {
-                    Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by group inclusion"
-                    continue
+                    $GroupInclude = $false
+                    foreach ($Group in $UserGroups) {
+                        if ($GroupIDs.Keys -contains $Group.Id) {
+                            $GroupInclude = $true
+                            break
+                        }
+                    }
+                    if ($GroupInclude -eq $false) {
+                        Write-Verbose -Message "Filtering out user $($User.UserPrincipalName) by group inclusion"
+                        continue
+                    }
                 }
             }
             foreach ($Property in $PropertyFilterExclude.Keys) {
@@ -425,14 +428,11 @@
                     continue
                 }
             }
-            if ($GroupIDs.Keys.Count -gt 0) {
+            if ($GroupIDs.Keys.Count -gt 0 -or $GroupIDsExclude.Keys.Count -gt 0) {
                 try {
                     $UserGroups = Get-MgContactMemberOf -OrgContactId $User.Id -All
                 } catch {
                     Write-Color -Text "[e] ", "Failed to get contact memberOf for contact $($User.Id). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
-                    continue
-                }
-                if ($UserGroups.Count -eq 0) {
                     continue
                 }
                 $GroupExclude = $false
@@ -446,16 +446,22 @@
                     Write-Verbose -Message "Filtering out contact $($User.MailNickname) by group exclusion"
                     continue
                 }
-                $GroupInclude = $false
-                foreach ($Group in $UserGroups) {
-                    if ($GroupIDs.Keys -contains $Group.Id) {
-                        $GroupInclude = $true
-                        break
+                if ($GroupIDs.Keys.Count -gt 0) {
+                    if ($UserGroups.Count -eq 0) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by group inclusion"
+                        continue
                     }
-                }
-                if ($GroupInclude -eq $false) {
-                    Write-Verbose -Message "Filtering out contact $($User.MailNickname) by group inclusion"
-                    continue
+                    $GroupInclude = $false
+                    foreach ($Group in $UserGroups) {
+                        if ($GroupIDs.Keys -contains $Group.Id) {
+                            $GroupInclude = $true
+                            break
+                        }
+                    }
+                    if ($GroupInclude -eq $false) {
+                        Write-Verbose -Message "Filtering out contact $($User.MailNickname) by group inclusion"
+                        continue
+                    }
                 }
             }
             foreach ($Property in $PropertyFilterExclude.Keys) {
