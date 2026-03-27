@@ -139,17 +139,18 @@ If you only want to include external users without licenses, use `-IncludeExtern
 # include only external users without licenses (guests and #EXT# UPNs)
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
 
-# best-effort exclusion when Graph reports showInAddressList = $false
+# opt-in, best-effort Graph fallback only
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
 
 # users stay in scope when Graph returns showInAddressList as null, omits it, or does not expose it reliably
 
-# Exchange-backed filtering for stronger hidden-from-address-list decisions
+# recommended authoritative Exchange-backed filtering
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 ```
 
-Use `-HiddenAddressListSource Graph` when you want to stay on the existing Graph-only auth model and best-effort filtering is acceptable.
-Use `-HiddenAddressListSource Exchange` when you want a stronger signal from Exchange Online and can provide an active Exchange session.
+Microsoft's Graph user documentation marks `showInAddressList` as "Do not use in Microsoft Graph". Because of that, `-HiddenAddressListSource Graph` is intentionally documented as an opt-in compatibility fallback only.
+Use `-HiddenAddressListSource Graph` only when you want to stay on the existing Graph-only auth model and best-effort filtering is acceptable.
+Use `-HiddenAddressListSource Exchange` when you want the recommended authoritative signal from Exchange Online and can provide an active Exchange session.
 
 ```powershell
 # Exchange-backed hidden-address filtering requires an Exchange Online session

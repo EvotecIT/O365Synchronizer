@@ -460,6 +460,39 @@ Describe 'O365Synchronizer contact sync helpers' {
         }
 
         Context 'Get-O365ExistingMembers hidden address list filtering' {
+            It 'does not request ShowInAddressList unless Graph hidden filtering is enabled' {
+                Mock Get-MgUser { @() }
+
+                $null = Get-O365ExistingMembers -MemberTypes @('Member')
+
+                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                    $Property -notcontains 'ShowInAddressList'
+                }
+            }
+
+            It 'requests ShowInAddressList only for Graph hidden filtering' {
+                Mock Get-MgUser { @() }
+
+                $null = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList
+
+                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                    $Property -contains 'ShowInAddressList'
+                }
+            }
+
+            It 'does not request ShowInAddressList for Exchange hidden filtering' {
+                Mock Get-MgUser { @() }
+                function Get-Recipient {
+                    @()
+                }
+
+                $null = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange
+
+                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                    $Property -notcontains 'ShowInAddressList'
+                }
+            }
+
             It 'filters users hidden from address list when requested' {
                 Mock Get-MgUser {
                     @(

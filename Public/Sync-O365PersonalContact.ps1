@@ -35,6 +35,8 @@
 
     .PARAMETER ExcludeHiddenFromAddressList
     Best-effort exclusion for users whose Graph showInAddressList property is explicitly set to false.
+    Microsoft documents showInAddressList as "Do not use in Microsoft Graph", so
+    Graph mode should be treated as an opt-in compatibility fallback only.
     Users are left in scope when showInAddressList is null, missing, or not returned by Graph.
     With HiddenAddressListSource Exchange, Exchange Online is used instead and
     both users and contacts can be filtered when Exchange reports the recipient
@@ -42,8 +44,10 @@
 
     .PARAMETER HiddenAddressListSource
     Controls whether hidden-address-list filtering uses Microsoft Graph or
-    Exchange Online as the source of truth. Graph is the default to preserve
-    the current auth model. Exchange requires an active Exchange session.
+    Exchange Online as the source of truth. Graph is the default only to preserve
+    the current auth model for callers that explicitly opt into this fallback.
+    Exchange is the recommended authoritative source and requires an active
+    Exchange session.
 
     .PARAMETER GuidPrefix
     Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.
@@ -68,11 +72,11 @@
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose
 
     .EXAMPLE
-    # best-effort filtering when Graph exposes showInAddressList
+    # opt-in, best-effort Graph fallback only
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
 
     .EXAMPLE
-    # authoritative filtering via Exchange Online (Connect-ExchangeOnline first)
+    # recommended authoritative filtering via Exchange Online (Connect-ExchangeOnline first)
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 
     .EXAMPLE

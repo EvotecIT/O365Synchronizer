@@ -112,8 +112,12 @@
         $HiddenAddressListFilteredCount = 0
         $HiddenAddressListUnknownCount = 0
         try {
+            $UserProperties = @($Script:PropertiesUsers)
+            if ($ExcludeHiddenFromAddressList -and $HiddenAddressListSource -eq [HiddenAddressListSource]::Graph -and $UserProperties -notcontains 'ShowInAddressList') {
+                $UserProperties += 'ShowInAddressList'
+            }
             $getMgUserSplat = @{
-                Property    = $Script:PropertiesUsers
+                Property    = $UserProperties
                 All         = $true
                 ErrorAction = 'Stop'
             }

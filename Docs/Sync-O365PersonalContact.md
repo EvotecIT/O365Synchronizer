@@ -39,12 +39,13 @@ Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Gues
 
 ### EXAMPLE 3
 ```
+# opt-in, best-effort Graph fallback only
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose
 ```
 
 ### EXAMPLE 4
 ```
-# Connect-ExchangeOnline first when using Exchange mode
+# recommended authoritative filtering; Connect-ExchangeOnline first
 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose
 ```
 
@@ -228,6 +229,7 @@ Accept wildcard characters: False
 
 ### -ExcludeHiddenFromAddressList
 Best-effort exclusion for users whose Graph showInAddressList property is explicitly set to false.
+Microsoft documents showInAddressList as "Do not use in Microsoft Graph", so Graph mode should be treated as an opt-in compatibility fallback only.
 Users are left in scope when showInAddressList is null, missing, or not returned by Graph.
 With HiddenAddressListSource Exchange, Exchange Online is used instead and both users and contacts can be filtered when Exchange reports the recipient as hidden from the address list.
 
@@ -245,7 +247,8 @@ Accept wildcard characters: False
 
 ### -HiddenAddressListSource
 Controls whether hidden-address-list filtering uses Microsoft Graph or Exchange Online as the source of truth.
-Graph preserves the current auth model and remains best-effort; Exchange requires an active `Connect-ExchangeOnline` session and rights to read recipients.
+Graph preserves the current auth model only for callers that explicitly opt into this fallback and remains best-effort.
+Exchange is the recommended authoritative source and requires an active `Connect-ExchangeOnline` session and rights to read recipients.
 
 ```yaml
 Type: HiddenAddressListSource

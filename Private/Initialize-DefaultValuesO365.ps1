@@ -42,7 +42,6 @@
         'StreetAddress'
         'Street'
         'PostalCode'
-        'ShowInAddressList'
     )
 
     $Script:PropertiesContacts = @(
