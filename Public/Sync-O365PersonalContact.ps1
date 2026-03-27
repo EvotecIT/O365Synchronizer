@@ -100,8 +100,10 @@
         MemberTypes             = $MemberTypes
         RequireAccountEnabled   = -not $DoNotRequireAccountEnabled.IsPresent
         RequireAssignedLicenses = -not $DoNotRequireAssignedLicenses.IsPresent
-        IncludeExternalUsers    = $IncludeExternalUsers
         UserProvidedFilter      = $Filter
+    }
+    if ($PSBoundParameters.ContainsKey('IncludeExternalUsers')) {
+        $getO365ExistingMembersSplat['IncludeExternalUsers'] = $IncludeExternalUsers
     }
 
     $ExistingUsers = Get-O365ExistingMembers @getO365ExistingMembersSplat

@@ -14,7 +14,8 @@ Synchronize contacts between source and target Office 365 tenant.
 
 ```
 Sync-O365Contact [-SourceObjects] <Array> [[-Domains] <Array>] [-SkipAdd] [-SkipUpdate] [-SkipRemove]
- [[-LogPath] <String>] [[-LogMaximum] <Int32>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-LogPath] <String>] [[-LogMaximum] <Int32>] [-EnsureUniqueDisplayName] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,6 +26,7 @@ If you don't specify domains, it will use all domains from source objects.
 During synchronization new contacts will be created matching given domains in target tenant on Exchange Online.
 If contact already exists, it will be updated if needed, even if it wasn't synchronized by this module.
 It will asses whether it needs to add/update/remove contacts based on provided domain names from source objects.
+By default, new contacts also get a unique internal Exchange Name so homonyms do not fail creation.
 
 ## EXAMPLES
 
@@ -57,6 +59,12 @@ Sync-O365Contact -SourceObjects $UsersToSync -Verbose -WhatIf
 ```
 # Skip removals and log actions
 Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
+```
+
+### EXAMPLE 4
+```
+# Make visible display names unique for homonyms
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -EnsureUniqueDisplayName -Verbose
 ```
 
 ## PARAMETERS
@@ -168,6 +176,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -EnsureUniqueDisplayName
+Makes visible org-contact display names unique by appending a numeric suffix when duplicates are detected during synchronization.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
