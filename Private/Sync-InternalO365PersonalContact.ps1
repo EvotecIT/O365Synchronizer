@@ -30,6 +30,9 @@
 
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
+
+    .PARAMETER NicknameSource
+    Directory property used for the personal contact nickname.
     #>
     [cmdletBinding(SupportsShouldProcess)]
     param(
@@ -40,7 +43,8 @@
         [object] $FolderInformation,
         [System.Collections.IDictionary] $ExistingUsers,
         [System.Collections.IDictionary] $ExistingContacts,
-        [string[]] $Category
+        [string[]] $Category,
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
     )
     $ListActions = [System.Collections.Generic.List[object]]::new()
     foreach ($UsersInternalID in $ExistingUsers.Keys) {
@@ -59,6 +63,7 @@
                 UserID  = $UserId
                 User    = $User
                 Contact = $Contact
+                NicknameSource = $NicknameSource
             }
             if ($PSBoundParameters.ContainsKey('Category')) {
                 $setInternalSplat['Category'] = $Category
@@ -73,6 +78,7 @@
                 GuidPrefix         = $GuidPrefix
                 RequireEmailAddress = $RequireEmailAddress
                 FolderInformation  = $FolderInformation
+                NicknameSource     = $NicknameSource
             }
             if ($PSBoundParameters.ContainsKey('Category')) {
                 $newInternalSplat['Category'] = $Category

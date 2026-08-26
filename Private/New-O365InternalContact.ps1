@@ -23,6 +23,9 @@
 
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
+
+    .PARAMETER NicknameSource
+    Directory property used for the personal contact nickname.
     #>
     [CmdletBinding()]
     param(
@@ -31,7 +34,8 @@
         [string] $GuidPrefix,
         [switch] $RequireEmailAddress,
         [object] $FolderInformation,
-        [string[]] $Category
+        [string[]] $Category,
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
     )
     if ($RequireEmailAddress) {
         if (-not $User.Mail) {
@@ -58,6 +62,7 @@
     foreach ($Property in $Script:MappingContactToUser.Keys) {
         $PropertiesToUpdate[$Property] = $User.$Property
     }
+    $PropertiesToUpdate['NickName'] = Resolve-O365PersonalContactNickname -SourceObject $User -NicknameSource $NicknameSource
     if ($PSBoundParameters.ContainsKey('Category')) {
         $CategoriesClean = ConvertTo-CleanContactArray -Values $Category
         if ($null -ne $CategoriesClean) {

@@ -21,6 +21,9 @@
 
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
+
+    .PARAMETER NicknameSource
+    Directory property used for the personal contact nickname.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -28,10 +31,11 @@
         [PSCustomObject] $User,
         [PSCustomObject] $Contact,
         [string] $FolderName,
-        [string[]] $Category
+        [string[]] $Category,
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
     )
 
-    $OutputObject = Compare-UserToContact -ExistingContactGAL $User -Contact $Contact -UserID $UserID
+    $OutputObject = Compare-UserToContact -ExistingContactGAL $User -Contact $Contact -UserID $UserID -NicknameSource $NicknameSource
     $CategoriesClean = $null
     if ($PSBoundParameters.ContainsKey('Category')) {
         $CategoriesClean = ConvertTo-CleanContactArray -Values $Category
@@ -72,6 +76,8 @@
         foreach ($Property in $OutputObject.Update) {
             if ($Property -eq 'Categories') {
                 $PropertiesToUpdate['Categories'] = $CategoriesClean
+            } elseif ($Property -eq 'NickName') {
+                $PropertiesToUpdate['NickName'] = Resolve-O365PersonalContactNickname -SourceObject $User -NicknameSource $NicknameSource
             } else {
                 $PropName = [string]$Property
                 $PropertiesToUpdate[$PropName] = $User.$Property

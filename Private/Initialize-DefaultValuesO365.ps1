@@ -73,7 +73,6 @@
     )
 
     $Script:MappingContactToUser = [ordered] @{
-        'MailNickname'   = 'NickName'
         'DisplayName'    = 'DisplayName'
         'GivenName'      = 'GivenName'
         'Surname'        = 'Surname'
