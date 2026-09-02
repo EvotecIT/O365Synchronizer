@@ -371,7 +371,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Set-O365WrapperPersonalContact -UserId 'user@contoso.com' -ContactId 'contact-id' -DisplayName 'User One' -EmailAddresses @('', 'user@contoso.com') -BusinessPhones @('', '123') -HomePhones @('') -ImAddresses @('im1', '')
 
                 $result.Success | Should -BeTrue
-                Assert-MockCalled Update-MgUserContact -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Update-MgUserContact -Times 1 -ParameterFilter {
                     $EmailAddresses.Count -eq 1 -and
                     $EmailAddresses[0].Address -eq 'user@contoso.com' -and
                     $BusinessPhones -eq @('123') -and
@@ -465,7 +465,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $null = Get-O365ExistingMembers -MemberTypes @('Member')
 
-                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Get-MgUser -Times 1 -ParameterFilter {
                     $Property -notcontains 'ShowInAddressList'
                 }
             }
@@ -475,7 +475,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $null = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList
 
-                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Get-MgUser -Times 1 -ParameterFilter {
                     $Property -contains 'ShowInAddressList'
                 }
             }
@@ -488,7 +488,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $null = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange
 
-                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Get-MgUser -Times 1 -ParameterFilter {
                     $Property -notcontains 'ShowInAddressList'
                 }
             }
@@ -546,7 +546,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 $result = Get-O365ExistingMembers -MemberTypes @('Member') -ExcludeHiddenFromAddressList
 
                 $result.Keys | Should -Contain '32'
-                Assert-MockCalled Write-Verbose -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Write-Verbose -Times 1 -ParameterFilter {
                     $Message -like '*left 1 users in scope because ShowInAddressList was null or missing*'
                 }
             }
@@ -740,7 +740,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $script:CreatedContactName | Should -Be 'mario.rossi-2'
                 $reservedNames.Contains('mario.rossi-2') | Should -BeTrue
-                Assert-MockCalled Set-O365OrgContact -Times 1
+                Should -Invoke -CommandName Set-O365OrgContact -Times 1
             }
 
             It 'does not reserve the generated name when contact creation fails' {
@@ -763,7 +763,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 $result | Should -BeNullOrEmpty
                 $reservedNames.Contains('mario.rossi') | Should -BeFalse
-                Assert-MockCalled Set-O365OrgContact -Times 0
+                Should -Invoke -CommandName Set-O365OrgContact -Times 0
             }
         }
 
@@ -929,7 +929,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                 Sync-O365Contact -SourceObjects $sourceObjects -Domains @('contoso.com') -EnsureUniqueDisplayName
 
                 $script:UpdatedDisplayNames[0] | Should -Be 'Alice'
-                Assert-MockCalled New-O365OrgContact -Times 0
+                Should -Invoke -CommandName New-O365OrgContact -Times 0
             }
 
             It 'normalizes the internal Exchange name after removing a replaced contact' {
@@ -1165,7 +1165,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
                 Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes @('Member', 'Contact') -ExcludeHiddenFromAddressList
 
-                Assert-MockCalled Write-Warning -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Write-Warning -Times 1 -ParameterFilter {
                     $Message -like '*applies only to user objects*'
                 }
             }
@@ -1217,7 +1217,7 @@ Describe 'O365Synchronizer contact sync helpers' {
                     Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTERCRITERIA'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
                 }
 
-                Assert-MockCalled Get-MgUser -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Get-MgUser -Times 1 -ParameterFilter {
                     $Filter -eq "(onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTERCRITERIA')" -and
                     $ConsistencyLevel -eq 'eventual' -and
                     $CountVariable -eq 'userCount' -and

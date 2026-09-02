@@ -12,8 +12,8 @@ Describe 'OData escaping helpers' {
             $result = Initialize-FolderName -UserId 'user@contoso.com' -FolderName "O'365Sync"
 
             $result.Id | Should -Be 'folder-id'
-            Assert-MockCalled Get-MgUserContactFolder -Times 1 -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" }
-            Assert-MockCalled New-MgUserContactFolder -Times 1
+            Should -Invoke -CommandName Get-MgUserContactFolder -Times 1 -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" }
+            Should -Invoke -CommandName New-MgUserContactFolder -Times 1
         }
 
         It 'escapes single quotes in Get-O365ExistingUserContacts lookup filter' {
@@ -26,9 +26,8 @@ Describe 'OData escaping helpers' {
             $result = Get-O365ExistingUserContacts -UserID 'user@contoso.com' -GuidPrefix '' -FolderName "O'365Sync"
 
             ($result -is [System.Collections.IDictionary]) | Should -BeTrue
-            Assert-MockCalled Get-MgUserContactFolder -Times 1 -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" }
-            Assert-MockCalled Get-MgUserContactFolderContact -Times 1
+            Should -Invoke -CommandName Get-MgUserContactFolder -Times 1 -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" }
+            Should -Invoke -CommandName Get-MgUserContactFolderContact -Times 1
         }
     }
 }
-

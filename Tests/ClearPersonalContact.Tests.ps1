@@ -30,7 +30,7 @@ Describe 'Clear-O365PersonalContact folder removal' {
 
                 Clear-O365PersonalContact -Identity 'user@contoso.com' -FolderName 'O365Sync' -FolderRemove
 
-                Assert-MockCalled Remove-MgUserContactFolder -Times 0
+                Should -Invoke -CommandName Remove-MgUserContactFolder -Times 0
             }
         }
 
@@ -55,8 +55,8 @@ Describe 'Clear-O365PersonalContact folder removal' {
 
                 Clear-O365PersonalContact -Identity 'user@contoso.com' -FolderName 'O365Sync' -FolderRemove -WhatIf
 
-                Assert-MockCalled Get-MgUserContactFolderContact -Times 1
-                Assert-MockCalled Remove-MgUserContactFolder -Times 1
+                Should -Invoke -CommandName Get-MgUserContactFolderContact -Times 1
+                Should -Invoke -CommandName Remove-MgUserContactFolder -Times 1
             }
         }
 
@@ -85,7 +85,7 @@ Describe 'Clear-O365PersonalContact folder removal' {
 
                 Clear-O365PersonalContact -Identity 'user@contoso.com' -FolderName 'O365Sync' -FolderRemove
 
-                Assert-MockCalled Remove-MgUserContactFolder -Times 1
+                Should -Invoke -CommandName Remove-MgUserContactFolder -Times 1
             }
         }
 
@@ -106,7 +106,7 @@ Describe 'Clear-O365PersonalContact folder removal' {
 
                 Clear-O365PersonalContact -Identity 'user@contoso.com' -FolderName "O'365Sync"
 
-                Assert-MockCalled Get-MgUserContactFolder -Times 1 -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" }
+                Should -Invoke -CommandName Get-MgUserContactFolder -Times 1 -ParameterFilter { $Filter -eq "DisplayName eq 'O''365Sync'" }
             }
         }
     }

@@ -59,6 +59,11 @@
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
 
+    .PARAMETER NicknameSource
+    Directory property written to the personal contact Nickname field.
+    DisplayName is the default so Outlook shows the GAL display name instead
+    of the Exchange mail alias. Use MailNickname to preserve legacy behavior.
+
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
 
@@ -84,6 +89,10 @@
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
+
+    .EXAMPLE
+    # preserve the legacy Exchange mail alias in the Nickname field
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -NicknameSource MailNickname -Verbose
 
     .EXAMPLE
     # clear categories assigned by sync
@@ -116,6 +125,7 @@
         [switch] $ExcludeHiddenFromAddressList,
         [HiddenAddressListSource] $HiddenAddressListSource = [HiddenAddressListSource]::Graph,
         [Parameter(Position = 6)][Alias('Categories')][string[]] $Category,
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
         [switch] $PassThru
     )
 
@@ -162,6 +172,7 @@
             MemberTypes        = $MemberTypes
             RequireEmailAddress = $RequireEmailAddress.IsPresent
             GuidPrefix         = $GuidPrefix
+            NicknameSource     = $NicknameSource
             WhatIf             = $WhatIfPreference
         }
         if ($PSBoundParameters.ContainsKey('Category')) {

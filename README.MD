@@ -121,12 +121,17 @@ Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelc
 # Synchronization per user or multiple users in one
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl', 'adam.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' | Format-Table *
 
+# preserve the older behavior that uses the Exchange mail alias as Nickname
+Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -NicknameSource MailNickname -Verbose
+
 # tag synchronized contacts with categories
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose
 
 # clear categories assigned by sync
 Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member' -Category @() -Verbose
 ```
+
+Synchronized contacts use the GAL display name for the Outlook `Nickname` field by default. Existing managed contacts are corrected during their next sync. Use `-NicknameSource MailNickname` only when the Exchange mail alias is the intended visible nickname.
 
 #### License requirements & external users
 

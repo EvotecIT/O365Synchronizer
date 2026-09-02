@@ -15,12 +15,17 @@
 
     .PARAMETER Contact
     Existing personal contact from the user's mailbox.
+
+    .PARAMETER NicknameSource
+    Directory property used for the personal contact nickname. DisplayName is
+    the default; MailNickname preserves the legacy behavior.
     #>
     [CmdletBinding()]
     param(
         [string] $UserID,
         [PSCustomObject] $ExistingContactGAL,
-        [PSCustomObject] $Contact
+        [PSCustomObject] $Contact,
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
     )
     $AddressProperties = 'City', 'State', 'Street', 'PostalCode', 'Country'
     if ($Contact.PSObject.Properties.Name -contains 'MailNickName') {
@@ -68,6 +73,21 @@
             }
         }
     }
+
+    $DesiredNickname = Resolve-O365PersonalContactNickname -SourceObject $ExistingContactGAL -NicknameSource $NicknameSource
+    $ExistingNickname = if ($Contact.PSObject.Properties.Name -contains 'Nickname') {
+        [string] $Contact.Nickname
+    } elseif ($Contact.PSObject.Properties.Name -contains 'MailNickname') {
+        [string] $Contact.MailNickname
+    } else {
+        ''
+    }
+    if ($DesiredNickname -ne $ExistingNickname) {
+        $UpdateProperties.Add('NickName')
+    } else {
+        $SkippedProperties.Add('NickName')
+    }
+
     [PSCustomObject] @{
         UserId      = $UserId
         Action      = 'Update'
