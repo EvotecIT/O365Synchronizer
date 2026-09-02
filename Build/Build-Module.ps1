@@ -52,6 +52,7 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
         'Set-Contact'
         'Set-MailContact'
         'Get-Contact'
+        'Get-Recipient'
     )
 
     $ConfigurationFormat = [ordered] @{
@@ -105,7 +106,7 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
         MergeModuleOnBuild                = $true
         MergeFunctionsFromApprovedModules = $true
         CertificateThumbprint             = '92E95FB58EFFA6A4A75E77A33CDD6BFE6DD30F1A'
-        RefreshPSD1Only                   = $false
+        RefreshPSD1Only                   = $true
     }
 
     New-ConfigurationBuild @newConfigurationBuildSplat
