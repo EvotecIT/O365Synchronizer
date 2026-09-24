@@ -107,6 +107,53 @@ Describe 'O365Synchronizer contact sync helpers' {
             }
         }
 
+        Context 'Compare-UserToContact phone list updates' {
+            It 'detects clearing the last business phone and ignores an unchanged list' {
+                $user = [pscustomobject]@{
+                    DisplayName = 'User One'
+                    Mail = 'user@contoso.com'
+                    BusinessPhones = @()
+                }
+                $contact = [pscustomobject]@{
+                    Nickname = 'User One'
+                    DisplayName = 'User One'
+                    EmailAddresses = @([pscustomobject]@{ Address = 'user@contoso.com' })
+                    BusinessPhones = @('123')
+                }
+
+                $cleared = Compare-UserToContact -ExistingContactGAL $user -Contact $contact
+                $cleared.Update | Should -Contain 'BusinessPhones'
+
+                $user.BusinessPhones = @('123')
+                $unchanged = Compare-UserToContact -ExistingContactGAL $user -Contact $contact
+                $unchanged.Update | Should -Not -Contain 'BusinessPhones'
+            }
+
+            It 'detects cleared home phone and email address arrays' {
+                $user = [pscustomobject]@{
+                    DisplayName = 'User One'
+                    Mail = $null
+                    HomePhone = $null
+                }
+                $contact = [pscustomobject]@{
+                    Nickname = 'User One'
+                    DisplayName = 'User One'
+                    EmailAddresses = @([pscustomobject]@{ Address = 'user@contoso.com' })
+                    HomePhones = @('222')
+                }
+
+                $cleared = Compare-UserToContact -ExistingContactGAL $user -Contact $contact
+                $cleared.Update | Should -Contain 'HomePhone'
+                $cleared.Update | Should -Contain 'Mail'
+
+                $user.Mail = 'user@contoso.com'
+                $user.HomePhone = '222'
+                $unchanged = Compare-UserToContact -ExistingContactGAL $user -Contact $contact
+                $unchanged.Update | Should -Not -Contain 'HomePhone'
+                $unchanged.Update | Should -Not -Contain 'Mail'
+            }
+        }
+
         Context 'Get-O365ExistingMembers manager resolution' {
             It 'resolves manager from string' {
                 Mock Get-MgUser {
@@ -367,6 +414,7 @@ Describe 'O365Synchronizer contact sync helpers' {
 
             It 'filters empty values from arrays before update' {
                 Mock Update-MgUserContact {}
+                Mock Invoke-MgGraphRequest {}
 
                 $result = Set-O365WrapperPersonalContact -UserId 'user@contoso.com' -ContactId 'contact-id' -DisplayName 'User One' -EmailAddresses @('', 'user@contoso.com') -BusinessPhones @('', '123') -HomePhones @('') -ImAddresses @('im1', '')
 
@@ -377,6 +425,100 @@ Describe 'O365Synchronizer contact sync helpers' {
                     $BusinessPhones -eq @('123') -and
                     $ImAddresses -eq @('im1') -and
                     -not $PSBoundParameters.ContainsKey('HomePhones')
+                }
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Times 1 -ParameterFilter {
+                    $payload = $Body | ConvertFrom-Json
+                    $payload.PSObject.Properties.Name -contains 'homePhones' -and $payload.homePhones.Count -eq 0
+                }
+            }
+
+            It 'sends cleared scalar and address fields as explicit JSON null' {
+                Mock Update-MgUserContact {}
+                Mock Update-MgUserContactFolderContact {}
+                Mock Invoke-MgGraphRequest {}
+
+                $result = Set-O365WrapperPersonalContact -UserId 'user@contoso.com' -ContactId 'contact-id' `
+                    -ParentFolderId 'folder-1' -DisplayName 'User One' -MobilePhone '' -Department '' -BusinessPhones @() `
+                    -BusinessStreet '' -BusinessCity 'Warsaw' -BusinessState 'Mazovia' `
+                    -BusinessPostalCode '00-000' -BusinessCountryOrRegion 'PL'
+
+                $result.Success | Should -BeTrue
+                Should -Invoke -CommandName Update-MgUserContact -Times 0
+                Should -Invoke -CommandName Update-MgUserContactFolderContact -Times 1 -ParameterFilter {
+                    $DisplayName -eq 'User One' -and
+                    $ContactFolderId -eq 'folder-1' -and
+                    -not $PSBoundParameters.ContainsKey('MobilePhone') -and
+                    -not $PSBoundParameters.ContainsKey('BusinessAddress')
+                }
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Times 1 -ParameterFilter {
+                    $payload = $Body | ConvertFrom-Json
+                    $Uri.OriginalString.EndsWith('/contactFolders/folder-1/contacts/contact-id') -and
+                    $payload.PSObject.Properties.Name -contains 'mobilePhone' -and $null -eq $payload.mobilePhone -and
+                    $payload.PSObject.Properties.Name -contains 'department' -and $null -eq $payload.department -and
+                    $payload.PSObject.Properties.Name -contains 'businessPhones' -and $payload.businessPhones.Count -eq 0 -and
+                    $payload.businessAddress.PSObject.Properties.Name -contains 'street' -and $null -eq $payload.businessAddress.street -and
+                    $payload.businessAddress.city -eq 'Warsaw' -and
+                    $payload.displayName -eq 'User One'
+                }
+            }
+
+            It 'clears every mapped optional field and list through the update wrapper' {
+                Mock Update-MgUserContact {}
+                Mock Invoke-MgGraphRequest {}
+
+                $result = Set-O365WrapperPersonalContact -UserId 'user@contoso.com' -ContactId 'contact-id' `
+                    -DisplayName 'User One' -GivenName '' -Surname '' -CompanyName '' -Department '' `
+                    -JobTitle '' -Manager '' -MobilePhone '' -NickName '' -HomePhone '' -Mail '' `
+                    -BusinessPhones @() -Categories @() -BusinessStreet '' -BusinessCity '' `
+                    -BusinessState '' -BusinessPostalCode '' -BusinessCountryOrRegion ''
+
+                $result.Success | Should -BeTrue
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Times 1 -ParameterFilter {
+                    $payload = $Body | ConvertFrom-Json
+                    $scalars = @('givenName', 'surname', 'companyName', 'department', 'jobTitle', 'manager', 'mobilePhone', 'nickName')
+                    $address = @('street', 'city', 'state', 'postalCode', 'countryOrRegion')
+                    $scalarsWhereNull = @($scalars | Where-Object { $payload.PSObject.Properties.Name -contains $_ -and $null -eq $payload.$_ })
+                    $addressWhereNull = @($address | Where-Object { $payload.businessAddress.PSObject.Properties.Name -contains $_ -and $null -eq $payload.businessAddress.$_ })
+                    $scalarsWhereNull.Count -eq $scalars.Count -and
+                    $addressWhereNull.Count -eq $address.Count -and
+                    $payload.homePhones.Count -eq 0 -and $payload.businessPhones.Count -eq 0 -and
+                    $payload.emailAddresses.Count -eq 0 -and $payload.categories.Count -eq 0 -and
+                    $payload.displayName -eq 'User One'
+                }
+            }
+        }
+
+        Context 'Clearing a synced mobile phone' {
+            It 'passes the empty directory value to the update wrapper' {
+                Mock Set-O365WrapperPersonalContact {
+                    [pscustomobject]@{ Success = $true; ErrorMessage = '' }
+                }
+                $user = [pscustomobject]@{
+                    DisplayName = 'User One'
+                    Mail = 'user@contoso.com'
+                    MobilePhone = $null
+                }
+                $contact = [pscustomobject]@{
+                    Id = 'contact-id'
+                    ParentFolderId = 'default-folder-id'
+                    Nickname = 'User One'
+                    DisplayName = 'User One'
+                    EmailAddresses = @([pscustomobject]@{ Address = 'user@contoso.com' })
+                    MobilePhone = '123'
+                }
+
+                $result = Set-O365InternalContact -UserID 'owner@contoso.com' -User $user -Contact $contact
+
+                $result.Status | Should -Be 'OK'
+                $result.Update | Should -Contain 'MobilePhone'
+                Should -Invoke -CommandName Set-O365WrapperPersonalContact -Times 1 -ParameterFilter {
+                    [string]::IsNullOrEmpty($MobilePhone) -and $DisplayName -eq 'User One' -and
+                    -not $PSBoundParameters.ContainsKey('ParentFolderId')
+                }
+
+                $null = Set-O365InternalContact -UserID 'owner@contoso.com' -User $user -Contact $contact -FolderId 'named-folder-id'
+                Should -Invoke -CommandName Set-O365WrapperPersonalContact -Times 1 -ParameterFilter {
+                    $ParentFolderId -eq 'named-folder-id'
                 }
             }
         }

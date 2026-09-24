@@ -52,25 +52,35 @@
         if (-not ($ExistingContactGAL.PSObject.Properties.Name -contains $Property)) {
             continue
         }
-        if ([string]::IsNullOrEmpty($ExistingContactGAL.$Property) -and [string]::IsNullOrEmpty($TranslatedContact.$Property)) {
-            $SkippedProperties.Add($Property)
-        } else {
-            if ($ExistingContactGAL.$Property -ne $TranslatedContact.$Property) {
-                Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($ExistingContactGAL.DisplayName) / $($ExistingContactGAL.Mail) different ($($ExistingContactGAL.$Property) vs $($Contact.$Property))"
-                if ($Property -in $AddressProperties) {
-                    # Update all address fields together to keep the address consistent.
-                    foreach ($Address in $AddressProperties) {
-                        if ($UpdateProperties -notcontains $Address) {
-                            $UpdateProperties.Add($Address)
-                        }
-                    }
-                } else {
-                    $UpdateProperties.Add($Property)
-                }
-
-            } else {
-                $SkippedProperties.Add($Property)
+        if ($Property -in 'BusinessPhones', 'HomePhone', 'Mail') {
+            $SourceValues = ConvertTo-CleanContactArray -Values $ExistingContactGAL.$Property
+            $ContactValues = ConvertTo-CleanContactArray -Values $TranslatedContact.$Property
+            $SourceValues = if ($null -eq $SourceValues) { @() } else { @($SourceValues) }
+            $ContactValues = if ($null -eq $ContactValues) { @() } else { @($ContactValues) }
+            $Different = $SourceValues.Count -ne $ContactValues.Count
+            for ($Index = 0; -not $Different -and $Index -lt $SourceValues.Count; $Index++) {
+                $Different = $SourceValues[$Index] -ne $ContactValues[$Index]
             }
+        } elseif ([string]::IsNullOrEmpty($ExistingContactGAL.$Property) -and [string]::IsNullOrEmpty($TranslatedContact.$Property)) {
+            $SkippedProperties.Add($Property)
+            continue
+        } else {
+            $Different = $ExistingContactGAL.$Property -ne $TranslatedContact.$Property
+        }
+        if ($Different) {
+            Write-Verbose -Message "Compare-UserToContact - Property $($Property) for $($ExistingContactGAL.DisplayName) / $($ExistingContactGAL.Mail) different ($($ExistingContactGAL.$Property) vs $($Contact.$Property))"
+            if ($Property -in $AddressProperties) {
+                # Update all address fields together to keep the address consistent.
+                foreach ($Address in $AddressProperties) {
+                    if ($UpdateProperties -notcontains $Address) {
+                        $UpdateProperties.Add($Address)
+                    }
+                }
+            } else {
+                $UpdateProperties.Add($Property)
+            }
+        } else {
+            $SkippedProperties.Add($Property)
         }
     }
 

@@ -79,7 +79,7 @@
         # special treatment for 'Mail' because it's an array
         'Mail'           = 'EmailAddresses.Address'
         'MobilePhone'    = 'MobilePhone'
-        'HomePhone'      = 'HomePhone'
+        'HomePhone'      = 'HomePhones'
         'CompanyName'    = 'CompanyName'
         'Department'     = 'Department'
         'BusinessPhones' = 'BusinessPhones'

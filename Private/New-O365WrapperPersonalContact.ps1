@@ -188,7 +188,7 @@
         [string] $Generation,
         [string] $GivenName,
 
-        [string[]]$HomePhones,
+        [alias('HomePhone')][string[]]$HomePhones,
         [string[]] $ImAddresses,
         [string] $Initials,
         [string] $JobTitle,

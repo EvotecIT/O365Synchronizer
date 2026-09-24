@@ -65,6 +65,9 @@
                 Contact = $Contact
                 NicknameSource = $NicknameSource
             }
+            if ($FolderInformation -and $FolderInformation.Id) {
+                $setInternalSplat['FolderId'] = [string] $FolderInformation.Id
+            }
             if ($PSBoundParameters.ContainsKey('Category')) {
                 $setInternalSplat['Category'] = $Category
             }
