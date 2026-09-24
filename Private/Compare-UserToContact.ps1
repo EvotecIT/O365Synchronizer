@@ -52,14 +52,14 @@
         if (-not ($ExistingContactGAL.PSObject.Properties.Name -contains $Property)) {
             continue
         }
-        if ($Property -eq 'BusinessPhones') {
-            $SourcePhones = ConvertTo-CleanContactArray -Values $ExistingContactGAL.BusinessPhones
-            $ContactPhones = ConvertTo-CleanContactArray -Values $TranslatedContact.BusinessPhones
-            $SourcePhones = if ($null -eq $SourcePhones) { @() } else { @($SourcePhones) }
-            $ContactPhones = if ($null -eq $ContactPhones) { @() } else { @($ContactPhones) }
-            $Different = $SourcePhones.Count -ne $ContactPhones.Count
-            for ($Index = 0; -not $Different -and $Index -lt $SourcePhones.Count; $Index++) {
-                $Different = $SourcePhones[$Index] -ne $ContactPhones[$Index]
+        if ($Property -in 'BusinessPhones', 'HomePhone', 'Mail') {
+            $SourceValues = ConvertTo-CleanContactArray -Values $ExistingContactGAL.$Property
+            $ContactValues = ConvertTo-CleanContactArray -Values $TranslatedContact.$Property
+            $SourceValues = if ($null -eq $SourceValues) { @() } else { @($SourceValues) }
+            $ContactValues = if ($null -eq $ContactValues) { @() } else { @($ContactValues) }
+            $Different = $SourceValues.Count -ne $ContactValues.Count
+            for ($Index = 0; -not $Different -and $Index -lt $SourceValues.Count; $Index++) {
+                $Different = $SourceValues[$Index] -ne $ContactValues[$Index]
             }
         } elseif ([string]::IsNullOrEmpty($ExistingContactGAL.$Property) -and [string]::IsNullOrEmpty($TranslatedContact.$Property)) {
             $SkippedProperties.Add($Property)
