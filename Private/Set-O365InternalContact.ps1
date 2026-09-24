@@ -16,8 +16,8 @@
     .PARAMETER Contact
     Existing personal contact from the user's mailbox.
 
-    .PARAMETER FolderName
-    Optional folder name used for reporting.
+    .PARAMETER FolderId
+    Contact folder id when synchronizing a named folder.
 
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
@@ -30,7 +30,7 @@
         [string] $UserID,
         [PSCustomObject] $User,
         [PSCustomObject] $Contact,
-        [string] $FolderName,
+        [string] $FolderId,
         [string[]] $Category,
         [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
     )
@@ -82,6 +82,13 @@
                 $PropName = [string]$Property
                 $PropertiesToUpdate[$PropName] = $User.$Property
             }
+        }
+        if (-not $PropertiesToUpdate.Contains('DisplayName') -and -not [string]::IsNullOrEmpty($User.DisplayName)) {
+            # Graph can regenerate displayName when other contact properties change.
+            $PropertiesToUpdate['DisplayName'] = $User.DisplayName
+        }
+        if (-not [string]::IsNullOrEmpty($FolderId)) {
+            $PropertiesToUpdate['ParentFolderId'] = $FolderId
         }
         $Result = Set-O365WrapperPersonalContact -UserId $UserID -ContactId $Contact.Id @PropertiesToUpdate -WhatIf:$WhatIfPreference
         if ($WhatIfPreference) {

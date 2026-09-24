@@ -125,7 +125,7 @@
     Office location.
 
     .PARAMETER ParentFolderId
-    Optional folder id that contains the contact.
+    Folder id when updating a contact in a named contact folder.
 
     .PARAMETER PersonalNotes
     Personal notes.
@@ -279,25 +279,93 @@
         ErrorAction      = 'Stop'
     }
     Remove-EmptyValue -Hashtable $ContactSplat -Recursive -Rerun 2
-    if ($PSBoundParameters.ContainsKey('Categories')) {
-        if ($null -eq $CategoriesClean) {
-            # Preserve explicit clear for categories.
-            $ContactSplat['Categories'] = @()
-        } else {
-            $ContactSplat['Categories'] = $CategoriesClean
-        }
-    }
-    if ($PSBoundParameters.ContainsKey('MobilePhone')) {
-        # Preserve explicit clear when caller passes empty MobilePhone.
-        if ([string]::IsNullOrEmpty($MobilePhone)) {
-            $ContactSplat['MobilePhone'] = $null
-        } else {
-            $ContactSplat['MobilePhone'] = $MobilePhone
+    $ClearPatch = [ordered] @{}
+    $ScalarProperties = @(
+        'AssistantName', 'BusinessHomePage', 'CompanyName', 'Department', 'DisplayName',
+        'FileAs', 'Generation', 'GivenName', 'Initials', 'JobTitle', 'Manager',
+        'MiddleName', 'MobilePhone', 'NickName', 'OfficeLocation', 'PersonalNotes',
+        'Profession', 'SpouseName', 'Surname', 'Title', 'YomiCompanyName',
+        'YomiGivenName', 'YomiSurname'
+    )
+    foreach ($Property in $ScalarProperties) {
+        if ($PSBoundParameters.ContainsKey($Property) -and [string]::IsNullOrEmpty($PSBoundParameters[$Property])) {
+            $GraphProperty = $Property.Substring(0, 1).ToLowerInvariant() + $Property.Substring(1)
+            $ClearPatch[$GraphProperty] = $null
+            $ContactSplat.Remove($Property)
         }
     }
 
+    $ArrayProperties = [ordered] @{
+        BusinessPhones = $BusinessPhonesClean
+        Categories = $CategoriesClean
+        Children = $ChildrenClean
+        EmailAddresses = $EmailAddressEntries
+        HomePhones = $HomePhonesClean
+        ImAddresses = $ImAddressesClean
+    }
+    foreach ($Property in $ArrayProperties.Keys) {
+        if ($PSBoundParameters.ContainsKey($Property) -and
+            ($null -eq $ArrayProperties[$Property] -or @($ArrayProperties[$Property]).Count -eq 0)) {
+            $GraphProperty = $Property.Substring(0, 1).ToLowerInvariant() + $Property.Substring(1)
+            $ClearPatch[$GraphProperty] = @()
+            $ContactSplat.Remove($Property)
+        }
+    }
+
+    $BusinessAddressProperties = [ordered] @{
+        BusinessStreet = 'street'
+        BusinessCity = 'city'
+        BusinessState = 'state'
+        BusinessPostalCode = 'postalCode'
+        BusinessCountryOrRegion = 'countryOrRegion'
+    }
+    $BusinessAddressNeedsClear = $false
+    foreach ($Property in $BusinessAddressProperties.Keys) {
+        if ($PSBoundParameters.ContainsKey($Property) -and [string]::IsNullOrEmpty($PSBoundParameters[$Property])) {
+            $BusinessAddressNeedsClear = $true
+            break
+        }
+    }
+    if ($BusinessAddressNeedsClear) {
+        foreach ($Property in $BusinessAddressProperties.Keys) {
+            if (-not $PSBoundParameters.ContainsKey($Property)) {
+                throw 'Clearing a business address field requires all business address fields.'
+            }
+        }
+        $AddressPatch = [ordered] @{}
+        foreach ($Property in $BusinessAddressProperties.Keys) {
+            $Value = $PSBoundParameters[$Property]
+            $AddressPatch[$BusinessAddressProperties[$Property]] = if ([string]::IsNullOrEmpty($Value)) { $null } else { $Value }
+        }
+        $ClearPatch['businessAddress'] = $AddressPatch
+        $ContactSplat.Remove('BusinessAddress')
+    }
+    $ContactSplat.Remove('ParentFolderId')
+
     try {
-        $null = Update-MgUserContact @contactSplat
+        $RegularProperties = @($ContactSplat.Keys | Where-Object { $_ -notin 'ContactId', 'UserId', 'WhatIf', 'ErrorAction' })
+        if ($RegularProperties.Count -gt 0) {
+            if ([string]::IsNullOrEmpty($ParentFolderId)) {
+                $null = Update-MgUserContact @contactSplat
+            } else {
+                $null = Update-MgUserContactFolderContact @contactSplat -ContactFolderId $ParentFolderId
+            }
+        }
+        if ($ClearPatch.Count -gt 0 -and $PSCmdlet.ShouldProcess("$UserId / $ContactId", 'Clear personal contact fields')) {
+            if ($PSBoundParameters.ContainsKey('DisplayName') -and -not $ClearPatch.Contains('displayName')) {
+                $ClearPatch['displayName'] = $DisplayName
+            }
+            $EncodedUserId = [Uri]::EscapeDataString($UserId)
+            $EncodedContactId = [Uri]::EscapeDataString($ContactId)
+            if ([string]::IsNullOrEmpty($ParentFolderId)) {
+                $ContactUri = "/v1.0/users/$EncodedUserId/contacts/$EncodedContactId"
+            } else {
+                $EncodedFolderId = [Uri]::EscapeDataString($ParentFolderId)
+                $ContactUri = "/v1.0/users/$EncodedUserId/contactFolders/$EncodedFolderId/contacts/$EncodedContactId"
+            }
+            $Body = $ClearPatch | ConvertTo-Json -Depth 8 -Compress
+            $null = Invoke-MgGraphRequest -Method PATCH -Uri $ContactUri -Body $Body -ContentType 'application/json' -ErrorAction Stop
+        }
         [PSCustomObject] @{
             Success      = $true
             ErrorMessage = ''
