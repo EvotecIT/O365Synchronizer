@@ -1,4 +1,4 @@
-﻿@{
+@{
     AliasesToExport      = @()
     Author               = 'Przemyslaw Klys'
     CmdletsToExport      = @()
@@ -8,7 +8,7 @@
     Description          = 'This module allows to synchronize users to/from Office 365. You can synchronize users information to personal contacts or synchronize tenants between each other.'
     FunctionsToExport    = @('Clear-O365PersonalContact', 'Sync-O365Contact', 'Sync-O365PersonalContact', 'Sync-O365PersonalContactFilter', 'Sync-O365PersonalContactFilterGroup', 'Sync-O365PersonalContactFilterOData')
     GUID                 = '81e907a0-a475-4d6a-a80d-20e9f08ad6b7'
-    ModuleVersion        = '1.0.4'
+    ModuleVersion        = '1.0.5'
     PowerShellVersion    = '5.1'
     PrivateData          = @{
         PSData = @{
@@ -20,14 +20,6 @@
         }
     }
     RequiredModules      = @(@{
-            Guid            = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe'
-            ModuleName      = 'PSSharedGoods'
-            ModuleVersion   = '0.0.313.1'
-        }, @{
-            Guid            = '0b0ba5c5-ec85-4c2b-a718-874e55a8bc3f'
-            ModuleName      = 'PSWriteColor'
-            ModuleVersion   = '1.0.5'
-        }, @{
             Guid            = '60f889fa-f873-43ad-b7d3-b7fc1273a44f'
             ModuleName      = 'Microsoft.Graph.Identity.SignIns'
             ModuleVersion   = '2.39.0'
@@ -43,7 +35,18 @@
             Guid            = 'a53e24d0-43dd-43ec-950e-7ac40ea986fc'
             ModuleName      = 'Microsoft.Graph.PersonalContacts'
             ModuleVersion   = '2.39.0'
+        }, @{
+            Guid            = '883916f2-9184-46ee-b1f8-b6a2fb784cee'
+            ModuleName      = 'Microsoft.Graph.Authentication'
+            ModuleVersion   = '2.39.0'
+        }, @{
+            Guid            = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe'
+            ModuleName      = 'PSSharedGoods'
+            ModuleVersion   = '0.0.313'
+        }, @{
+            Guid            = '0b0ba5c5-ec85-4c2b-a718-874e55a8bc3f'
+            ModuleName      = 'PSWriteColor'
+            ModuleVersion   = '1.0.5'
         })
     RootModule           = 'O365Synchronizer.psm1'
-    ScriptsToProcess     = @()
 }
