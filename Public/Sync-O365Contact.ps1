@@ -38,6 +38,11 @@
     Makes visible org-contact display names unique by appending a numeric
     suffix when duplicates are detected during synchronization.
 
+    .PARAMETER LogStream
+    Routes Write-Color messages to Host (default), Verbose, or Information for this call.
+    Use -LogStream Verbose -Verbose for Azure Automation and enable verbose job logging.
+    Returned synchronization data remains on the success stream.
+
     .EXAMPLE
     # Source tenant
     $ClientID = '9e1b3c36'
@@ -79,13 +84,29 @@
         [switch] $SkipRemove,
         [string] $LogPath,
         [int] $LogMaximum,
-        [switch] $EnsureUniqueDisplayName
+        [switch] $EnsureUniqueDisplayName,
+        [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
+    # Function-local defaults flow to nested calls without changing module or caller state.
+    if ($PSBoundParameters.ContainsKey('LogStream')) {
+        $PSDefaultParameterValues = $PSDefaultParameterValues.Clone()
+        $PSDefaultParameterValues['Write-Color:OutputStream'] = $LogStream
+        if ($PSBoundParameters.ContainsKey('Verbose')) {
+            $PSDefaultParameterValues['Write-Color:Verbose'] = $PSBoundParameters['Verbose']
+        }
+        if ($PSBoundParameters.ContainsKey('InformationAction')) {
+            $PSDefaultParameterValues['Write-Color:InformationAction'] = $PSBoundParameters['InformationAction']
+        }
+    }
     # this won't be logged to file
     Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
 
-    # lets enable global logging
-    Set-LoggingCapabilities -LogPath $LogPath -LogMaximum $LogMaximum
+    # Configure logging for this invocation.
+    $LoggingParameters = @{ LogPath = $LogPath; LogMaximum = $LogMaximum }
+    if ($PSBoundParameters.ContainsKey('LogStream')) {
+        $LoggingParameters.ParameterPSDefaultParameterValues = $PSDefaultParameterValues
+    }
+    Set-LoggingCapabilities @LoggingParameters
 
     $StartTimeLog = Start-TimeLog
     # we repeat it here, as we want to log it to file if needed

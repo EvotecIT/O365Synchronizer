@@ -64,6 +64,11 @@
     DisplayName is the default so Outlook shows the GAL display name instead
     of the Exchange mail alias. Use MailNickname to preserve legacy behavior.
 
+    .PARAMETER LogStream
+    Routes Write-Color messages to Host (default), Verbose, or Information for this call.
+    Use -LogStream Verbose -Verbose for Azure Automation and enable verbose job logging.
+    Returned synchronization data remains on the success stream.
+
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
 
@@ -126,8 +131,20 @@
         [HiddenAddressListSource] $HiddenAddressListSource = [HiddenAddressListSource]::Graph,
         [Parameter(Position = 6)][Alias('Categories')][string[]] $Category,
         [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
-        [switch] $PassThru
+        [switch] $PassThru,
+        [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
+    # Function-local defaults flow to nested calls without changing module or caller state.
+    if ($PSBoundParameters.ContainsKey('LogStream')) {
+        $PSDefaultParameterValues = $PSDefaultParameterValues.Clone()
+        $PSDefaultParameterValues['Write-Color:OutputStream'] = $LogStream
+        if ($PSBoundParameters.ContainsKey('Verbose')) {
+            $PSDefaultParameterValues['Write-Color:Verbose'] = $PSBoundParameters['Verbose']
+        }
+        if ($PSBoundParameters.ContainsKey('InformationAction')) {
+            $PSDefaultParameterValues['Write-Color:InformationAction'] = $PSBoundParameters['InformationAction']
+        }
+    }
 
     Initialize-DefaultValuesO365
     if ($ExcludeHiddenFromAddressList -and $HiddenAddressListSource -eq [HiddenAddressListSource]::Graph -and $MemberTypes -contains 'Contact') {
