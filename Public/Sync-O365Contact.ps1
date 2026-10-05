@@ -44,6 +44,11 @@
     Makes visible org-contact display names unique by appending a numeric
     suffix when duplicates are detected during synchronization.
 
+    .PARAMETER LogStream
+    Routes Write-Color messages to Host (default), Verbose, or Information for this call.
+    Use -LogStream Verbose -Verbose for Azure Automation and enable verbose job logging.
+    Returned synchronization data remains on the success stream.
+
     .EXAMPLE
     # Source tenant
     $ClientID = '9e1b3c36'
@@ -86,13 +91,28 @@
         [string] $LogPath,
         [int] $LogMaximum,
         [switch] $EnsureUniqueDisplayName,
-        [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern
+        [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern,
+        [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
+    # Function-local defaults flow to nested calls without changing module or caller state.
+    if ($PSBoundParameters.ContainsKey('LogStream')) {
+        $PSDefaultParameterValues = $PSDefaultParameterValues.Clone()
+        $PSDefaultParameterValues['Write-Color:OutputStream'] = $LogStream
+        if ($PSBoundParameters.ContainsKey('Verbose')) {
+            $PSDefaultParameterValues['Write-Color:Verbose'] = $PSBoundParameters['Verbose']
+        }
+        if ($PSBoundParameters.ContainsKey('InformationAction')) {
+            $PSDefaultParameterValues['Write-Color:InformationAction'] = $PSBoundParameters['InformationAction']
+        }
+    }
     # this won't be logged to file
     Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
 
-    # lets enable global logging
+    # Configure logging, preserving the retention safety options.
     $LoggingParameters = @{ LogPath = $LogPath; LogMaximum = $LogMaximum; WhatIf = $WhatIfPreference }
+    if ($PSBoundParameters.ContainsKey('LogStream')) {
+        $LoggingParameters.ParameterPSDefaultParameterValues = $PSDefaultParameterValues
+    }
     if ($PSBoundParameters.ContainsKey('LogFilePattern')) {
         $LoggingParameters.LogFilePattern = $LogFilePattern
     }

@@ -21,6 +21,9 @@
 
     .PARAMETER TimeFormat
     Format string for timestamps.
+
+    .PARAMETER ParameterPSDefaultParameterValues
+    Invocation-local defaults to update without replacing other logging settings.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -28,15 +31,18 @@
         [int] $LogMaximum,
         [switch] $ShowTime,
         [string] $TimeFormat,
-        [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern
+        [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern,
+        [System.Collections.IDictionary] $ParameterPSDefaultParameterValues
     )
 
-    $Script:PSDefaultParameterValues = @{
-        "Write-Color:LogFile"    = $LogPath
-        "Write-Color:ShowTime"   = if ($PSBoundParameters.ContainsKey('ShowTime')) { $ShowTime.IsPresent } else { $null }
-        "Write-Color:TimeFormat" = $TimeFormat
+    if ($null -eq $ParameterPSDefaultParameterValues) {
+        $Script:PSDefaultParameterValues = @{}
+        $ParameterPSDefaultParameterValues = $Script:PSDefaultParameterValues
     }
-    Remove-EmptyValue -Hashtable $Script:PSDefaultParameterValues
+    $ParameterPSDefaultParameterValues['Write-Color:LogFile'] = $LogPath
+    $ParameterPSDefaultParameterValues['Write-Color:ShowTime'] = if ($PSBoundParameters.ContainsKey('ShowTime')) { $ShowTime.IsPresent } else { $null }
+    $ParameterPSDefaultParameterValues['Write-Color:TimeFormat'] = $TimeFormat
+    Remove-EmptyValue -Hashtable $ParameterPSDefaultParameterValues
 
     if ($LogPath) {
         $FullLogPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($LogPath)

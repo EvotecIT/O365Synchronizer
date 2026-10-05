@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
   <a href="https://www.powershellgallery.com/packages/O365Synchronizer"><img src="https://img.shields.io/powershellgallery/v/O365Synchronizer.svg"></a>
   <a href="https://www.powershellgallery.com/packages/O365Synchronizer"><img src="https://img.shields.io/powershellgallery/v/O365Synchronizer.svg?label=powershell%20gallery%20preview&colorB=yellow&include_prereleases"></a>
   <a href="https://github.com/EvotecIT/O365Synchronizer"><img src="https://img.shields.io/github/license/EvotecIT/O365Synchronizer.svg"></a>
@@ -18,6 +18,22 @@
 </p>
 
 **O365Synchronizer** is a PowerShell module that allows you to synchronize users/contacts to user mailboxes contact list. It can also be used to synchronize users between tenants as contacts or guests.
+
+## Logging in automation
+
+The synchronization and cleanup commands keep colored host output by default.
+With PSWriteColor 1.0.5 or later, select a message stream for unattended execution:
+
+```powershell
+Sync-O365PersonalContact -UserId 'user@contoso.com' -LogStream Verbose -Verbose -WhatIf
+Sync-O365Contact -SourceObjects $UsersToSync -LogStream Verbose -Verbose -WhatIf
+Clear-O365PersonalContact -Identity 'user@contoso.com' -LogStream Verbose -Verbose -WhatIf
+```
+
+In Azure Automation, also enable verbose logging for published jobs. The option
+applies to nested synchronization messages for this invocation, without adding log
+strings to returned data or changing subsequent calls. `-LogStream Information`
+with `-InformationAction Continue` is available for hosts that capture that stream.
 
 ## Log retention
 

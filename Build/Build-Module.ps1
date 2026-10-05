@@ -30,10 +30,10 @@ Invoke-ModuleBuild -ModuleName 'O365Synchronizer' {
         'PSSharedGoods',
         #'Mailozaurr',
         #'PSWriteHTML',
-        'PSWriteColor'
         'Microsoft.Graph.Identity.SignIns', 'Microsoft.Graph.Identity.DirectoryManagement'
         'Microsoft.Graph.Users', 'Microsoft.Graph.PersonalContacts'
     ) -Guid Auto -Version Latest
+    New-ConfigurationModule -Type RequiredModule -Name 'PSWriteColor' -Guid Auto -Version '1.0.5'
     #New-ConfigurationModule -Type ExternalModule -Name 'Microsoft.PowerShell.Utility', 'Microsoft.PowerShell.Management','Microsoft.PowerShell.Security'
     New-ConfigurationModule -Type ApprovedModule -Name 'PSSharedGoods', 'PSWriteColor', 'Connectimo', 'PSUnifi', 'PSWebToolbox', 'PSMyPassword'
 

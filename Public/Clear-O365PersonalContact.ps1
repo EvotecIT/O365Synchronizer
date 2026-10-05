@@ -28,6 +28,11 @@
     .PARAMETER All
     If set it will remove all contacts. By default it will only remove contacts that were synchronized by O365Synchronizer.
 
+    .PARAMETER LogStream
+    Routes Write-Color messages to Host (default), Verbose, or Information for this call.
+    Use -LogStream Verbose -Verbose for Azure Automation and enable verbose job logging.
+    Returned synchronization data remains on the success stream.
+
     .EXAMPLE
     Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -WhatIf
 
@@ -53,8 +58,20 @@
         [string] $FolderName,
         [switch] $FolderRemove,
         [switch] $FullLogging,
-        [switch] $All
+        [switch] $All,
+        [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
+    # Function-local defaults flow to nested calls without changing module or caller state.
+    if ($PSBoundParameters.ContainsKey('LogStream')) {
+        $PSDefaultParameterValues = $PSDefaultParameterValues.Clone()
+        $PSDefaultParameterValues['Write-Color:OutputStream'] = $LogStream
+        if ($PSBoundParameters.ContainsKey('Verbose')) {
+            $PSDefaultParameterValues['Write-Color:Verbose'] = $PSBoundParameters['Verbose']
+        }
+        if ($PSBoundParameters.ContainsKey('InformationAction')) {
+            $PSDefaultParameterValues['Write-Color:InformationAction'] = $PSBoundParameters['InformationAction']
+        }
+    }
     $SupportsFolderContactRemove = $false
     if ($FolderName -and (Get-Command Remove-MgUserContactFolderContact -ErrorAction SilentlyContinue)) {
         $SupportsFolderContactRemove = $true
