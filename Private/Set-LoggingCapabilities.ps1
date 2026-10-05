@@ -10,7 +10,11 @@
     Path to the log file.
 
     .PARAMETER LogMaximum
-    Maximum number of log files to keep.
+    Maximum number of matching log files to keep, including the active log.
+
+    .PARAMETER LogFilePattern
+    Explicit filename wildcard identifying this job's logs. Must match the active
+    log filename. Without a pattern, no files are removed.
 
     .PARAMETER ShowTime
     Enables timestamp output.
@@ -18,12 +22,13 @@
     .PARAMETER TimeFormat
     Format string for timestamps.
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [string] $LogPath,
         [int] $LogMaximum,
         [switch] $ShowTime,
-        [string] $TimeFormat
+        [string] $TimeFormat,
+        [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern
     )
 
     $Script:PSDefaultParameterValues = @{
@@ -34,20 +39,39 @@
     Remove-EmptyValue -Hashtable $Script:PSDefaultParameterValues
 
     if ($LogPath) {
-        $FolderPath = [io.path]::GetDirectoryName($LogPath)
+        $FullLogPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($LogPath)
+        $FolderPath = [io.path]::GetDirectoryName($FullLogPath)
+        if ($LogFilePattern -and [io.path]::GetFileName($FullLogPath) -notlike $LogFilePattern) {
+            throw 'LogFilePattern must match the active log filename.'
+        }
         if (-not (Test-Path -LiteralPath $FolderPath)) {
             $null = New-Item -Path $FolderPath -ItemType Directory -Force -WhatIf:$false
         }
         if ($LogMaximum -gt 0) {
-            $CurrentLogs = Get-ChildItem -LiteralPath $FolderPath | Sort-Object -Property CreationTime -Descending | Select-Object -Skip $LogMaximum
+            if (-not $LogFilePattern) {
+                Write-Warning 'Log retention skipped: specify LogFilePattern to identify the files owned by this job.'
+                return
+            }
+            # Reserve one slot for the active log, even when it has not been created yet.
+            $CurrentLogs = Get-ChildItem -LiteralPath $FolderPath -File -ErrorAction Stop |
+                Where-Object {
+                    $_.Name -like $LogFilePattern -and
+                    $_.FullName -ne $FullLogPath -and
+                    -not ($_.Attributes -band [io.fileattributes]::ReparsePoint)
+                } |
+                Sort-Object -Property CreationTime, Name -Descending |
+                Select-Object -Skip ($LogMaximum - 1)
             if ($CurrentLogs) {
                 Write-Color -Text '[i] ', "Logs directory has more than ", $LogMaximum, " log files. Cleanup required..." -Color Yellow, DarkCyan, Red, DarkCyan
                 foreach ($Log in $CurrentLogs) {
+                    if (-not $PSCmdlet.ShouldProcess($Log.FullName, 'Remove retained log file')) {
+                        continue
+                    }
                     try {
-                        Remove-Item -LiteralPath $Log.FullName -Confirm:$false -WhatIf:$false
+                        Remove-Item -LiteralPath $Log.FullName -Confirm:$false -ErrorAction Stop
                         Write-Color -Text '[+] ', "Deleted ", "$($Log.FullName)" -Color Yellow, White, Green
                     } catch {
-                        Write-Color -Text '[-] ', "Couldn't delete log file $($Log.FullName). Error: ', "$($_.Exception.Message) -Color Yellow, White, Red
+                        Write-Color -Text '[-] ', "Couldn't delete log file $($Log.FullName). Error: ", $_.Exception.Message -Color Yellow, White, Red
                     }
                 }
             }

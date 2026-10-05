@@ -19,6 +19,21 @@
 
 **O365Synchronizer** is a PowerShell module that allows you to synchronize users/contacts to user mailboxes contact list. It can also be used to synchronize users between tenants as contacts or guests.
 
+## Log retention
+
+`Sync-O365Contact` writes messages to `-LogPath`. To prune older logs, set both
+`-LogMaximum` and an explicit `-LogFilePattern`, such as `O365Sync*.log` for
+`O365Sync.log` and dated archives named `O365Sync-2026-10-01.log`.
+The pattern must match the active log filename and applies only to files in that
+directory. Choose a pattern unique to this job; files matching a broad pattern
+are eligible for deletion even if another application created them.
+
+The limit includes the active log, which is always preserved. The newest matching
+archives fill the remaining slots. Directories and links are excluded, and
+`-WhatIf` prevents pruning. A zero limit disables pruning. A positive limit without
+a pattern logs a warning and leaves all files in place; existing configurations
+must add a pattern to enable retention.
+
 ## Features & ToDo
 
 - 🚫 Synchronize Users between tenants as Guests

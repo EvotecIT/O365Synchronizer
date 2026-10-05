@@ -32,7 +32,13 @@
     Path to the log file.
 
     .PARAMETER LogMaximum
-    Maximum number of log files to keep.
+    Maximum number of matching log files to keep, including the active log.
+    Requires LogFilePattern to enable pruning. Zero disables pruning.
+
+    .PARAMETER LogFilePattern
+    Filename wildcard identifying this job's logs in the LogPath directory, for
+    example 'O365Sync*.log'. Must match the active log filename. Other files,
+    directories, links, and the active log are preserved. WhatIf prevents deletion.
 
     .PARAMETER EnsureUniqueDisplayName
     Makes visible org-contact display names unique by appending a numeric
@@ -61,7 +67,7 @@
 
     .EXAMPLE
     # Skip removals and log actions
-    Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
+    Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -LogFilePattern 'O365Sync*.log' -Verbose
 
     .EXAMPLE
     # Make visible display names unique for homonyms
@@ -79,13 +85,18 @@
         [switch] $SkipRemove,
         [string] $LogPath,
         [int] $LogMaximum,
-        [switch] $EnsureUniqueDisplayName
+        [switch] $EnsureUniqueDisplayName,
+        [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern
     )
     # this won't be logged to file
     Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
 
     # lets enable global logging
-    Set-LoggingCapabilities -LogPath $LogPath -LogMaximum $LogMaximum
+    $LoggingParameters = @{ LogPath = $LogPath; LogMaximum = $LogMaximum; WhatIf = $WhatIfPreference }
+    if ($PSBoundParameters.ContainsKey('LogFilePattern')) {
+        $LoggingParameters.LogFilePattern = $LogFilePattern
+    }
+    Set-LoggingCapabilities @LoggingParameters
 
     $StartTimeLog = Start-TimeLog
     # we repeat it here, as we want to log it to file if needed
