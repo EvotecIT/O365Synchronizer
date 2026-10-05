@@ -32,7 +32,13 @@
     Path to the log file.
 
     .PARAMETER LogMaximum
-    Maximum number of log files to keep.
+    Maximum number of matching log files to keep, including the active log.
+    Requires LogFilePattern to enable pruning. Zero disables pruning.
+
+    .PARAMETER LogFilePattern
+    Filename wildcard identifying this job's logs in the LogPath directory, for
+    example 'O365Sync*.log'. Must match the active log filename. Other files,
+    directories, links, and the active log are preserved. WhatIf prevents deletion.
 
     .PARAMETER EnsureUniqueDisplayName
     Makes visible org-contact display names unique by appending a numeric
@@ -66,7 +72,7 @@
 
     .EXAMPLE
     # Skip removals and log actions
-    Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
+    Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -LogFilePattern 'O365Sync*.log' -Verbose
 
     .EXAMPLE
     # Make visible display names unique for homonyms
@@ -85,6 +91,7 @@
         [string] $LogPath,
         [int] $LogMaximum,
         [switch] $EnsureUniqueDisplayName,
+        [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern,
         [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
     # Function-local defaults flow to nested calls without changing module or caller state.
@@ -101,10 +108,13 @@
     # this won't be logged to file
     Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
 
-    # Configure logging for this invocation.
-    $LoggingParameters = @{ LogPath = $LogPath; LogMaximum = $LogMaximum }
+    # Configure logging, preserving the retention safety options.
+    $LoggingParameters = @{ LogPath = $LogPath; LogMaximum = $LogMaximum; WhatIf = $WhatIfPreference }
     if ($PSBoundParameters.ContainsKey('LogStream')) {
         $LoggingParameters.ParameterPSDefaultParameterValues = $PSDefaultParameterValues
+    }
+    if ($PSBoundParameters.ContainsKey('LogFilePattern')) {
+        $LoggingParameters.LogFilePattern = $LogFilePattern
     }
     Set-LoggingCapabilities @LoggingParameters
 
