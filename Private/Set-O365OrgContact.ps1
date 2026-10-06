@@ -30,7 +30,7 @@
         [Object] $Source,
         [Object] $SourceContact
     )
-    Write-Color -Text "[i] ", "Checking ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress, " for updates" -Color Yellow, White, Cyan, White, Cyan
+    Write-O365Log -Text "[i] ", "Checking ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress, " for updates" -Color Yellow, White, Cyan, White, Cyan
     if ($Source -and $SourceContact) {
         if (-not $MailContact) {
             $MailContact = $CurrentContactsCache[$Source.PrimarySmtpAddress].MailContact
@@ -65,31 +65,31 @@
             }
         }
         if ($MismatchedPropertiesMailContact.Count -gt 0 -or $MismatchedPropertiesContact.Count -gt 0) {
-            Write-Color -Text "[i] ", "Mismatched properties for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress, " are: ", ($MismatchedPropertiesMailContact + $MismatchedPropertiesContact -join ', ') -Color Yellow, White, DarkCyan, White, Cyan
+            Write-O365Log -Text "[i] ", "Mismatched properties for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress, " are: ", ($MismatchedPropertiesMailContact + $MismatchedPropertiesContact -join ', ') -Color Yellow, White, DarkCyan, White, Cyan
             $ErrorValue = $false
             if ($MismatchedPropertiesMailContact.Count -gt 0) {
-                Write-Color -Text "[*] ", "Updating mail contact for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress -Color Yellow, Green, DarkCyan, White, Cyan
+                Write-O365Log -Text "[*] ", "Updating mail contact for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress -Color Yellow, Green, DarkCyan, White, Cyan
                 try {
                     Set-MailContact -Identity $MailContact.Identity -WhatIf:$WhatIfPreference -ErrorAction Stop @MismatchedMailContact
                 } catch {
                     $ErrorValue = $true
-                    Write-Color -Text "[e] ", "Failed to update mail contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Red, White, Red
+                    Write-O365Log -Text "[e] ", "Failed to update mail contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Red, White, Red
                 }
             }
             if ($MismatchedPropertiesContact.Count -gt 0) {
-                Write-Color -Text "[*] ", "Updating contact for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress -Color Yellow, Green, DarkCyan, White, Cyan
+                Write-O365Log -Text "[*] ", "Updating contact for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress -Color Yellow, Green, DarkCyan, White, Cyan
                 try {
                     Set-Contact -Identity $MailContact.Identity -WhatIf:$WhatIfPreference -ErrorAction Stop @MismatchedContact
                 } catch {
                     $ErrorValue = $true
-                    Write-Color -Text "[e] ", "Failed to update contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Red, White, Red
+                    Write-O365Log -Text "[e] ", "Failed to update contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Red, White, Red
                 }
             }
             if ($ErrorValue -eq $false) {
                 $true
             }
         } else {
-            #Write-Color -Text "[i] ", "No mismatched properties for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress -Color Yellow, White, DarkCyan, White, Cyan
+            #Write-O365Log -Text "[i] ", "No mismatched properties for ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress -Color Yellow, White, DarkCyan, White, Cyan
         }
     }
 }

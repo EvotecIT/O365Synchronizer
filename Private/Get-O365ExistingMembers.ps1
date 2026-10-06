@@ -38,7 +38,7 @@
         try {
             $FilterInformation = & $UserProvidedFilter
         } catch {
-            Write-Color -Text "[e] ", "Failed to execute user provided filter because of error in line ", $_.InvocationInfo.ScriptLineNumber, " with message: ", $_.Exception.Message -Color Yellow, White, Red
+            Write-O365Log -Text "[e] ", "Failed to execute user provided filter because of error in line ", $_.InvocationInfo.ScriptLineNumber, " with message: ", $_.Exception.Message -Color Yellow, White, Red
             return $false
         }
     } else {
@@ -95,7 +95,7 @@
                 }
             }
         } else {
-            Write-Color -Text "[e] ", "Unknown filter type: $($Filter.FilterType)" -Color Red, White
+            Write-O365Log -Text "[e] ", "Unknown filter type: $($Filter.FilterType)" -Color Red, White
             return $false
         }
     }
@@ -139,7 +139,7 @@
             }
             $Users = Get-MgUser @getMgUserSplat
         } catch {
-            Write-Color -Text "[e] ", "Failed to get users. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
+            Write-O365Log -Text "[e] ", "Failed to get users. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
             return $false
         }
         :NextUser foreach ($User in $Users) {
@@ -233,7 +233,7 @@
                 try {
                     $UserGroups = Get-MgUserMemberOf -UserId $User.Id -All
                 } catch {
-                    Write-Color -Text "[e] ", "Failed to get groups for user $($User.UserPrincipalName). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
+                    Write-O365Log -Text "[e] ", "Failed to get groups for user $($User.UserPrincipalName). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
                     continue
                 }
                 $GroupExclude = $false
@@ -316,7 +316,7 @@
                         continue NextUser
                     }
                 } else {
-                    Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
+                    Write-O365Log -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
                     return $false
                 }
             }
@@ -371,7 +371,7 @@
                         continue NextUser
                     }
                 } else {
-                    Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
+                    Write-O365Log -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
                     return $false
                 }
             }
@@ -399,7 +399,7 @@
             }
             $Users = Get-MgContact @getMgContactSplat
         } catch {
-            Write-Color -Text "[e] ", "Failed to get contacts. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
+            Write-O365Log -Text "[e] ", "Failed to get contacts. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
             return $false
         }
         :NextUser foreach ($User in $Users) {
@@ -432,7 +432,7 @@
                 try {
                     $UserGroups = Get-MgContactMemberOf -OrgContactId $User.Id -All
                 } catch {
-                    Write-Color -Text "[e] ", "Failed to get contact memberOf for contact $($User.Id). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
+                    Write-O365Log -Text "[e] ", "Failed to get contact memberOf for contact $($User.Id). ", "Error: $($_.Exception.Message)" -Color Yellow, White, Red
                     continue
                 }
                 $GroupExclude = $false
@@ -515,7 +515,7 @@
                         continue NextUser
                     }
                 } else {
-                    Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
+                    Write-O365Log -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
                     return $false
                 }
             }
@@ -571,7 +571,7 @@
                         continue NextUser
                     }
                 } else {
-                    Write-Color -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
+                    Write-O365Log -Text "[e] ", "Unknown operator: $($Filter.Operator)" -Color Red, White
                     return $false
                 }
             }

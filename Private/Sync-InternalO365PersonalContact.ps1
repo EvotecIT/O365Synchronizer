@@ -50,9 +50,9 @@
     foreach ($UsersInternalID in $ExistingUsers.Keys) {
         $User = $ExistingUsers[$UsersInternalID]
         if ($User.Mail) {
-            Write-Color -Text "[i] ", "Processing ", $User.DisplayName, " / ", $User.Mail -Color Yellow, White, Cyan, White, Cyan
+            Write-O365Log -Text "[i] ", "Processing ", $User.DisplayName, " / ", $User.Mail -Color Yellow, White, Cyan, White, Cyan
         } else {
-            Write-Color -Text "[i] ", "Processing ", $User.DisplayName -Color Yellow, White, Cyan
+            Write-O365Log -Text "[i] ", "Processing ", $User.DisplayName -Color Yellow, White, Cyan
         }
         $Entry = $User.Id
         $Contact = $ExistingContacts[$Entry]

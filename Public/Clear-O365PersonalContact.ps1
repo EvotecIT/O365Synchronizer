@@ -29,9 +29,9 @@
     If set it will remove all contacts. By default it will only remove contacts that were synchronized by O365Synchronizer.
 
     .PARAMETER LogStream
-    Routes Write-Color messages to Host (default), Verbose, or Information for this call.
-    Use -LogStream Verbose -Verbose for Azure Automation and enable verbose job logging.
-    Returned synchronization data remains on the success stream.
+    Routes messages to Host (default), Output, Verbose, or Information for this call.
+    Use -LogStream Output for Azure Automation without enabling verbose job logging.
+    Output adds plain log strings to the success stream alongside any returned data.
 
     .EXAMPLE
     Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -WhatIf
@@ -59,8 +59,10 @@
         [switch] $FolderRemove,
         [switch] $FullLogging,
         [switch] $All,
-        [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
+        [ValidateSet('Host', 'Output', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
+    # Route Output messages through this command, outside helper data pipelines.
+    $O365LogOutputCmdlet = if ($LogStream -eq 'Output') { $PSCmdlet } else { $null }
     # Function-local defaults flow to nested calls without changing module or caller state.
     if ($PSBoundParameters.ContainsKey('LogStream')) {
         $PSDefaultParameterValues = $PSDefaultParameterValues.Clone()
@@ -81,30 +83,30 @@
             $FolderNameEscaped = $FolderName.Replace("'", "''")
             $CurrentContactsFolder = Get-MgUserContactFolder -UserId $Identity -Filter "DisplayName eq '$FolderNameEscaped'" -ErrorAction Stop -All
         } catch {
-            Write-Color -Text "[!] ", "Getting user folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Red, White, Red, White
+            Write-O365Log -Text "[!] ", "Getting user folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Red, White, Red, White
             return
         }
         if ($CurrentContactsFolder -is [array]) {
             if ($CurrentContactsFolder.Count -gt 1) {
-                Write-Color -Text "[!] ", "Multiple folders named ", $FolderName, " found for ", $Identity, ". Using the first match." -Color Yellow, White, Red, White, Red
+                Write-O365Log -Text "[!] ", "Multiple folders named ", $FolderName, " found for ", $Identity, ". Using the first match." -Color Yellow, White, Red, White, Red
             }
             $CurrentContactsFolder = $CurrentContactsFolder | Select-Object -First 1
         }
         if (-not $CurrentContactsFolder) {
-            Write-Color -Text "[!] ", "User folder ", $FolderName, " not found for ", $Identity -Color Yellow, Yellow, Red, Yellow, Red
+            Write-O365Log -Text "[!] ", "User folder ", $FolderName, " not found for ", $Identity -Color Yellow, Yellow, Red, Yellow, Red
             return
         }
         try {
             $CurrentContacts = Get-MgUserContactFolderContact -ContactFolderId $CurrentContactsFolder.Id -UserId $Identity -ErrorAction Stop -All
         } catch {
-            Write-Color -Text "[!] ", "Getting user contacts for ", $Identity, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
+            Write-O365Log -Text "[!] ", "Getting user contacts for ", $Identity, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
             return
         }
     } else {
         try {
             $CurrentContacts = Get-MgUserContact -UserId $Identity -All -ErrorAction Stop
         } catch {
-            Write-Color -Text "[!] ", "Getting user contacts for ", $Identity, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
+            Write-O365Log -Text "[!] ", "Getting user contacts for ", $Identity, " failed. Error: ", $_.Exception.Message -Color Red, White, Red
             return
         }
     }
@@ -112,7 +114,7 @@
         if ($GuidPrefix -and -not $Contact.FileAs.StartsWith($GuidPrefix)) {
             if (-not $All) {
                 if ($FullLogging) {
-                    Write-Color -Text "[i] ", "Skipping ", $Contact.Id, " because it is not created as part of O365Synchronizer." -Color Yellow, White, DarkYellow, White
+                    Write-O365Log -Text "[i] ", "Skipping ", $Contact.Id, " because it is not created as part of O365Synchronizer." -Color Yellow, White, DarkYellow, White
                 }
                 continue
             }
@@ -124,12 +126,12 @@
         if (-not $ConversionWorked) {
             if (-not $All) {
                 if ($FullLogging) {
-                    Write-Color -Text "[i] ", "Skipping ", $Contact.Id, " because it is not created as part of O365Synchronizer." -Color Yellow, White, DarkYellow, White
+                    Write-O365Log -Text "[i] ", "Skipping ", $Contact.Id, " because it is not created as part of O365Synchronizer." -Color Yellow, White, DarkYellow, White
                 }
                 continue
             }
         }
-        Write-Color -Text "[i] ", "Removing ", $Contact.DisplayName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
+        Write-O365Log -Text "[i] ", "Removing ", $Contact.DisplayName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
         try {
             if ($SupportsFolderContactRemove -and $CurrentContactsFolder) {
                 Remove-MgUserContactFolderContact -UserId $Identity -ContactFolderId $CurrentContactsFolder.Id -ContactId $Contact.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
@@ -137,7 +139,7 @@
                 Remove-MgUserContact -UserId $Identity -ContactId $Contact.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
             }
         } catch {
-            Write-Color -Text "[!] ", "Failed to remove contact ", $Contact.Id, " from ", $Identity, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            Write-O365Log -Text "[!] ", "Failed to remove contact ", $Contact.Id, " from ", $Identity, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
         }
     }
     if ($CurrentContactsFolder -and $FolderName -and $FolderRemove) {
@@ -148,7 +150,7 @@
                 try {
                     $RemainingContacts = Get-MgUserContactFolderContact -ContactFolderId $CurrentContactsFolder.Id -UserId $Identity -ErrorAction Stop -All
                 } catch {
-                    Write-Color -Text "[!] ", "Checking remaining contacts in folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+                    Write-O365Log -Text "[!] ", "Checking remaining contacts in folder ", $FolderName, " failed for ", $Identity, ". Error: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
                     break
                 }
                 if (-not $RemainingContacts -or @($RemainingContacts).Count -eq 0) {
@@ -161,18 +163,18 @@
 
             $RemainingCount = @($RemainingContacts).Count
             if ($RemainingCount -gt 0) {
-                Write-Color -Text "[!] ", "Folder ", $FolderName, " not removed for ", $Identity, " because it still contains ", $RemainingCount, " contact(s). Use -All or remove remaining contacts first." -Color Yellow, White, Red, White, Red, White, Red, White, Red
+                Write-O365Log -Text "[!] ", "Folder ", $FolderName, " not removed for ", $Identity, " because it still contains ", $RemainingCount, " contact(s). Use -All or remove remaining contacts first." -Color Yellow, White, Red, White, Red, White, Red, White, Red
                 return
             }
         } else {
-            Write-Color -Text "[i] ", "Skipping empty-folder check for ", $FolderName, " because WhatIf is set." -Color Yellow, White, Cyan, White
+            Write-O365Log -Text "[i] ", "Skipping empty-folder check for ", $FolderName, " because WhatIf is set." -Color Yellow, White, Cyan, White
         }
 
-        Write-Color -Text "[i] ", "Removing folder ", $FolderName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
+        Write-O365Log -Text "[i] ", "Removing folder ", $FolderName, " from ", $Identity, " (WhatIf: $WhatIfPreference)" -Color Yellow, White, Cyan, White, Cyan
         try {
             Remove-MgUserContactFolder -UserId $Identity -ContactFolderId $CurrentContactsFolder.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
         } catch {
-            Write-Color -Text "[!] ", "Failed to remove folder ", $FolderName, " from ", $Identity, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            Write-O365Log -Text "[!] ", "Failed to remove folder ", $FolderName, " from ", $Identity, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
         }
     }
 }

@@ -45,9 +45,9 @@
     suffix when duplicates are detected during synchronization.
 
     .PARAMETER LogStream
-    Routes Write-Color messages to Host (default), Verbose, or Information for this call.
-    Use -LogStream Verbose -Verbose for Azure Automation and enable verbose job logging.
-    Returned synchronization data remains on the success stream.
+    Routes messages to Host (default), Output, Verbose, or Information for this call.
+    Use -LogStream Output for Azure Automation without enabling verbose job logging.
+    Output adds plain log strings to the success stream alongside any returned data.
 
     .EXAMPLE
     # Source tenant
@@ -92,8 +92,10 @@
         [int] $LogMaximum,
         [switch] $EnsureUniqueDisplayName,
         [ValidateNotNullOrEmpty()][ValidatePattern('^[^\\/:]+$')][string] $LogFilePattern,
-        [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
+        [ValidateSet('Host', 'Output', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
+    # Route Output messages through this command, outside helper data pipelines.
+    $O365LogOutputCmdlet = if ($LogStream -eq 'Output') { $PSCmdlet } else { $null }
     # Function-local defaults flow to nested calls without changing module or caller state.
     if ($PSBoundParameters.ContainsKey('LogStream')) {
         $PSDefaultParameterValues = $PSDefaultParameterValues.Clone()
@@ -106,7 +108,7 @@
         }
     }
     # this won't be logged to file
-    Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
+    Write-O365Log -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan
 
     # Configure logging, preserving the retention safety options.
     $LoggingParameters = @{ LogPath = $LogPath; LogMaximum = $LogMaximum; WhatIf = $WhatIfPreference }
@@ -120,12 +122,12 @@
 
     $StartTimeLog = Start-TimeLog
     # we repeat it here, as we want to log it to file if needed
-    Write-Color -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan -NoConsoleOutput
+    Write-O365Log -Text "[i] ", "Starting synchronization of ", $SourceObjects.Count, " objects" -Color Yellow, White, Cyan, White, Cyan -NoConsoleOutput
 
     $SourceObjectsCache = [ordered]@{}
 
     if (-not $Domains) {
-        Write-Color -Text "[i] ", "No domains specified, will use all domains from given user base" -Color Yellow, White, Cyan
+        Write-O365Log -Text "[i] ", "No domains specified, will use all domains from given user base" -Color Yellow, White, Cyan
         $DomainsCache = [ordered]@{}
         [Array] $Domains = foreach ($Source in $SourceObjects) {
             if ($Source.Mail) {
@@ -133,7 +135,7 @@
                 if ($Domain -and -not $DomainsCache[$Domain]) {
                     $Domain
                     $DomainsCache[$Domain] = $true
-                    Write-Color -Text "[i] ", "Adding ", $Domain, " to list of domains to synchronize" -Color Yellow, White, Cyan
+                    Write-O365Log -Text "[i] ", "Adding ", $Domain, " to list of domains to synchronize" -Color Yellow, White, Cyan
                 }
             }
         }
@@ -188,7 +190,7 @@
                 }
             }
             if ($Skip) {
-                Write-Color -Text "[s] ", "Skipping ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress, " as it's not in domains to synchronize ", $($Domains -join ', ') -Color Yellow, White, Red, White, Red
+                Write-O365Log -Text "[s] ", "Skipping ", $Source.DisplayName, " / ", $Source.PrimarySmtpAddress, " as it's not in domains to synchronize ", $($Domains -join ', ') -Color Yellow, White, Red, White, Red
                 continue
             }
             # We cache all sources to make sure we can remove users later on
@@ -278,7 +280,7 @@
             if ($SourceObjectsCache[$Contact.PrimarySmtpAddress]) {
                 continue
             } else {
-                Write-Color -Text "[-] ", "Removing ", $Contact.DisplayName, " / ", $Contact.PrimarySmtpAddress -Color Yellow, Red, DarkCyan, White, Cyan
+                Write-O365Log -Text "[-] ", "Removing ", $Contact.DisplayName, " / ", $Contact.PrimarySmtpAddress -Color Yellow, Red, DarkCyan, White, Cyan
                 try {
                     Remove-MailContact -Identity $Contact.PrimarySmtpAddress -WhatIf:$WhatIfPreference -Confirm:$false -ErrorAction Stop
                     if ($Contact.Name -and $ReservedContactNames) {
@@ -290,7 +292,7 @@
                     $CountRemove++
                     $null = $RemovedContacts.Add([string] $Contact.PrimarySmtpAddress)
                 } catch {
-                    Write-Color -Text "[e] ", "Failed to remove contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
+                    Write-O365Log -Text "[e] ", "Failed to remove contact. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
                 }
 
             }
@@ -316,7 +318,7 @@
             }
             continue
         }
-        Write-Color -Text "[*] ", "Normalizing Exchange Name for ", $PendingNameNormalization.Identity, " to ", $NormalizedName -Color Yellow, Green, DarkCyan, White, Cyan
+        Write-O365Log -Text "[*] ", "Normalizing Exchange Name for ", $PendingNameNormalization.Identity, " to ", $NormalizedName -Color Yellow, Green, DarkCyan, White, Cyan
         try {
             Set-MailContact -Identity $PendingNameNormalization.Identity -Name $NormalizedName -WhatIf:$WhatIfPreference -ErrorAction Stop
             if ($ReservedContactNames) {
@@ -330,10 +332,10 @@
             if ($ReservedContactNames -and $RemovedCurrentName) {
                 $null = $ReservedContactNames.Add($PendingNameNormalization.CurrentName)
             }
-            Write-Color -Text "[e] ", "Failed to normalize Exchange Name. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
+            Write-O365Log -Text "[e] ", "Failed to normalize Exchange Name. Error: ", ($_.Exception.Message -replace ([Environment]::NewLine), " " )-Color Yellow, White, Red
         }
     }
-    Write-Color -Text "[i] ", "Synchronization summary: ", $CountAdd, " added, ", $CountUpdate, " updated, ", $CountRemove, " removed" -Color Yellow, White, Cyan, White, Cyan, White, Cyan, White, Cyan
+    Write-O365Log -Text "[i] ", "Synchronization summary: ", $CountAdd, " added, ", $CountUpdate, " updated, ", $CountRemove, " removed" -Color Yellow, White, Cyan, White, Cyan, White, Cyan, White, Cyan
     $EndTimeLog = Stop-TimeLog -Time $StartTimeLog
-    Write-Color -Text "[i] ", "Finished synchronization of ", $SourceObjects.Count, " objects. ", "Time: ", $EndTimeLog -Color Yellow, White, Cyan, White, Yellow, Cyan
+    Write-O365Log -Text "[i] ", "Finished synchronization of ", $SourceObjects.Count, " objects. ", "Time: ", $EndTimeLog -Color Yellow, White, Cyan, White, Yellow, Cyan
 }

@@ -281,7 +281,7 @@
             $null = New-MgUserContact @contactSplat
             $true
         } catch {
-            Write-Color -Text "[!] ", "Failed to create contact for ", $DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            Write-O365Log -Text "[!] ", "Failed to create contact for ", $DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
             $false
         }
     } else {
@@ -289,7 +289,7 @@
             $null = New-MgUserContactFolderContact @contactSplat
             $true
         } catch {
-            Write-Color -Text "[!] ", "Failed to create contact for ", $DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            Write-O365Log -Text "[!] ", "Failed to create contact for ", $DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
             $false
         }
     }

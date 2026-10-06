@@ -1,7 +1,7 @@
 $ModuleName = (Get-ChildItem $PSScriptRoot\*.psd1).BaseName
 $PinnedModules = @{
     'Pester'       = '5.7.1'
-    'PSWriteColor' = '1.0.5'
+    'PSWriteColor' = '1.0.6'
 }
 $PrimaryModule = Get-ChildItem -Path $PSScriptRoot -Filter '*.psd1' -File -ErrorAction SilentlyContinue
 if (-not $PrimaryModule) {

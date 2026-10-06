@@ -1,41 +1,37 @@
 ---
 external help file: O365Synchronizer-help.xml
 Module Name: O365Synchronizer
-online version:
+online version: https://github.com/EvotecIT/O365Synchronizer
 schema: 2.0.0
 ---
-
 # Sync-O365Contact
-
 ## SYNOPSIS
 Synchronize contacts between source and target Office 365 tenant.
 
 ## SYNTAX
-
-```
-Sync-O365Contact [-SourceObjects] <Array> [[-Domains] <Array>] [-SkipAdd] [-SkipUpdate] [-SkipRemove]
- [[-LogPath] <String>] [[-LogMaximum] <Int32>] [-EnsureUniqueDisplayName] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+### __AllParameterSets
+```powershell
+Sync-O365Contact [-SourceObjects] <array> [[-Domains] <array>] [[-LogPath] <string>] [[-LogMaximum] <int>] [[-LogFilePattern] <string>] [[-LogStream] <string>] [-SkipAdd] [-SkipUpdate] [-SkipRemove] [-EnsureUniqueDisplayName] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Synchronize contacts between source and target Office 365 tenant.
 Get users from source tenant using Get-MgUser (Microsoft Graph) and provide them as source objects.
-You can specify domains to synchronize.
-If you don't specify domains, it will use all domains from source objects.
+You can specify domains to synchronize. If you don't specify domains, it will use all domains from source objects.
 During synchronization new contacts will be created matching given domains in target tenant on Exchange Online.
 If contact already exists, it will be updated if needed, even if it wasn't synchronized by this module.
 It will asses whether it needs to add/update/remove contacts based on provided domain names from source objects.
-By default, new contacts also get a unique internal Exchange Name so homonyms do not fail creation.
+New contacts get a unique internal Exchange Name by default, and you can opt in to unique visible display names for homonyms.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
-# Source tenant
+```powershell
+PS > # Source tenant
 $ClientID = '9e1b3c36'
 $TenantID = 'ceb371f6'
 $ClientSecret = 'NDE8Q'
+```
 
 $Credentials = [pscredential]::new($ClientID, (ConvertTo-SecureString $ClientSecret -AsPlainText -Force))
 Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelcome
@@ -46,106 +42,95 @@ $UsersToSync = Get-MgUser | Select-Object -First 5
 $ClientID = 'edc4302e'
 Connect-ExchangeOnline -AppId $ClientID -CertificateThumbprint '2EC710' -Organization 'xxxxx.onmicrosoft.com'
 Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl', 'gmail.com' -Verbose -WhatIf
-```
 
 ### EXAMPLE 2
-```
-# Use all domains from source objects
+```powershell
+PS > # Use all domains from source objects
 $UsersToSync = Get-MgUser -All
 Sync-O365Contact -SourceObjects $UsersToSync -Verbose -WhatIf
 ```
 
+
 ### EXAMPLE 3
-```
-# Skip removals and log actions
-Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -Verbose
+```powershell
+PS > # Skip removals and log actions
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -LogFilePattern 'O365Sync*.log' -Verbose
 ```
 
+
 ### EXAMPLE 4
-```
-# Make visible display names unique for homonyms
+```powershell
+PS > # Make visible display names unique for homonyms
 Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -EnsureUniqueDisplayName -Verbose
 ```
 
+
 ## PARAMETERS
 
-### -SourceObjects
-Source objects to synchronize.
-You can use Get-MgUser to get users from Microsoft Graph and provide them as source objects.
-Any filtering you apply to them is valid and doesn't have to be 1:1 conversion.
+### -Domains
+Domains to synchronize. If not specified, it will use all domains from source objects.
 
 ```yaml
 Type: Array
-Parameter Sets: (All)
-Aliases:
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
-Required: True
+Required: False
 Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Domains
-Domains to synchronize.
-If not specified, it will use all domains from source objects.
+### -EnsureUniqueDisplayName
+Makes visible org-contact display names unique by appending a numeric
+suffix when duplicates are detected during synchronization.
 
 ```yaml
-Type: Array
-Parameter Sets: (All)
-Aliases:
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
-Position: 2
+Position: named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LogFilePattern
+Filename wildcard identifying this job's logs in the LogPath directory, for
+example 'O365Sync*.log'. Must match the active log filename. Other files,
+directories, links, and the active log are preserved. WhatIf prevents deletion.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 4
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SkipAdd
-Disable the adding of new contacts functionality.
-This is useful if you want to only update existing contacts or remove non-existing contacts.
+### -LogMaximum
+Maximum number of matching log files to keep, including the active log.
+Requires LogFilePattern to enable pruning. Zero disables pruning.
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipUpdate
-Disable the updating of existing contacts functionality.
-This is useful if you want to only add new contacts or remove non-existing contacts.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipRemove
-Disable the removing of non-existing contacts functionality.
-This is useful if you want to only add new contacts or update existing contacts.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
+Position: 3
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -155,72 +140,95 @@ Path to the log file.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
-Aliases:
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
-Position: Named
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -LogMaximum
-Maximum number of log files to keep.
+### -LogStream
+Routes messages to Host (default), Output, Verbose, or Information for this call.
+Use -LogStream Output for Azure Automation without enabling verbose job logging.
+Output adds plain log strings to the success stream alongside any returned data.
 
 ```yaml
-Type: Int32
-Parameter Sets: (All)
-Aliases:
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Host, Output, Verbose, Information
 
 Required: False
-Position: Named
-Default value: 0
+Position: 5
+Default value: Host
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -EnsureUniqueDisplayName
-Makes visible org-contact display names unique by appending a numeric suffix when duplicates are detected during synchronization.
+### -SkipAdd
+Disable the adding of new contacts functionality. This is useful if you want to only update existing contacts or remove non-existing contacts.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
-Position: Named
+Position: named
 Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -WhatIf
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+### -SkipRemove
+Disable the removing of non-existing contacts functionality. This is useful if you want to only add new contacts or update existing contacts.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
-Position: Named
-Default value: None
+Position: named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
+### -SkipUpdate
+Disable the updating of existing contacts functionality. This is useful if you want to only add new contacts or remove non-existing contacts.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
-Position: Named
+Position: named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SourceObjects
+Source objects to synchronize. You can use Get-MgUser to get users from Microsoft Graph and provide them as source objects.
+Any filtering you apply to them is valid and doesn't have to be 1:1 conversion.
+
+```yaml
+Type: Array
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -231,9 +239,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+- `None`
+
 ## OUTPUTS
 
-## NOTES
-General notes
+- `None`
 
 ## RELATED LINKS
+
+- None

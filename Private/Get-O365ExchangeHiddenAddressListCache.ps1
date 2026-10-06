@@ -16,10 +16,10 @@ function Get-O365ExchangeHiddenAddressListCache {
     try {
         $Recipients = Get-Recipient -ResultSize Unlimited -ErrorAction Stop
     } catch [System.Management.Automation.CommandNotFoundException] {
-        Write-Color -Text "[e] ", "Exchange hidden-address filtering requires an active Exchange Online session. Connect-ExchangeOnline first." -Color Red, White
+        Write-O365Log -Text "[e] ", "Exchange hidden-address filtering requires an active Exchange Online session. Connect-ExchangeOnline first." -Color Red, White
         return $false
     } catch {
-        Write-Color -Text "[e] ", "Failed to get Exchange recipients. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
+        Write-O365Log -Text "[e] ", "Failed to get Exchange recipients. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
         return $false
     }
 

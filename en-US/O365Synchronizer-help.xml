@@ -1,0 +1,1666 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml" xmlns="http://msh">
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Clear-O365PersonalContact</command:name>
+      <command:verb>Clear</command:verb>
+      <command:noun>O365PersonalContact</command:noun>
+      <maml:description>
+        <maml:para>Removes personal contacts from user on Office 365.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Removes personal contacts from user on Office 365.&#xD;
+By default it will only remove contacts that were synchronized by O365Synchronizer.&#xD;
+If you want to remove all contacts use -All parameter.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Clear-O365PersonalContact</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>All</maml:name>
+          <maml:description>
+            <maml:para>If set it will remove all contacts. By default it will only remove contacts that were synchronized by O365Synchronizer.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+          <maml:name>FolderName</maml:name>
+          <maml:description>
+            <maml:para>Name of the folder to remove contacts from. If not set it will remove contacts from the main folder.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>FolderRemove</maml:name>
+          <maml:description>
+            <maml:para>If set it will remove the folder as well, once the contacts are removed.&#xD;
+The folder is removed only when empty; use -All to remove all contacts first if needed.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>FullLogging</maml:name>
+          <maml:description>
+            <maml:para>If set it will log all actions. By default it will only log actions that meant contact is getting removed or an error happens.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>GuidPrefix</maml:name>
+          <maml:description>
+            <maml:para>Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.&#xD;
+By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Identity</maml:name>
+          <maml:description>
+            <maml:para>Identity of the user to remove contacts from.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+          <maml:name>LogStream</maml:name>
+          <maml:description>
+            <maml:para>Routes messages to Host (default), Output, Verbose, or Information for this call.&#xD;
+Use -LogStream Output for Azure Automation without enabling verbose job logging.&#xD;
+Output adds plain log strings to the success stream alongside any returned data.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Host</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Verbose</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Information</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>Host</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>All</maml:name>
+        <maml:description>
+          <maml:para>If set it will remove all contacts. By default it will only remove contacts that were synchronized by O365Synchronizer.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+        <maml:name>FolderName</maml:name>
+        <maml:description>
+          <maml:para>Name of the folder to remove contacts from. If not set it will remove contacts from the main folder.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>FolderRemove</maml:name>
+        <maml:description>
+          <maml:para>If set it will remove the folder as well, once the contacts are removed.&#xD;
+The folder is removed only when empty; use -All to remove all contacts first if needed.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>FullLogging</maml:name>
+        <maml:description>
+          <maml:para>If set it will log all actions. By default it will only log actions that meant contact is getting removed or an error happens.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>GuidPrefix</maml:name>
+        <maml:description>
+          <maml:para>Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.&#xD;
+By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Identity</maml:name>
+        <maml:description>
+          <maml:para>Identity of the user to remove contacts from.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+        <maml:name>LogStream</maml:name>
+        <maml:description>
+          <maml:para>Routes messages to Host (default), Output, Verbose, or Information for this call.&#xD;
+Use -LogStream Output for Azure Automation without enabling verbose job logging.&#xD;
+Output adds plain log strings to the success stream alongside any returned data.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Host</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Verbose</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Information</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Host</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -GuidPrefix 'O365' -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -All -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -FolderName 'O365Sync' -FolderRemove -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Clear-O365PersonalContact -Identity 'przemyslaw.klys@test.pl' -GuidPrefix 'O365Synchronizer' -FullLogging -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Sync-O365Contact</command:name>
+      <command:verb>Sync</command:verb>
+      <command:noun>O365Contact</command:noun>
+      <maml:description>
+        <maml:para>Synchronize contacts between source and target Office 365 tenant.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Synchronize contacts between source and target Office 365 tenant.&#xD;
+Get users from source tenant using Get-MgUser (Microsoft Graph) and provide them as source objects.&#xD;
+You can specify domains to synchronize. If you don't specify domains, it will use all domains from source objects.&#xD;
+During synchronization new contacts will be created matching given domains in target tenant on Exchange Online.&#xD;
+If contact already exists, it will be updated if needed, even if it wasn't synchronized by this module.&#xD;
+It will asses whether it needs to add/update/remove contacts based on provided domain names from source objects.&#xD;
+New contacts get a unique internal Exchange Name by default, and you can opt in to unique visible display names for homonyms.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Sync-O365Contact</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>Domains</maml:name>
+          <maml:description>
+            <maml:para>Domains to synchronize. If not specified, it will use all domains from source objects.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
+          <dev:type>
+            <maml:name>Array</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>EnsureUniqueDisplayName</maml:name>
+          <maml:description>
+            <maml:para>Makes visible org-contact display names unique by appending a numeric&#xD;
+suffix when duplicates are detected during synchronization.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="4" aliases="none">
+          <maml:name>LogFilePattern</maml:name>
+          <maml:description>
+            <maml:para>Filename wildcard identifying this job's logs in the LogPath directory, for&#xD;
+example 'O365Sync*.log'. Must match the active log filename. Other files,&#xD;
+directories, links, and the active log are preserved. WhatIf prevents deletion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+          <maml:name>LogMaximum</maml:name>
+          <maml:description>
+            <maml:para>Maximum number of matching log files to keep, including the active log.&#xD;
+Requires LogFilePattern to enable pruning. Zero disables pruning.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>0</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+          <maml:name>LogPath</maml:name>
+          <maml:description>
+            <maml:para>Path to the log file.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="5" aliases="none">
+          <maml:name>LogStream</maml:name>
+          <maml:description>
+            <maml:para>Routes messages to Host (default), Output, Verbose, or Information for this call.&#xD;
+Use -LogStream Output for Azure Automation without enabling verbose job logging.&#xD;
+Output adds plain log strings to the success stream alongside any returned data.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Host</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Verbose</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Information</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>Host</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>SkipAdd</maml:name>
+          <maml:description>
+            <maml:para>Disable the adding of new contacts functionality. This is useful if you want to only update existing contacts or remove non-existing contacts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>SkipRemove</maml:name>
+          <maml:description>
+            <maml:para>Disable the removing of non-existing contacts functionality. This is useful if you want to only add new contacts or update existing contacts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>SkipUpdate</maml:name>
+          <maml:description>
+            <maml:para>Disable the updating of existing contacts functionality. This is useful if you want to only add new contacts or remove non-existing contacts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>SourceObjects</maml:name>
+          <maml:description>
+            <maml:para>Source objects to synchronize. You can use Get-MgUser to get users from Microsoft Graph and provide them as source objects.&#xD;
+Any filtering you apply to them is valid and doesn't have to be 1:1 conversion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Array</command:parameterValue>
+          <dev:type>
+            <maml:name>Array</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>Domains</maml:name>
+        <maml:description>
+          <maml:para>Domains to synchronize. If not specified, it will use all domains from source objects.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
+        <dev:type>
+          <maml:name>Array</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>EnsureUniqueDisplayName</maml:name>
+        <maml:description>
+          <maml:para>Makes visible org-contact display names unique by appending a numeric&#xD;
+suffix when duplicates are detected during synchronization.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="4" aliases="none">
+        <maml:name>LogFilePattern</maml:name>
+        <maml:description>
+          <maml:para>Filename wildcard identifying this job's logs in the LogPath directory, for&#xD;
+example 'O365Sync*.log'. Must match the active log filename. Other files,&#xD;
+directories, links, and the active log are preserved. WhatIf prevents deletion.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+        <maml:name>LogMaximum</maml:name>
+        <maml:description>
+          <maml:para>Maximum number of matching log files to keep, including the active log.&#xD;
+Requires LogFilePattern to enable pruning. Zero disables pruning.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>0</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+        <maml:name>LogPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the log file.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="5" aliases="none">
+        <maml:name>LogStream</maml:name>
+        <maml:description>
+          <maml:para>Routes messages to Host (default), Output, Verbose, or Information for this call.&#xD;
+Use -LogStream Output for Azure Automation without enabling verbose job logging.&#xD;
+Output adds plain log strings to the success stream alongside any returned data.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Host</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Verbose</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Information</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Host</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>SkipAdd</maml:name>
+        <maml:description>
+          <maml:para>Disable the adding of new contacts functionality. This is useful if you want to only update existing contacts or remove non-existing contacts.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>SkipRemove</maml:name>
+        <maml:description>
+          <maml:para>Disable the removing of non-existing contacts functionality. This is useful if you want to only add new contacts or update existing contacts.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>SkipUpdate</maml:name>
+        <maml:description>
+          <maml:para>Disable the updating of existing contacts functionality. This is useful if you want to only add new contacts or remove non-existing contacts.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>SourceObjects</maml:name>
+        <maml:description>
+          <maml:para>Source objects to synchronize. You can use Get-MgUser to get users from Microsoft Graph and provide them as source objects.&#xD;
+Any filtering you apply to them is valid and doesn't have to be 1:1 conversion.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Array</command:parameterValue>
+        <dev:type>
+          <maml:name>Array</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># Source tenant
+$ClientID = '9e1b3c36'
+$TenantID = 'ceb371f6'
+$ClientSecret = 'NDE8Q'</dev:code>
+        <dev:remarks>
+          <maml:para>$Credentials = [pscredential]::new($ClientID, (ConvertTo-SecureString $ClientSecret -AsPlainText -Force))&#xD;
+Connect-MgGraph -ClientSecretCredential $Credentials -TenantId $TenantID -NoWelcome</maml:para>
+          <maml:para>$UsersToSync = Get-MgUser | Select-Object -First 5</maml:para>
+          <maml:para># Destination tenant&#xD;
+$ClientID = 'edc4302e'&#xD;
+Connect-ExchangeOnline -AppId $ClientID -CertificateThumbprint '2EC710' -Organization 'xxxxx.onmicrosoft.com'&#xD;
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl', 'gmail.com' -Verbose -WhatIf</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># Use all domains from source objects
+$UsersToSync = Get-MgUser -All
+Sync-O365Contact -SourceObjects $UsersToSync -Verbose -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># Skip removals and log actions
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -SkipRemove -LogPath 'C:\Logs\O365Sync.log' -LogMaximum 10 -LogFilePattern 'O365Sync*.log' -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># Make visible display names unique for homonyms
+Sync-O365Contact -SourceObjects $UsersToSync -Domains 'evotec.pl' -EnsureUniqueDisplayName -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Sync-O365PersonalContact</command:name>
+      <command:verb>Sync</command:verb>
+      <command:noun>O365PersonalContact</command:noun>
+      <maml:description>
+        <maml:para>Synchronizes Users, Contacts and Guests to Personal Contacts of given user.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Synchronizes Users, Contacts and Guests to Personal Contacts of given user.&#xD;
+Includes Department and Manager fields when available.&#xD;
+When Category is provided, assigns those categories to synchronized contacts.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Sync-O365PersonalContact</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="6" aliases="Categories">
+          <maml:name>Category</maml:name>
+          <maml:description>
+            <maml:para>Categories assigned to synchronized personal contacts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>DoNotRequireAccountEnabled</maml:name>
+          <maml:description>
+            <maml:para>Do not require account to be enabled. By default account must be enabled, otherwise it will be skipped.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>DoNotRequireAssignedLicenses</maml:name>
+          <maml:description>
+            <maml:para>Do not require assigned licenses. By default user must have assigned licenses, otherwise it will be skipped.&#xD;
+The licenses are checked by looking at AssignedLicenses property of the user, and not the actual license types.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>ExcludeHiddenFromAddressList</maml:name>
+          <maml:description>
+            <maml:para>Best-effort exclusion for users whose Graph showInAddressList property is explicitly set to false.&#xD;
+Microsoft documents showInAddressList as "Do not use in Microsoft Graph", so&#xD;
+Graph mode should be treated as an opt-in compatibility fallback only.&#xD;
+Users are left in scope when showInAddressList is null, missing, or not returned by Graph.&#xD;
+With HiddenAddressListSource Exchange, Exchange Online is used instead and&#xD;
+both users and contacts can be filtered when Exchange reports the recipient&#xD;
+as hidden from the address list.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Filters to apply to users. It can be used to filter out users that you don't want to synchronize.&#xD;
+You should use Sync-O365PersonalContactFilter, Sync-O365PersonalContactFilterGroup, or Sync-O365PersonalContactFilterOData to create filter(s).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="4" aliases="none">
+          <maml:name>FolderName</maml:name>
+          <maml:description>
+            <maml:para>Name of the folder to synchronize contacts to. If not set it will synchronize contacts to the main folder.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+          <maml:name>GuidPrefix</maml:name>
+          <maml:description>
+            <maml:para>Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.&#xD;
+By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>HiddenAddressListSource</maml:name>
+          <maml:description>
+            <maml:para>Controls whether hidden-address-list filtering uses Microsoft Graph or&#xD;
+Exchange Online as the source of truth. Graph is the default only to preserve&#xD;
+the current auth model for callers that explicitly opt into this fallback.&#xD;
+Exchange is the recommended authoritative source and requires an active&#xD;
+Exchange session.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">HiddenAddressListSource</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Graph</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Exchange</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>HiddenAddressListSource</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>Graph</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="5" aliases="none">
+          <maml:name>IncludeExternalUsers</maml:name>
+          <maml:description>
+            <maml:para>Allows unlicensed external users to be included when assigned licenses are required.&#xD;
+Use 'Guest' to include users with UserType = Guest.&#xD;
+Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Guest</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ExtUPN</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>LogStream</maml:name>
+          <maml:description>
+            <maml:para>Routes messages to Host (default), Output, Verbose, or Information for this call.&#xD;
+Use -LogStream Output for Azure Automation without enabling verbose job logging.&#xD;
+Output adds plain log strings to the success stream alongside any returned data.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Host</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Verbose</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Information</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>Host</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
+          <maml:name>MemberTypes</maml:name>
+          <maml:description>
+            <maml:para>Member types to synchronize. By default it will synchronize only 'Member'. You can also specify 'Guest' and 'Contact'.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Member</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Guest</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Contact</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>@('Member')</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NicknameSource</maml:name>
+          <maml:description>
+            <maml:para>Directory property written to the personal contact Nickname field.&#xD;
+DisplayName is the default so Outlook shows the GAL display name instead&#xD;
+of the Exchange mail alias. Use MailNickname to preserve legacy behavior.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">DisplayName</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">MailNickname</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>DisplayName</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>PassThru</maml:name>
+          <maml:description>
+            <maml:para>Specifies the pass thru switch.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>RequireEmailAddress</maml:name>
+          <maml:description>
+            <maml:para>Sync only users that have email address.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>UserId</maml:name>
+          <maml:description>
+            <maml:para>Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="6" aliases="Categories">
+        <maml:name>Category</maml:name>
+        <maml:description>
+          <maml:para>Categories assigned to synchronized personal contacts.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>DoNotRequireAccountEnabled</maml:name>
+        <maml:description>
+          <maml:para>Do not require account to be enabled. By default account must be enabled, otherwise it will be skipped.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>DoNotRequireAssignedLicenses</maml:name>
+        <maml:description>
+          <maml:para>Do not require assigned licenses. By default user must have assigned licenses, otherwise it will be skipped.&#xD;
+The licenses are checked by looking at AssignedLicenses property of the user, and not the actual license types.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>ExcludeHiddenFromAddressList</maml:name>
+        <maml:description>
+          <maml:para>Best-effort exclusion for users whose Graph showInAddressList property is explicitly set to false.&#xD;
+Microsoft documents showInAddressList as "Do not use in Microsoft Graph", so&#xD;
+Graph mode should be treated as an opt-in compatibility fallback only.&#xD;
+Users are left in scope when showInAddressList is null, missing, or not returned by Graph.&#xD;
+With HiddenAddressListSource Exchange, Exchange Online is used instead and&#xD;
+both users and contacts can be filtered when Exchange reports the recipient&#xD;
+as hidden from the address list.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Filter</maml:name>
+        <maml:description>
+          <maml:para>Filters to apply to users. It can be used to filter out users that you don't want to synchronize.&#xD;
+You should use Sync-O365PersonalContactFilter, Sync-O365PersonalContactFilterGroup, or Sync-O365PersonalContactFilterOData to create filter(s).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="4" aliases="none">
+        <maml:name>FolderName</maml:name>
+        <maml:description>
+          <maml:para>Name of the folder to synchronize contacts to. If not set it will synchronize contacts to the main folder.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+        <maml:name>GuidPrefix</maml:name>
+        <maml:description>
+          <maml:para>Prefix of the GUID that is used to identify contacts that were synchronized by O365Synchronizer.&#xD;
+By default no prefix is used, meaning GUID of the user will be used as File, As property of the contact.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>HiddenAddressListSource</maml:name>
+        <maml:description>
+          <maml:para>Controls whether hidden-address-list filtering uses Microsoft Graph or&#xD;
+Exchange Online as the source of truth. Graph is the default only to preserve&#xD;
+the current auth model for callers that explicitly opt into this fallback.&#xD;
+Exchange is the recommended authoritative source and requires an active&#xD;
+Exchange session.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">HiddenAddressListSource</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Graph</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Exchange</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>HiddenAddressListSource</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Graph</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="5" aliases="none">
+        <maml:name>IncludeExternalUsers</maml:name>
+        <maml:description>
+          <maml:para>Allows unlicensed external users to be included when assigned licenses are required.&#xD;
+Use 'Guest' to include users with UserType = Guest.&#xD;
+Use 'ExtUPN' to include users with #EXT# in UserPrincipalName.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Guest</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ExtUPN</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>LogStream</maml:name>
+        <maml:description>
+          <maml:para>Routes messages to Host (default), Output, Verbose, or Information for this call.&#xD;
+Use -LogStream Output for Azure Automation without enabling verbose job logging.&#xD;
+Output adds plain log strings to the success stream alongside any returned data.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Host</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Verbose</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Information</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Host</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
+        <maml:name>MemberTypes</maml:name>
+        <maml:description>
+          <maml:para>Member types to synchronize. By default it will synchronize only 'Member'. You can also specify 'Guest' and 'Contact'.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Member</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Guest</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Contact</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>@('Member')</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NicknameSource</maml:name>
+        <maml:description>
+          <maml:para>Directory property written to the personal contact Nickname field.&#xD;
+DisplayName is the default so Outlook shows the GAL display name instead&#xD;
+of the Exchange mail alias. Use MailNickname to preserve legacy behavior.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">DisplayName</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">MailNickname</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>DisplayName</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>PassThru</maml:name>
+        <maml:description>
+          <maml:para>Specifies the pass thru switch.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>RequireEmailAddress</maml:name>
+        <maml:description>
+          <maml:para>Sync only users that have email address.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>UserId</maml:name>
+        <maml:description>
+          <maml:para>Identity of the user to synchronize contacts to. It can be UserID or UserPrincipalName.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'przemyslaw.klys@evotec.pl' -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' -PassThru {
+    Sync-O365PersonalContactFilter -Type Include -Property 'CompanyName' -Value 'Evotec*','Ziomek*' -Operator 'like'
+    Sync-O365PersonalContactFilterGroup -Type Include -GroupID 'e7772951-4b0e-4f10-8f38-eae9b8f55962'
+} -FolderName 'O365Sync' | Format-Table</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Guest' -IncludeExternalUsers 'Guest', 'ExtUPN' -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># opt-in, best-effort Graph fallback only
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -ExcludeHiddenFromAddressList -HiddenAddressListSource Graph -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># recommended authoritative filtering via Exchange Online (Connect-ExchangeOnline first)
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member', 'Contact' -ExcludeHiddenFromAddressList -HiddenAddressListSource Exchange -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -FolderName 'O365Sync' -RequireEmailAddress -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category 'Friends', 'Work' -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 8 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># preserve the legacy Exchange mail alias in the Nickname field
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -NicknameSource MailNickname -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 9 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code># clear categories assigned by sync
+Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Category @() -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 10 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
+    Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTER'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
+}</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 11 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
+    Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
+}</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Sync-O365PersonalContactFilter</command:name>
+      <command:verb>Sync</command:verb>
+      <command:noun>O365PersonalContactFilter</command:noun>
+      <maml:description>
+        <maml:para>Provides a way to filter out users/contacts based on properties.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Provides a way to filter out users/contacts based on properties.&#xD;
+Only users/contacts that match the filter will be included/excluded.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Sync-O365PersonalContactFilter</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>Operator</maml:name>
+          <maml:description>
+            <maml:para>Operator to use. It can be 'Equal', 'NotEqual', 'LessThan', 'MoreThan', 'Like'.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Equal</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">NotEqual</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">LessThan</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">MoreThan</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Like</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+          <maml:name>Property</maml:name>
+          <maml:description>
+            <maml:para>Property to use for comparison. Keep in mind that it has to exists on the object.&#xD;
+You can use dot notation for nested properties (for example, OnPremisesExtensionAttributes.ExtensionAttribute5).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Type</maml:name>
+          <maml:description>
+            <maml:para>Type of the filter. It can be 'Include' or 'Exclude'.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Include</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Exclude</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+          <maml:name>Value</maml:name>
+          <maml:description>
+            <maml:para>Value to compare against. It can be single value or multiple values.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>Operator</maml:name>
+        <maml:description>
+          <maml:para>Operator to use. It can be 'Equal', 'NotEqual', 'LessThan', 'MoreThan', 'Like'.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Equal</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">NotEqual</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">LessThan</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">MoreThan</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Like</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+        <maml:name>Property</maml:name>
+        <maml:description>
+          <maml:para>Property to use for comparison. Keep in mind that it has to exists on the object.&#xD;
+You can use dot notation for nested properties (for example, OnPremisesExtensionAttributes.ExtensionAttribute5).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Type</maml:name>
+        <maml:description>
+          <maml:para>Type of the filter. It can be 'Include' or 'Exclude'.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Include</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Exclude</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+        <maml:name>Value</maml:name>
+        <maml:description>
+          <maml:para>Value to compare against. It can be single value or multiple values.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' -WhatIf -PassThru {
+    Sync-O365PersonalContactFilter -Type Include -Property 'CompanyName' -Value 'OtherCompany*','Evotec*' -Operator 'like' # filter out on CompanyName
+    Sync-O365PersonalContactFilterGroup -Type Include -GroupID 'e7772951-4b0e-4f10-8f38-eae9b8f55962' # filter out on GroupID
+} | Format-Table</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
+    Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
+} | Format-Table</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Sync-O365PersonalContactFilterGroup</command:name>
+      <command:verb>Sync</command:verb>
+      <command:noun>O365PersonalContactFilterGroup</command:noun>
+      <maml:description>
+        <maml:para>Provides a way to filter out users/contacts based on groups.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Provides a way to filter out users/contacts based on groups.&#xD;
+Only users/contacts that are part of the group will be included/excluded.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Sync-O365PersonalContactFilterGroup</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>GroupID</maml:name>
+          <maml:description>
+            <maml:para>One or multiple GroupID's to filter out users/contacts. Keep in mind that it's not the name of the group, but the actual ID of the group.&#xD;
+Due to performance reasons it's better to use GroupID instead of GroupName.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Type</maml:name>
+          <maml:description>
+            <maml:para>Type of the filter. It can be 'Include' or 'Exclude'.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Include</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Exclude</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>GroupID</maml:name>
+        <maml:description>
+          <maml:para>One or multiple GroupID's to filter out users/contacts. Keep in mind that it's not the name of the group, but the actual ID of the group.&#xD;
+Due to performance reasons it's better to use GroupID instead of GroupName.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Type</maml:name>
+        <maml:description>
+          <maml:para>Type of the filter. It can be 'Include' or 'Exclude'.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Include</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Exclude</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -GuidPrefix 'O365Synchronizer' -WhatIf -PassThru {
+    Sync-O365PersonalContactFilter -Type Include -Property 'CompanyName' -Value 'OtherCompany*','Evotec*' -Operator 'like' # filter out on CompanyName
+    Sync-O365PersonalContactFilterGroup -Type Include -GroupID 'e7772951-4b0e-4f10-8f38-eae9b8f55962' # filter out on GroupID
+} | Format-Table</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
+    Sync-O365PersonalContactFilterGroup -Type Exclude -GroupID '00000000-0000-0000-0000-000000000000'
+} | Format-Table</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Sync-O365PersonalContactFilterOData</command:name>
+      <command:verb>Sync</command:verb>
+      <command:noun>O365PersonalContactFilterOData</command:noun>
+      <maml:description>
+        <maml:para>Provides a way to prefilter users with Microsoft Graph OData.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Provides a way to prefilter users with Microsoft Graph OData.&#xD;
+The filter is applied to Get-MgUser and affects only Member/Guest queries.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Sync-O365PersonalContactFilterOData</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>ConsistencyLevel</maml:name>
+          <maml:description>
+            <maml:para>Consistency level used by Microsoft Graph for advanced queries.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+          <maml:name>CountVariable</maml:name>
+          <maml:description>
+            <maml:para>Count variable name for advanced queries.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>OData filter string to apply to Get-MgUser.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+          <maml:name>PageSize</maml:name>
+          <maml:description>
+            <maml:para>Page size used by Microsoft Graph when paging results.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>0</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>ConsistencyLevel</maml:name>
+        <maml:description>
+          <maml:para>Consistency level used by Microsoft Graph for advanced queries.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="none">
+        <maml:name>CountVariable</maml:name>
+        <maml:description>
+          <maml:para>Count variable name for advanced queries.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Filter</maml:name>
+        <maml:description>
+          <maml:para>OData filter string to apply to Get-MgUser.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="3" aliases="none">
+        <maml:name>PageSize</maml:name>
+        <maml:description>
+          <maml:para>Page size used by Microsoft Graph when paging results.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>0</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Filter {
+    Sync-O365PersonalContactFilterOData -Filter "onPremisesExtensionAttributes/extensionAttribute5 eq 'MYFILTER'" -ConsistencyLevel eventual -CountVariable userCount -PageSize 999
+}</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <maml:introduction>
+          <maml:para>PS &gt; </maml:para>
+        </maml:introduction>
+        <dev:code>Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -Filter {
+    Sync-O365PersonalContactFilterOData -Filter "startsWith(displayName,'Test')"
+}</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+</helpItems>

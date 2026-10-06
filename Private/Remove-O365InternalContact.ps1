@@ -32,7 +32,7 @@
         if ($ExistingUsers[$Entry]) {
 
         } else {
-            Write-Color -Text "[x] ", "Removing (not required) ", $Contact.DisplayName -Color Yellow, White, Red, White, Red
+            Write-O365Log -Text "[x] ", "Removing (not required) ", $Contact.DisplayName -Color Yellow, White, Red, White, Red
             try {
                 Remove-MgUserContact -UserId $UserId -ContactId $Contact.Id -WhatIf:$WhatIfPreference -ErrorAction Stop
                 if ($WhatIfPreference) {
@@ -44,7 +44,7 @@
             } catch {
                 $Status = 'Failed'
                 $ErrorMessage = $_.Exception.Message
-                Write-Color -Text "[!] ", "Failed to remove contact for ", $Contact.DisplayName, " / ", $Contact.Mail, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+                Write-O365Log -Text "[!] ", "Failed to remove contact for ", $Contact.DisplayName, " / ", $Contact.Mail, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
             }
             $OutputObject = [PSCustomObject] @{
                 UserId      = $UserId
