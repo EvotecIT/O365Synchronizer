@@ -31,7 +31,7 @@ Sync-O365Contact -SourceObjects $UsersToSync -LogStream Output -WhatIf
 Clear-O365PersonalContact -Identity 'user@contoso.com' -LogStream Output -WhatIf
 ```
 
-Output requires PSWriteColor 1.0.6 or later. It emits plain log strings, including
+Output requires PSWriteColor 1.0.7 or later. It emits plain log strings, including
 messages from nested helpers, on the public command's success stream. Internal
 contact dictionaries, folder metadata, and synchronization results remain intact.
 With `-PassThru`, the pipeline contains both log strings and action objects. To

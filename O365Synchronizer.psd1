@@ -46,7 +46,7 @@
         }, @{
             Guid            = '0b0ba5c5-ec85-4c2b-a718-874e55a8bc3f'
             ModuleName      = 'PSWriteColor'
-            ModuleVersion   = '1.0.6'
+            ModuleVersion   = '1.0.7'
         })
     RootModule           = 'O365Synchronizer.psm1'
 }
