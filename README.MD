@@ -22,18 +22,36 @@
 ## Logging in automation
 
 The synchronization and cleanup commands keep colored host output by default.
-With PSWriteColor 1.0.5 or later, select a message stream for unattended execution:
+Select a message stream for unattended execution. Azure Automation runbooks can
+use Output without enabling verbose job logging:
 
 ```powershell
-Sync-O365PersonalContact -UserId 'user@contoso.com' -LogStream Verbose -Verbose -WhatIf
-Sync-O365Contact -SourceObjects $UsersToSync -LogStream Verbose -Verbose -WhatIf
-Clear-O365PersonalContact -Identity 'user@contoso.com' -LogStream Verbose -Verbose -WhatIf
+Sync-O365PersonalContact -UserId 'user@contoso.com' -LogStream Output -WhatIf
+Sync-O365Contact -SourceObjects $UsersToSync -LogStream Output -WhatIf
+Clear-O365PersonalContact -Identity 'user@contoso.com' -LogStream Output -WhatIf
 ```
 
-In Azure Automation, also enable verbose logging for published jobs. The option
-applies to nested synchronization messages for this invocation, without adding log
-strings to returned data or changing subsequent calls. `-LogStream Information`
-with `-InformationAction Continue` is available for hosts that capture that stream.
+Output requires PSWriteColor 1.0.7 or later. It emits plain log strings, including
+messages from nested helpers, on the public command's success stream. Internal
+contact dictionaries, folder metadata, and synchronization results remain intact.
+With `-PassThru`, the pipeline contains both log strings and action objects. To
+keep action objects in a variable while displaying logs in runbook job output:
+
+```powershell
+$Actions = [System.Collections.Generic.List[object]]::new()
+Sync-O365PersonalContact -UserId 'user@contoso.com' -LogStream Output -PassThru |
+    ForEach-Object {
+        if ($_ -is [string]) { Write-Output $_ } else { $Actions.Add($_) }
+    }
+```
+
+When retaining output logs is the goal, invoke the command directly. Assigning its
+output to a variable or piping it to `Out-Null` captures or discards those logs.
+For other hosts, `-LogStream Verbose -Verbose` and
+`-LogStream Information -InformationAction Continue` keep logs off the success stream. Azure Automation
+requires verbose job logging for Verbose and does not support Information.
+Stream selection applies only to this invocation; subsequent calls retain their
+normal settings.
 
 ## Log retention
 

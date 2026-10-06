@@ -54,9 +54,9 @@
         }
     }
     if ($User.Mail) {
-        Write-Color -Text "[+] ", "Creating ", $User.DisplayName, " / ", $User.Mail -Color Yellow, White, Green, White, Green
+        Write-O365Log -Text "[+] ", "Creating ", $User.DisplayName, " / ", $User.Mail -Color Yellow, White, Green, White, Green
     } else {
-        Write-Color -Text "[+] ", "Creating ", $User.DisplayName -Color Yellow, White, Green, White, Green
+        Write-O365Log -Text "[+] ", "Creating ", $User.DisplayName -Color Yellow, White, Green, White, Green
     }
     $PropertiesToUpdate = [ordered] @{}
     foreach ($Property in $Script:MappingContactToUser.Keys) {
@@ -85,9 +85,9 @@
     } catch {
         $ErrorMessage = $_.Exception.Message
         if ($User.Mail) {
-            Write-Color -Text "[!] ", "Failed to create contact for ", $User.DisplayName, " / ", $User.Mail, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            Write-O365Log -Text "[!] ", "Failed to create contact for ", $User.DisplayName, " / ", $User.Mail, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
         } else {
-            Write-Color -Text "[!] ", "Failed to create contact for ", $User.DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
+            Write-O365Log -Text "[!] ", "Failed to create contact for ", $User.DisplayName, " because: ", $_.Exception.Message -Color Yellow, White, Red, White, Red, White, Red
         }
     }
     if ($WhatIfPreference) {

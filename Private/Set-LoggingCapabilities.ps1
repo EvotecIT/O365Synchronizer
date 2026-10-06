@@ -68,21 +68,21 @@
                 Sort-Object -Property CreationTime, Name -Descending |
                 Select-Object -Skip ($LogMaximum - 1)
             if ($CurrentLogs) {
-                Write-Color -Text '[i] ', "Logs directory has more than ", $LogMaximum, " log files. Cleanup required..." -Color Yellow, DarkCyan, Red, DarkCyan
+                Write-O365Log -Text '[i] ', "Logs directory has more than ", $LogMaximum, " log files. Cleanup required..." -Color Yellow, DarkCyan, Red, DarkCyan
                 foreach ($Log in $CurrentLogs) {
                     if (-not $PSCmdlet.ShouldProcess($Log.FullName, 'Remove retained log file')) {
                         continue
                     }
                     try {
                         Remove-Item -LiteralPath $Log.FullName -Confirm:$false -ErrorAction Stop
-                        Write-Color -Text '[+] ', "Deleted ", "$($Log.FullName)" -Color Yellow, White, Green
+                        Write-O365Log -Text '[+] ', "Deleted ", "$($Log.FullName)" -Color Yellow, White, Green
                     } catch {
-                        Write-Color -Text '[-] ', "Couldn't delete log file $($Log.FullName). Error: ", $_.Exception.Message -Color Yellow, White, Red
+                        Write-O365Log -Text '[-] ', "Couldn't delete log file $($Log.FullName). Error: ", $_.Exception.Message -Color Yellow, White, Red
                     }
                 }
             }
         } else {
-            Write-Color -Text '[i] ', "LogMaximum is set to 0 (Unlimited). No log files will be deleted." -Color Yellow, DarkCyan
+            Write-O365Log -Text '[i] ', "LogMaximum is set to 0 (Unlimited). No log files will be deleted." -Color Yellow, DarkCyan
         }
     }
 }

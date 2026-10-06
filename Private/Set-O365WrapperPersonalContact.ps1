@@ -372,7 +372,7 @@
         }
     } catch {
         $ErrorMessage = $_.Exception.Message
-        Write-Color -Text "[!] ", "Failed to update contact for ", $ContactSplat.DisplayName, " / ", $ContactSplat.EmailAddresses, " because: ", $ErrorMessage -Color Yellow, White, Red, White, Red, White, Red
+        Write-O365Log -Text "[!] ", "Failed to update contact for ", $ContactSplat.DisplayName, " / ", $ContactSplat.EmailAddresses, " because: ", $ErrorMessage -Color Yellow, White, Red, White, Red, White, Red
         [PSCustomObject] @{
             Success      = $false
             ErrorMessage = $ErrorMessage

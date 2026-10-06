@@ -65,9 +65,9 @@
     of the Exchange mail alias. Use MailNickname to preserve legacy behavior.
 
     .PARAMETER LogStream
-    Routes Write-Color messages to Host (default), Verbose, or Information for this call.
-    Use -LogStream Verbose -Verbose for Azure Automation and enable verbose job logging.
-    Returned synchronization data remains on the success stream.
+    Routes messages to Host (default), Output, Verbose, or Information for this call.
+    Use -LogStream Output for Azure Automation without enabling verbose job logging.
+    Output adds plain log strings to the success stream alongside any returned data.
 
     .EXAMPLE
     Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -Verbose -MemberTypes 'Contact', 'Member' -WhatIf
@@ -132,8 +132,10 @@
         [Parameter(Position = 6)][Alias('Categories')][string[]] $Category,
         [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
         [switch] $PassThru,
-        [ValidateSet('Host', 'Verbose', 'Information')][string] $LogStream = 'Host'
+        [ValidateSet('Host', 'Output', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
+    # Route Output messages through this command, outside helper data pipelines.
+    $O365LogOutputCmdlet = if ($LogStream -eq 'Output') { $PSCmdlet } else { $null }
     # Function-local defaults flow to nested calls without changing module or caller state.
     if ($PSBoundParameters.ContainsKey('LogStream')) {
         $PSDefaultParameterValues = $PSDefaultParameterValues.Clone()
