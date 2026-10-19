@@ -46,6 +46,25 @@ Describe 'Filtered directory manager reads' {
             { Complete-O365UserManagers -Users @([pscustomobject]@{ Id = 'user-1' }) } | Should -Throw '*incomplete*'
         }
 
+        It 'rejects an absent manager property rather than treating it as explicit null' {
+            Mock Invoke-MgGraphRequest {
+                @{ responses = @(@{ id = '1'; status = 200; body = @{ id = 'user-1' } }) }
+            }
+            { Complete-O365UserManagers -Users @([pscustomobject]@{ Id = 'user-1' }) } | Should -Throw '*missing the requested relationship*'
+        }
+
+        It 'accepts an empty filtered source without making manager requests' {
+            Initialize-DefaultValuesO365
+            Mock Get-MgUser { }
+            Mock Invoke-MgGraphRequest { throw 'No manager request should be made.' }
+            $result = Get-O365ExistingMembers -MemberTypes Member -RequireAccountEnabled:$false -RequireAssignedLicenses:$false -UserProvidedFilter {
+                Sync-O365PersonalContactFilterOData -Filter "department eq 'Missing'"
+            }
+            $result | Should -BeOfType ([System.Collections.Specialized.OrderedDictionary])
+            $result.Count | Should -Be 0
+            Should -Invoke Invoke-MgGraphRequest -Times 0 -Exactly
+        }
+
         It 'rejects unreadable manager objects rather than converting them into blanks' {
             Mock Invoke-MgGraphRequest {
                 @{ responses = @(@{ id = '1'; status = 200; body = @{ id = 'user-1'; manager = @{ id = 'manager-1'; displayName = $null } } }) }

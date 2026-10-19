@@ -39,6 +39,14 @@ function Complete-O365UserManagers {
             if ($Response.status -ne 200 -or $Response.body.id -ne $User.Id) {
                 throw "Manager read failed or returned a different user (HTTP $($Response.status))."
             }
+            $HasManager = if ($Response.body -is [System.Collections.IDictionary]) {
+                $Response.body.Contains('manager')
+            } else {
+                $Response.body.PSObject.Properties.Name -contains 'manager'
+            }
+            if (-not $HasManager) {
+                throw 'Manager response is missing the requested relationship.'
+            }
             $Manager = $Response.body.manager
             $Name = if ($null -ne $Manager) { Get-O365ManagerName -Manager $Manager } else { $null }
             if ($null -ne $Manager -and [string]::IsNullOrWhiteSpace($Name)) {

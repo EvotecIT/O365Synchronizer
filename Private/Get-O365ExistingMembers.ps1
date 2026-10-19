@@ -137,7 +137,7 @@
                     $getMgUserSplat['PageSize'] = $ODataPageSize
                 }
             }
-            $Users = Get-MgUser @getMgUserSplat
+            $Users = @(Get-MgUser @getMgUserSplat)
             if ($ODataFilters.Count -gt 0 -and $Script:MappingContactToUser.Contains('Manager')) {
                 $Users = @(Complete-O365UserManagers -Users @($Users))
             }
