@@ -24,8 +24,12 @@ Describe 'Filtered directory manager reads' {
                 $script:BatchSizes.Add($request.requests.Count)
                 $responses = @($request.requests | ForEach-Object {
                     $userId = ($_.url -split '/')[2].Split('?')[0]
-                    $manager = if ($userId -eq 'user-20') { $null } else { @{ displayName = "Boss $userId" } }
-                    @{ id = $_.id; status = 200; body = @{ id = $userId; manager = $manager } }
+                    $_.url | Should -BeLike '*/manager?*'
+                    if ($userId -eq 'user-20') {
+                        @{ id = $_.id; status = 404; body = @{ error = @{ code = 'Request_ResourceNotFound' } } }
+                    } else {
+                        @{ id = $_.id; status = 200; body = @{ displayName = "Boss $userId" } }
+                    }
                 })
                 [array]::Reverse($responses)
                 @{ responses = $responses }
@@ -46,11 +50,11 @@ Describe 'Filtered directory manager reads' {
             { Complete-O365UserManagers -Users @([pscustomobject]@{ Id = 'user-1' }) } | Should -Throw '*incomplete*'
         }
 
-        It 'rejects an absent manager property rather than treating it as explicit null' {
+        It 'rejects an incomplete successful manager response rather than treating it as no manager' {
             Mock Invoke-MgGraphRequest {
                 @{ responses = @(@{ id = '1'; status = 200; body = @{ id = 'user-1' } }) }
             }
-            { Complete-O365UserManagers -Users @([pscustomobject]@{ Id = 'user-1' }) } | Should -Throw '*missing the requested relationship*'
+            { Complete-O365UserManagers -Users @([pscustomobject]@{ Id = 'user-1' }) } | Should -Throw '*unreadable manager*'
         }
 
         It 'accepts an empty filtered source without making manager requests' {
@@ -67,7 +71,7 @@ Describe 'Filtered directory manager reads' {
 
         It 'rejects unreadable manager objects rather than converting them into blanks' {
             Mock Invoke-MgGraphRequest {
-                @{ responses = @(@{ id = '1'; status = 200; body = @{ id = 'user-1'; manager = @{ id = 'manager-1'; displayName = $null } } }) }
+                @{ responses = @(@{ id = '1'; status = 200; body = @{ id = 'manager-1'; displayName = $null } }) }
             }
             { Complete-O365UserManagers -Users @([pscustomobject]@{ Id = 'user-1' }) } | Should -Throw '*unreadable manager*'
         }

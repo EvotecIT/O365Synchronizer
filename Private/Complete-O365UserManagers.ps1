@@ -3,10 +3,10 @@ function Complete-O365UserManagers {
     .SYNOPSIS
     Loads manager values for users selected by an advanced Graph filter.
     .DESCRIPTION
-    Uses Graph batches of at most 20 user reads so the filtered collection query
+    Uses Graph batches of at most 20 manager reads so the filtered collection query
     does not combine advanced query parameters with manager expansion. Failed,
     incomplete or unreadable results stop synchronization before contact writes.
-    A null manager is accepted as the authoritative absence of a manager.
+    A 404 from the manager relationship is the authoritative absence of a manager.
     .PARAMETER Users
     Users returned by the filtered directory read.
     #>
@@ -25,7 +25,7 @@ function Complete-O365UserManagers {
             @{
                 id = $RequestId
                 method = 'GET'
-                url = '/users/' + [uri]::EscapeDataString($User.Id) + '?$select=id&$expand=manager($select=displayName,userPrincipalName)'
+                url = '/users/' + [uri]::EscapeDataString($User.Id) + '/manager?$select=displayName,userPrincipalName'
             }
         })
         $Body = @{ requests = $Requests } | ConvertTo-Json -Depth 8 -Compress
@@ -36,21 +36,15 @@ function Complete-O365UserManagers {
                 throw 'Manager batch returned an unexpected or duplicate response identity.'
             }
             $User = $Pending[$ResponseId]
-            if ($Response.status -ne 200 -or $Response.body.id -ne $User.Id) {
-                throw "Manager read failed or returned a different user (HTTP $($Response.status))."
-            }
-            $HasManager = if ($Response.body -is [System.Collections.IDictionary]) {
-                $Response.body.Contains('manager')
+            if ($Response.status -eq 404) {
+                $Name = $null
+            } elseif ($Response.status -eq 200) {
+                $Name = Get-O365ManagerName -Manager $Response.body
+                if ([string]::IsNullOrWhiteSpace($Name)) {
+                    throw 'Graph returned an unreadable manager. Verify directory permissions before synchronizing.'
+                }
             } else {
-                $Response.body.PSObject.Properties.Name -contains 'manager'
-            }
-            if (-not $HasManager) {
-                throw 'Manager response is missing the requested relationship.'
-            }
-            $Manager = $Response.body.manager
-            $Name = if ($null -ne $Manager) { Get-O365ManagerName -Manager $Manager } else { $null }
-            if ($null -ne $Manager -and [string]::IsNullOrWhiteSpace($Name)) {
-                throw 'Graph returned an unreadable manager. Verify directory permissions before synchronizing.'
+                throw "Manager read failed (HTTP $($Response.status))."
             }
             $User | Add-Member -MemberType NoteProperty -Name Manager -Value $Name -Force
             $Pending.Remove($ResponseId)
