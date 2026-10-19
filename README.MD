@@ -182,6 +182,65 @@ Sync-O365PersonalContact -UserId 'przemyslaw.klys@test.pl' -MemberTypes 'Member'
 
 Synchronized contacts use the GAL display name for the Outlook `Nickname` field by default. Existing managed contacts are corrected during their next sync. Use `-NicknameSource MailNickname` only when the Exchange mail alias is the intended visible nickname.
 
+#### Choose the contact fields to synchronize
+
+Use `-SyncField` to manage a specific set of fields:
+
+```powershell
+Sync-O365PersonalContact -UserId 'user@contoso.com' `
+    -SyncField DisplayName,MobilePhone,BusinessPhones,JobTitle,Manager,Mail -WhatIf -PassThru
+```
+
+The default is `All`. Choose `All` on its own, or select one or more of
+`DisplayName`, `GivenName`, `Surname`, `Nickname`, `Mail`, `MobilePhone`,
+`HomePhone`, `BusinessPhones`, `CompanyName`, `Department`, `JobTitle`, `Manager`,
+`BusinessAddress` and `Categories`. `BusinessAddress` manages the complete
+business address. Unselected fields on existing contacts are preserved and are
+omitted from new contacts. The `FileAs` source marker remains automatic.
+
+`-Filter` controls which directory people are synchronized; it does not select
+the fields written to a contact. Filtered source reads also retrieve managers.
+Failed or unreadable manager reads stop synchronization before contact writes.
+
+#### Duplicate values and contact cards
+
+Synchronization trims phone/email arrays and removes exact repeated values.
+Different phone-number formats remain distinct. Use
+`-RemoveDuplicateContacts` to remove additional managed cards with the same
+source identity within the selected folder:
+
+```powershell
+Sync-O365PersonalContact -UserId 'user@contoso.com' -GuidPrefix 'CompanyDirectory' `
+    -RemoveDuplicateContacts -WhatIf -PassThru
+```
+
+Review the preview before removing `-WhatIf`. This does not merge personal
+contacts by display name or email, and contacts outside the configured marker
+prefix are excluded from cleanup.
+
+#### Run unattended each week
+
+Run a synchronization script through Windows Task Scheduler or an automation
+host. Use application authentication, for example a certificate available to
+the account running the task:
+
+```powershell
+Import-Module O365Synchronizer
+Connect-MgGraph -TenantId '<tenant-id>' -ClientId '<application-id>' `
+    -CertificateThumbprint '<certificate-thumbprint>' -NoWelcome
+
+Sync-O365PersonalContact -UserId 'user1@contoso.com','user2@contoso.com' `
+    -GuidPrefix 'CompanyDirectory' `
+    -SyncField DisplayName,MobilePhone,BusinessPhones,JobTitle,Manager,Mail `
+    -LogStream Information -PassThru
+```
+
+Set a weekly trigger for that script. The application needs the Microsoft Graph
+permissions listed above with administrator consent; local Windows administrator
+rights alone do not grant access to tenant contacts. Confirm the same script with
+`-WhatIf` under the scheduled-task identity before enabling writes. The module
+does not create or maintain the scheduled task.
+
 #### License requirements & external users
 
 By default, users without assigned licenses are skipped. If you need to include all unlicensed users, use `-DoNotRequireAssignedLicenses`.

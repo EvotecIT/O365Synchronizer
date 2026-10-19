@@ -64,6 +64,17 @@
     DisplayName is the default so Outlook shows the GAL display name instead
     of the Exchange mail alias. Use MailNickname to preserve legacy behavior.
 
+    .PARAMETER SyncField
+    Fields to synchronize. All is the default. Select All on its own or select
+    individual fields. BusinessAddress includes the complete business address.
+    Unselected fields are preserved on existing contacts and omitted on creation.
+    FileAs synchronization identity markers are always maintained.
+
+    .PARAMETER RemoveDuplicateContacts
+    Removes additional managed contact cards with the same source identity in the
+    selected folder. Does not merge unrelated personal contacts by name or email.
+    Use WhatIf to review removal actions first.
+
     .PARAMETER LogStream
     Routes messages to Host (default), Output, Verbose, or Information for this call.
     Use -LogStream Output for Azure Automation without enabling verbose job logging.
@@ -113,8 +124,19 @@
         Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
     }
 
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -SyncField DisplayName,MobilePhone,BusinessPhones,JobTitle,Manager,Mail -WhatIf
+
+    .EXAMPLE
+    Sync-O365PersonalContact -UserId 'user@contoso.com' -GuidPrefix 'O365Synchronizer' -RemoveDuplicateContacts -WhatIf
+
+    .OUTPUTS
+    With PassThru, returns action records describing contact creation, updates,
+    removals and failures. WhatIf previews writes without changing contacts.
+
     .NOTES
-    General notes
+    Repeated trimmed values in synchronized arrays are removed without guessing
+    whether differently formatted phone numbers represent the same number.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -131,6 +153,9 @@
         [HiddenAddressListSource] $HiddenAddressListSource = [HiddenAddressListSource]::Graph,
         [Parameter(Position = 6)][Alias('Categories')][string[]] $Category,
         [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
+        [ValidateSet('All', 'DisplayName', 'GivenName', 'Surname', 'Nickname', 'Mail', 'MobilePhone', 'HomePhone', 'BusinessPhones', 'CompanyName', 'Department', 'JobTitle', 'Manager', 'BusinessAddress', 'Categories')]
+        [string[]] $SyncField = @('All'),
+        [switch] $RemoveDuplicateContacts,
         [switch] $PassThru,
         [ValidateSet('Host', 'Output', 'Verbose', 'Information')][string] $LogStream = 'Host'
     )
@@ -148,6 +173,7 @@
         }
     }
 
+    $null = Resolve-O365PersonalContactSyncFields -SyncField $SyncField
     Initialize-DefaultValuesO365
     if ($ExcludeHiddenFromAddressList -and $HiddenAddressListSource -eq [HiddenAddressListSource]::Graph -and $MemberTypes -contains 'Contact') {
         Write-Warning 'ExcludeHiddenFromAddressList with HiddenAddressListSource Graph applies only to user objects. Microsoft Graph org contacts do not expose an equivalent hidden-from-address-list property.'
@@ -179,7 +205,7 @@
             return
         }
         # Lets get all contacts of given person and cache them
-        $ExistingContacts = Get-O365ExistingUserContacts -UserID $User -GuidPrefix $GuidPrefix -FolderName $FolderName
+        $ExistingContacts = Get-O365ExistingUserContacts -UserID $User -GuidPrefix $GuidPrefix -FolderName $FolderName -IncludeDuplicates:$RemoveDuplicateContacts
         if ($ExistingContacts -eq $false) {
             continue
         }
@@ -192,6 +218,7 @@
             RequireEmailAddress = $RequireEmailAddress.IsPresent
             GuidPrefix         = $GuidPrefix
             NicknameSource     = $NicknameSource
+            SyncField          = $SyncField
             WhatIf             = $WhatIfPreference
         }
         if ($PSBoundParameters.ContainsKey('Category')) {

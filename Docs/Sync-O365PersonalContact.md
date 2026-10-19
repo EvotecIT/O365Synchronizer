@@ -11,7 +11,7 @@ Synchronizes Users, Contacts and Guests to Personal Contacts of given user.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Sync-O365PersonalContact [[-Filter] <scriptblock>] [[-UserId] <string[]>] [[-MemberTypes] <string[]>] [[-GuidPrefix] <string>] [[-FolderName] <string>] [[-IncludeExternalUsers] <string[]>] [[-Category] <string[]>] [-RequireEmailAddress] [-DoNotRequireAccountEnabled] [-DoNotRequireAssignedLicenses] [-ExcludeHiddenFromAddressList] [-HiddenAddressListSource <HiddenAddressListSource>] [-NicknameSource <string>] [-PassThru] [-LogStream <string>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Sync-O365PersonalContact [[-Filter] <scriptblock>] [[-UserId] <string[]>] [[-MemberTypes] <string[]>] [[-GuidPrefix] <string>] [[-FolderName] <string>] [[-IncludeExternalUsers] <string[]>] [[-Category] <string[]>] [-RequireEmailAddress] [-DoNotRequireAccountEnabled] [-DoNotRequireAssignedLicenses] [-ExcludeHiddenFromAddressList] [-HiddenAddressListSource <HiddenAddressListSource>] [-NicknameSource <string>] [-SyncField <string[]>] [-RemoveDuplicateContacts] [-PassThru] [-LogStream <string>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -95,6 +95,18 @@ PS > Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -
 PS > Sync-O365PersonalContact -UserId 'user@contoso.com' -MemberTypes 'Member' -PassThru {
     Sync-O365PersonalContactFilter -Type Include -Property 'OnPremisesExtensionAttributes.ExtensionAttribute5' -Value @('MYFILTER') -Operator 'Equal'
 }
+```
+
+
+### EXAMPLE 12
+```powershell
+PS > Sync-O365PersonalContact -UserId 'user@contoso.com' -SyncField DisplayName,MobilePhone,BusinessPhones,JobTitle,Manager,Mail -WhatIf
+```
+
+
+### EXAMPLE 13
+```powershell
+PS > Sync-O365PersonalContact -UserId 'user@contoso.com' -GuidPrefix 'O365Synchronizer' -RemoveDuplicateContacts -WhatIf
 ```
 
 
@@ -327,6 +339,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -RemoveDuplicateContacts
+Removes additional managed contact cards with the same source identity in the
+selected folder. Does not merge unrelated personal contacts by name or email.
+Use WhatIf to review removal actions first.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -RequireEmailAddress
 Sync only users that have email address.
 
@@ -339,6 +369,25 @@ Possible values:
 Required: False
 Position: named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SyncField
+Fields to synchronize. All is the default. Select All on its own or select
+individual fields. BusinessAddress includes the complete business address.
+Unselected fields are preserved on existing contacts and omitted on creation.
+FileAs synchronization identity markers are always maintained.
+
+```yaml
+Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: All, DisplayName, GivenName, Surname, Nickname, Mail, MobilePhone, HomePhone, BusinessPhones, CompanyName, Department, JobTitle, Manager, BusinessAddress, Categories
+
+Required: False
+Position: named
+Default value: @('All')
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -368,7 +417,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-- `None`
+- `With PassThru, returns action records describing contact creation, updates,%25u000Aremovals and failures. WhatIf previews writes without changing contacts.`
 
 ## RELATED LINKS
 

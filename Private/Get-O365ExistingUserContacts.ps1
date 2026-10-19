@@ -13,6 +13,9 @@
     .PARAMETER GuidPrefix
     Optional prefix used to identify synchronized contacts.
 
+    .PARAMETER IncludeDuplicates
+    Retains extra managed cards for explicit duplicate cleanup.
+
     .PARAMETER FolderName
     Optional folder name to scope the query.
     #>
@@ -20,7 +23,8 @@
     param(
         [string] $UserID,
         [string] $GuidPrefix,
-        [string] $FolderName
+        [string] $FolderName,
+        [switch] $IncludeDuplicates
     )
     # Lets get all contacts of given person and cache them
     $ExistingContacts = [ordered] @{}
@@ -68,7 +72,13 @@
         }
 
         $Entry = [string]::Concat($Contact.FileAs)
-        $ExistingContacts[$Entry] = $Contact
+        if ($IncludeDuplicates -and $ExistingContacts.Contains($Entry)) {
+            if ($ExistingContacts[$Entry].Id -ne $Contact.Id) {
+                $ExistingContacts["Duplicate:$($Contact.Id)"] = $Contact
+            }
+        } else {
+            $ExistingContacts[$Entry] = $Contact
+        }
     }
 
     Write-O365Log -Text "[i] ", "User ", $UserId, " has ", $CurrentContacts.Count, " contacts, out of which ", $ExistingContacts.Count, " synchronized." -Color Yellow, White, Cyan, White, Cyan, White, Cyan, White

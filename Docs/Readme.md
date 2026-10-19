@@ -2,7 +2,7 @@
 Module Name: O365Synchronizer
 Module Guid: 81e907a0-a475-4d6a-a80d-20e9f08ad6b7
 Download Help Link: https://github.com/EvotecIT/O365Synchronizer
-Help Version: 1.0.6
+Help Version: 1.0.7
 Locale: en-US
 ---
 # O365Synchronizer Module
