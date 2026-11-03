@@ -5,7 +5,8 @@
 
     .DESCRIPTION
     Compares existing personal contacts with current users and removes
-    contacts that are no longer synchronized.
+    contacts that are no longer synchronized, plus extra managed cards explicitly
+    retained for duplicate cleanup.
 
     .PARAMETER ToPotentiallyRemove
     Reserved list of contacts to remove (not currently used).
@@ -29,7 +30,7 @@
     foreach ($ContactID in $ExistingContacts.Keys) {
         $Contact = $ExistingContacts[$ContactID]
         $Entry = $Contact.FileAs
-        if ($ExistingUsers[$Entry]) {
+        if ($ExistingUsers[$Entry] -and $ContactID -eq $Entry) {
 
         } else {
             Write-O365Log -Text "[x] ", "Removing (not required) ", $Contact.DisplayName -Color Yellow, White, Red, White, Red
@@ -54,7 +55,7 @@
                 Mail        = $Contact.Mail
                 Skip        = ''
                 Update      = ''
-                Details     = 'Not required'
+                Details     = if ($ExistingUsers[$Entry]) { 'Duplicate managed contact' } else { 'Not required' }
                 Error       = $ErrorMessage
             }
             $OutputObject

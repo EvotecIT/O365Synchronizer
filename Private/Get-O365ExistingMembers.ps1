@@ -121,7 +121,7 @@
                 All         = $true
                 ErrorAction = 'Stop'
             }
-            if ($Script:MappingContactToUser -and $Script:MappingContactToUser.Contains('Manager')) {
+            if ($ODataFilters.Count -eq 0 -and $Script:MappingContactToUser -and $Script:MappingContactToUser.Contains('Manager')) {
                 $getMgUserSplat['ExpandProperty'] = 'Manager'
             }
             if ($ODataFilters.Count -gt 0) {
@@ -137,7 +137,10 @@
                     $getMgUserSplat['PageSize'] = $ODataPageSize
                 }
             }
-            $Users = Get-MgUser @getMgUserSplat
+            $Users = @(Get-MgUser @getMgUserSplat)
+            if ($ODataFilters.Count -gt 0 -and $Script:MappingContactToUser.Contains('Manager')) {
+                $Users = @(Complete-O365UserManagers -Users @($Users))
+            }
         } catch {
             Write-O365Log -Text "[e] ", "Failed to get users. ", "Error: $($_.Exception.Message)" -Color Red, White, Red
             return $false

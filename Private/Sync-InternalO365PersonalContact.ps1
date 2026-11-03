@@ -31,6 +31,9 @@
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
 
+    .PARAMETER SyncField
+    Fields managed by synchronization. Unselected fields are preserved.
+
     .PARAMETER NicknameSource
     Directory property used for the personal contact nickname.
     #>
@@ -44,7 +47,8 @@
         [System.Collections.IDictionary] $ExistingUsers,
         [System.Collections.IDictionary] $ExistingContacts,
         [string[]] $Category,
-        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
+        [string[]] $SyncField = @('All')
     )
     $ListActions = [System.Collections.Generic.List[object]]::new()
     foreach ($UsersInternalID in $ExistingUsers.Keys) {
@@ -64,6 +68,7 @@
                 User    = $User
                 Contact = $Contact
                 NicknameSource = $NicknameSource
+                SyncField = $SyncField
             }
             if ($FolderInformation -and $FolderInformation.Id) {
                 $setInternalSplat['FolderId'] = [string] $FolderInformation.Id
@@ -82,6 +87,7 @@
                 RequireEmailAddress = $RequireEmailAddress
                 FolderInformation  = $FolderInformation
                 NicknameSource     = $NicknameSource
+                SyncField          = $SyncField
             }
             if ($PSBoundParameters.ContainsKey('Category')) {
                 $newInternalSplat['Category'] = $Category

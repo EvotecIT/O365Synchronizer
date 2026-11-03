@@ -16,6 +16,9 @@
     .PARAMETER Contact
     Existing personal contact from the user's mailbox.
 
+    .PARAMETER SyncField
+    Fields managed by synchronization. Unselected fields are preserved.
+
     .PARAMETER NicknameSource
     Directory property used for the personal contact nickname. DisplayName is
     the default; MailNickname preserves the legacy behavior.
@@ -25,8 +28,10 @@
         [string] $UserID,
         [PSCustomObject] $ExistingContactGAL,
         [PSCustomObject] $Contact,
-        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
+        [string[]] $SyncField = @('All')
     )
+    $Fields = @(Resolve-O365PersonalContactSyncFields -SyncField $SyncField)
     $AddressProperties = 'City', 'State', 'Street', 'PostalCode', 'Country'
     if ($Contact.PSObject.Properties.Name -contains 'MailNickName') {
         $TranslatedContact = $Contact
@@ -49,12 +54,15 @@
     $SkippedProperties = [System.Collections.Generic.List[string]]::new()
     $UpdateProperties = [System.Collections.Generic.List[string]]::new()
     foreach ($Property in $Script:MappingContactToUser.Keys) {
+        if ($Fields -notcontains $Property) {
+            continue
+        }
         if (-not ($ExistingContactGAL.PSObject.Properties.Name -contains $Property)) {
             continue
         }
         if ($Property -in 'BusinessPhones', 'HomePhone', 'Mail') {
             $SourceValues = ConvertTo-CleanContactArray -Values $ExistingContactGAL.$Property
-            $ContactValues = ConvertTo-CleanContactArray -Values $TranslatedContact.$Property
+            $ContactValues = ConvertTo-CleanContactArray -Values $TranslatedContact.$Property -PreserveDuplicates
             $SourceValues = if ($null -eq $SourceValues) { @() } else { @($SourceValues) }
             $ContactValues = if ($null -eq $ContactValues) { @() } else { @($ContactValues) }
             $Different = $SourceValues.Count -ne $ContactValues.Count
@@ -92,7 +100,9 @@
     } else {
         ''
     }
-    if ($DesiredNickname -ne $ExistingNickname) {
+    if ($Fields -notcontains 'Nickname') {
+        # The nickname remains outside this synchronization policy.
+    } elseif ($DesiredNickname -ne $ExistingNickname) {
         $UpdateProperties.Add('NickName')
     } else {
         $SkippedProperties.Add('NickName')

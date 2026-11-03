@@ -18,19 +18,12 @@ function Get-O365ManagerName {
     $ManagerName = $null
     if ($Manager -is [string]) {
         $ManagerName = $Manager
-    } elseif ($Manager.PSObject.Properties.Name -contains 'DisplayName') {
-        $ManagerName = $Manager.DisplayName
-    } elseif ($Manager.PSObject.Properties.Name -contains 'AdditionalProperties') {
-        $Additional = $Manager.AdditionalProperties
-        if ($Additional) {
-            if ($Additional.ContainsKey('displayName')) {
-                $ManagerName = $Additional['displayName']
-            } elseif ($Additional.ContainsKey('DisplayName')) {
-                $ManagerName = $Additional['DisplayName']
-            } elseif ($Additional.ContainsKey('userPrincipalName')) {
-                $ManagerName = $Additional['userPrincipalName']
-            } elseif ($Additional.ContainsKey('UserPrincipalName')) {
-                $ManagerName = $Additional['UserPrincipalName']
+    } else {
+        foreach ($Candidate in @($Manager.DisplayName, $Manager.UserPrincipalName,
+            $Manager.AdditionalProperties.displayName, $Manager.AdditionalProperties.userPrincipalName)) {
+            if (-not [string]::IsNullOrWhiteSpace($Candidate)) {
+                $ManagerName = $Candidate
+                break
             }
         }
     }

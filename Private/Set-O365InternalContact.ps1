@@ -22,6 +22,9 @@
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
 
+    .PARAMETER SyncField
+    Fields managed by synchronization. Unselected fields are preserved.
+
     .PARAMETER NicknameSource
     Directory property used for the personal contact nickname.
     #>
@@ -32,12 +35,14 @@
         [PSCustomObject] $Contact,
         [string] $FolderId,
         [string[]] $Category,
-        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
+        [string[]] $SyncField = @('All')
     )
 
-    $OutputObject = Compare-UserToContact -ExistingContactGAL $User -Contact $Contact -UserID $UserID -NicknameSource $NicknameSource
+    $Fields = @(Resolve-O365PersonalContactSyncFields -SyncField $SyncField)
+    $OutputObject = Compare-UserToContact -ExistingContactGAL $User -Contact $Contact -UserID $UserID -NicknameSource $NicknameSource -SyncField $SyncField
     $CategoriesClean = $null
-    if ($PSBoundParameters.ContainsKey('Category')) {
+    if ($Fields -contains 'Categories' -and $PSBoundParameters.ContainsKey('Category')) {
         $CategoriesClean = ConvertTo-CleanContactArray -Values $Category
         $RequestedCategories = @()
         if ($null -ne $CategoriesClean) {
@@ -45,9 +50,9 @@
         }
         $ExistingCategories = @()
         if ($Contact.PSObject.Properties.Name -contains 'Categories') {
-            $ExistingCategories = ConvertTo-CleanContactArray -Values $Contact.Categories
+            $ExistingCategories = ConvertTo-CleanContactArray -Values $Contact.Categories -PreserveDuplicates
             if ($null -ne $ExistingCategories) {
-                $ExistingCategories = $ExistingCategories | Sort-Object -Unique
+                $ExistingCategories = $ExistingCategories | Sort-Object
             } else {
                 $ExistingCategories = @()
             }
@@ -83,9 +88,15 @@
                 $PropertiesToUpdate[$PropName] = $User.$Property
             }
         }
-        if (-not $PropertiesToUpdate.Contains('DisplayName') -and -not [string]::IsNullOrEmpty($User.DisplayName)) {
+        if (-not $PropertiesToUpdate.Contains('DisplayName')) {
             # Graph can regenerate displayName when other contact properties change.
-            $PropertiesToUpdate['DisplayName'] = $User.DisplayName
+            if ($Fields -contains 'DisplayName' -and -not [string]::IsNullOrEmpty($User.DisplayName)) {
+                $PropertiesToUpdate['DisplayName'] = $User.DisplayName
+            } elseif ($Fields -notcontains 'DisplayName' -and $Contact.PSObject.Properties.Name -contains 'DisplayName') {
+                $PropertiesToUpdate['DisplayName'] = $Contact.DisplayName
+            } elseif ($PropertiesToUpdate.Contains('GivenName') -or $PropertiesToUpdate.Contains('Surname')) {
+                throw 'The existing contact display name is required to preserve it during a name-only update.'
+            }
         }
         if (-not [string]::IsNullOrEmpty($FolderId)) {
             $PropertiesToUpdate['ParentFolderId'] = $FolderId

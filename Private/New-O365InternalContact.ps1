@@ -24,6 +24,9 @@
     .PARAMETER Category
     Categories assigned to synchronized personal contacts.
 
+    .PARAMETER SyncField
+    Fields managed by synchronization. Unselected fields are preserved.
+
     .PARAMETER NicknameSource
     Directory property used for the personal contact nickname.
     #>
@@ -35,8 +38,10 @@
         [switch] $RequireEmailAddress,
         [object] $FolderInformation,
         [string[]] $Category,
-        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName'
+        [ValidateSet('DisplayName', 'MailNickname')][string] $NicknameSource = 'DisplayName',
+        [string[]] $SyncField = @('All')
     )
+    $Fields = @(Resolve-O365PersonalContactSyncFields -SyncField $SyncField)
     if ($RequireEmailAddress) {
         if (-not $User.Mail) {
             #Write-Verbose -Message "Skipping $($User.DisplayName) because they have no email address"
@@ -60,10 +65,14 @@
     }
     $PropertiesToUpdate = [ordered] @{}
     foreach ($Property in $Script:MappingContactToUser.Keys) {
-        $PropertiesToUpdate[$Property] = $User.$Property
+        if ($Fields -contains $Property) {
+            $PropertiesToUpdate[$Property] = $User.$Property
+        }
     }
-    $PropertiesToUpdate['NickName'] = Resolve-O365PersonalContactNickname -SourceObject $User -NicknameSource $NicknameSource
-    if ($PSBoundParameters.ContainsKey('Category')) {
+    if ($Fields -contains 'Nickname') {
+        $PropertiesToUpdate['NickName'] = Resolve-O365PersonalContactNickname -SourceObject $User -NicknameSource $NicknameSource
+    }
+    if ($Fields -contains 'Categories' -and $PSBoundParameters.ContainsKey('Category')) {
         $CategoriesClean = ConvertTo-CleanContactArray -Values $Category
         if ($null -ne $CategoriesClean) {
             $PropertiesToUpdate['Categories'] = $CategoriesClean
